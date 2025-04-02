@@ -19,6 +19,47 @@
 - **File Uploads**: Supabase Storage
 - **Icons**: React Icons, FontAwesome
 - **UI**: Headless UI
+
+<h2>📸 Screenshots</h2>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="./public/Login.png" width="300"/><br/>
+      <strong>Login Page</strong>
+    </td>
+    <td align="center">
+      <img src="./public/Dash.png" width="300"/><br/>
+      <strong>Dashboard</strong>
+    </td>
+    <td align="center">
+      <img src="./public/Calendar.png" width="300"/><br/>
+      <strong>Calendar</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./public/ListView.png" width="300"/><br/>
+      <strong>Project List View</strong>
+    </td>
+    <td align="center">
+      <img src="./public/FlowView.png" width="300"/><br/>
+      <strong>Project Flow View</strong>
+    </td>
+    <td align="center">
+      <img src="./public/NewProjectModal.png" width="300"/><br/>
+      <strong>New Project Modal</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./public/Inventory.png" width="300"/><br/>
+      <strong>Inventory Manager</strong>
+    </td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
   
 ## Getting Started
 
