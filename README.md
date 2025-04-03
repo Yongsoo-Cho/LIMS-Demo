@@ -1,6 +1,6 @@
 # 🧪 LabGoat
 
-**LabGoat** is a modern, extensible Laboratory Information Management System (LIMS) designed specifically for iGEM teams. It streamlines wet lab logistics, protocol tracking, project management, and inventory—all with a clean UI and Supabase integration. This is a development copy as more features will be built on including:
+**LabGoat** is a modern, extensible Laboratory Information Management System (LIMS) designed specifically for iGEM teams. It streamlines wet lab logistics, protocol tracking, project management, and inventory—all with a clean UI and Supabase integration. This is an early development version branched from McMasterU's iGEM cycle, created with the goal of improving generalizability. Features planned for this public release include:
 
 ## 🚀 Features
 
@@ -8,7 +8,6 @@
 - 🧫 **Protocol Flow Builder** – Drag-and-drop workflows for lab pipelines
 - 🗃️ **Dynamic Supplies Table** with CSV upload, search, edit mode, and export
 - 📊 **Project Tracker** with status tags, due dates, and assignees
-- 📈 **Built-in Role Management** (planned)
 - 📈 **Mobile Build** (planned)
 
 ## 🏗️ Tech Stack
