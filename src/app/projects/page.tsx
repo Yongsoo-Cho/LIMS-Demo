@@ -7,35 +7,52 @@ import { Project } from "../types/project";
 import ProjectList from "../components/ui/projects/ProjectList";
 import ProjectFlow from "../components/ui/projects/ProjectFlow";
 import NewProjectModal from "../components/ui/projects/modals/NewProjectModal";
-
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    name: "Find a lab space",
-    description: "Reach out to the BI and beg.",
-    status: "In Progress",
-    assignees: ["Binjal P", "Bogdana B", "Alice P", "Arnica K"],
-    due_date: "2025-04-15",
-  },
-  {
-    id: "2",
-    name: "Make Competent Cells",
-    description: "The only thing I know we need to do when we go in lab.",
-    status: "Planning",
-    assignees: ["Lavan C", "Bohmie S"],
-    due_date: "2025-04-30",
-  },
-];
+import { supabase } from "../config/supabaseClient";
+import { useCachedFetch } from "../hooks/useCachedFetch";
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"list" | "flow">("list");
+
+  const {
+    data: projects,
+    loading: loadingProjects,
+    refetch: refetchProjects,
+  } = useCachedFetch<Project[]>("cached_projects", async () => {
+    const { data, error } = await supabase.from("projects").select("*");
+    if (error) throw error;
+    return data;
+  });
+
+  const {
+    data: profileData,
+    loading: loadingProfiles,
+    refetch: refetchProfiles,
+  } = useCachedFetch<Record<string, string>>("cached_profiles", async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, display_name");
+    if (error) throw error;
+    const profileMap: Record<string, string> = {};
+    for (const profile of data || []) {
+      profileMap[profile.id] = profile.display_name;
+    }
+    return profileMap;
+  });
+
+  const loading = loadingProjects || loadingProfiles;
 
   return (
     <AuthLayout>
       <main className="flex flex-col gap-8 w-full max-w-7xl mx-auto p-6">
-        <NewProjectModal isOpen={isOpen} setIsOpen={setIsOpen} />
+        <NewProjectModal
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          onSuccess={() => {
+            refetchProjects();
+            refetchProfiles();
+          }}
+        />
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-3xl font-bold text-gray-900">Project Tracker</h1>
@@ -63,10 +80,18 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {viewMode === "list" ? (
-          <ProjectList projects={projects} />
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="h-6 w-6 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          </div>
+        ) : viewMode === "list" ? (
+          <ProjectList
+            projects={projects || []}
+            profiles={profileData || {}}
+            refetchProjects={refetchProjects}
+          />
         ) : (
-          <ProjectFlow />
+          <ProjectFlow projects={projects || []} profiles={profileData || {}} />
         )}
       </main>
     </AuthLayout>

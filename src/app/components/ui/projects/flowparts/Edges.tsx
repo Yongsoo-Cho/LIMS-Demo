@@ -1,8 +1,8 @@
-import type { Edge } from '@xyflow/react';
-import type { Project } from '@/app/types/project';
+import type { Edge } from "@xyflow/react";
+import type { Project } from "@/app/types/project";
 
 export const generateEdgesFromProjects = (
-  projects: (Project & { x: number; y: number; next?: string[] })[]
+  projects: (Project & { x: number; y: number; next?: string[] })[],
 ): Edge[] => {
   const edges: Edge[] = [];
 
@@ -13,9 +13,9 @@ export const generateEdgesFromProjects = (
           id: `e-${project.id}-${targetId}`,
           source: project.id,
           target: targetId,
-          label: 'Next Step',
-          style: { stroke: '#cbd5e1' },
-          labelStyle: { fill: '#64748b', fontSize: 12 },
+          label: "Next Step",
+          style: { stroke: "#cbd5e1" },
+          labelStyle: { fill: "#64748b", fontSize: 12 },
         });
       }
     }

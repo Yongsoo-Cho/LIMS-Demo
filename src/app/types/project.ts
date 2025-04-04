@@ -5,16 +5,17 @@ export interface Project {
   status: "Planning" | "In Progress" | "Completed";
   assignees: string[];
   due_date: string;
+  coordinates?: [number, number];
 }
 
-export type ProjectAssignee = {
+export type TeamMember = {
   id: string;
   name: string;
 };
 
 export type MultiSelectComboboxProps = {
-  options: ProjectAssignee[];
-  selected: ProjectAssignee[];
-  setSelected: (value: ProjectAssignee[]) => void;
+  options: TeamMember[];
+  selected: TeamMember[];
+  setSelected: (value: TeamMember[]) => void;
   placeholder?: string;
 };

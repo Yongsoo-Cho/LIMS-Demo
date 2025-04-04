@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Project } from "@/app/types/project";
 import { FaUser } from "react-icons/fa";
+import EditProjectModal from "./modals/EditProjectModal";
+import { FaUserEdit } from "react-icons/fa";
 
 const statusColor = {
   Planning: "bg-yellow-100 text-yellow-800",
@@ -10,20 +12,38 @@ const statusColor = {
   Completed: "bg-green-100 text-green-800",
 };
 
-interface Props {
+type ProjectListProps = {
   projects: Project[];
-}
+  profiles: Record<string, string>; // userId -> display_name
+  refetchProjects: () => void;
+};
 
-export default function ProjectList({ projects: initial }: Props) {
-  const [projects, setProjects] = useState<Project[]>(initial);
-
+export default function ProjectList({
+  projects,
+  profiles,
+  refetchProjects,
+}: ProjectListProps) {
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {projects.map((project) => (
         <div
           key={project.id}
-          className="border border-gray-200 rounded-xl shadow-sm p-5 bg-white hover:shadow-md transition flex flex-col justify-between"
+          className="relative border border-gray-200 rounded-xl shadow-sm p-5 bg-white hover:shadow-md transition flex flex-col justify-between"
         >
+          <div className="absolute top-3 right-3">
+            <button
+              onClick={() => {
+                setSelectedProject(project);
+                setEditModalOpen(true);
+              }}
+              className="text-gray-400 hover:text-blue-600 transition"
+              title="Edit Project"
+            >
+              <FaUserEdit className="w-4 h-4" />
+            </button>
+          </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               {project.name}
@@ -37,7 +57,8 @@ export default function ProjectList({ projects: initial }: Props) {
                   key={assignee}
                   className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full"
                 >
-                  <FaUser className="text-gray-500 text-xs" /> {assignee}
+                  <FaUser className="text-gray-500 text-xs" />{" "}
+                  {profiles[assignee]}
                 </span>
               ))}
             </div>
@@ -52,6 +73,19 @@ export default function ProjectList({ projects: initial }: Props) {
           </div>
         </div>
       ))}
+
+      {selectedProject && (
+        <EditProjectModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          project={selectedProject}
+          profiles={Object.entries(profiles).map(([id, name]) => ({
+            id,
+            name,
+          }))}
+          onSave={refetchProjects}
+        />
+      )}
     </div>
   );
 }

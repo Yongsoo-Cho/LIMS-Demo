@@ -1,20 +1,18 @@
+"use client";
+
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import MultiSelectCombobox from "../../MultiSelectCombobox";
 import LabeledInput from "./LabeledInput";
-import { ProjectAssignee } from "@/app/types/project";
+import { TeamMember } from "@/app/types/project";
+import { use, useEffect, useState } from "react";
+import { supabase } from "@/app/config/supabaseClient";
 
 const uploadFields = [
-  { label: "SBOL Upload", type: "file", accept: ".xml,.sbol" },
   { label: "SOP Upload", type: "file", accept: ".pdf,.doc,.docx" },
   {
     label: "Benchling Protocol Link",
     type: "url",
     placeholder: "https://benchling.com/...",
-  },
-  {
-    label: "Google Doc Link",
-    type: "url",
-    placeholder: "https://docs.google.com/...",
   },
 ];
 
@@ -22,8 +20,12 @@ type NewProjectDialogProps = {
   isOpen: boolean;
   projectName: string;
   onChange: (value: string) => void;
-  assignees: ProjectAssignee[];
-  setAssignees: (value: ProjectAssignee[]) => void;
+  assignees: TeamMember[];
+  setAssignees: (value: TeamMember[]) => void;
+  dueDate: string;
+  setDueDate: (value: string) => void;
+  description: string;
+  setDescription: (value: string) => void;
   onClose: () => void;
   onSubmit: () => void;
 };
@@ -34,65 +36,117 @@ export default function NewProjectDialog({
   onChange,
   assignees,
   setAssignees,
+  dueDate,
+  setDueDate,
+  description,
+  setDescription,
   onClose,
   onSubmit,
 }: NewProjectDialogProps) {
+  const [userOptions, setUserOptions] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name");
+
+      if (error) {
+        console.error("Error fetching users", error);
+      } else {
+        const mapped = (data || []).map((user) => ({
+          id: user.id,
+          name: user.display_name,
+        }));
+        setUserOptions(mapped);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" />
       <div className="fixed inset-0 flex w-screen items-center justify-center p-6">
-        <DialogPanel className="w-full max-w-3xl space-y-8 bg-white p-8 md:p-10 rounded-2xl shadow-2xl border border-gray-200">
-          {/* Title */}
-          <DialogTitle as="div">
-            <input
-              type="text"
-              placeholder="Project Name..."
-              value={projectName}
-              onChange={(e) => onChange(e.target.value)}
-              className="w-full rounded-lg px-4 py-3 text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-300 placeholder-gray-400"
-            />
-          </DialogTitle>
+        <DialogPanel className="w-full max-w-3xl space-y-6 bg-white p-6 md:p-8 rounded-2xl shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto">
+          {/* Row: Project Name + Due Date */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Project Name
+              </label>
+              <input
+                type="text"
+                placeholder="Project Name"
+                value={projectName}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+            </div>
 
-          {/* Instructions */}
-          <p className="text-sm text-gray-500">
-            Upload relevant files and links for the protocol execution. All
-            resources will be saved as part of this project.
-          </p>
-
-          {/* Upload Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {uploadFields.map((field, idx) => (
-              <LabeledInput key={idx} {...field} />
-            ))}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Due Date
+              </label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+            </div>
           </div>
-
-          {/* Day in Lab */}
-          <LabeledInput label="Day in Lab" type="date" />
 
           {/* Assignees */}
           <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Assign Team Members
             </label>
             <MultiSelectCombobox
-              options={dummy}
+              options={userOptions}
               selected={assignees}
               setSelected={setAssignees}
               placeholder="Search team members..."
             />
           </div>
 
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              placeholder="Short project description..."
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm resize-none"
+            />
+          </div>
+
+          {/* Uploads */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Resources & Links
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {uploadFields.map((field, idx) => (
+                <LabeledInput key={idx} {...field} />
+              ))}
+            </div>
+          </div>
+
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 pt-6">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <button
               onClick={onClose}
-              className="px-5 py-2 rounded-md border text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
+              className="px-4 py-2 rounded-md border text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               onClick={onSubmit}
-              className="px-5 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm"
+              className="px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
             >
               Submit
             </button>
