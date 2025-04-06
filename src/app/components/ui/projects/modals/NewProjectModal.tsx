@@ -62,9 +62,7 @@ export default function NewProjectModal({
     };
     console.log(newProject);
 
-    const { data, error } = await supabase
-      .from("projects")
-      .insert([newProject]);
+    const { error } = await supabase.from("projects").insert([newProject]);
     if (error) {
       alert(`Error creating project: ${error.message}`);
       console.error("Supabase insert error:", error);

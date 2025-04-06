@@ -1,5 +1,5 @@
 import { Project } from "@/app/types/project";
-import { useDnD } from "./DnDContext";
+//import { useDnD } from "./DnDContext";
 import type { DragEvent as ReactDragEvent } from "react";
 
 interface SidebarProps {

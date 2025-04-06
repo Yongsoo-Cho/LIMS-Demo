@@ -17,7 +17,7 @@ export default function TablePreviewModal({
         </h3>
         <p className="text-sm text-gray-600 mb-4">
           Review the data below before confirming. If it looks correct, click
-          "Apply".
+          Apply.
         </p>
         <div className="flex justify-end gap-4">
           <button

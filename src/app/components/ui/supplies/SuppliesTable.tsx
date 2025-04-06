@@ -9,13 +9,16 @@ import {
   toggleSetItem,
 } from "@/app/utils/tableUtils";
 
-interface SuppliesTableProps {
-  data: any[];
-  setData: (data: any[]) => void;
+interface SuppliesTableProps<T extends { id: string }> {
+  data: T[];
+  setData: (data: T[]) => void;
 }
 
-export default function SuppliesTable({ data, setData }: SuppliesTableProps) {
-  const [sortKey, setSortKey] = useState<string>("");
+export default function SuppliesTable<T extends { id: string }>({
+  data,
+  setData,
+}: SuppliesTableProps<T>) {
+  const [sortKey, setSortKey] = useState<keyof T | "">("");
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -23,14 +26,14 @@ export default function SuppliesTable({ data, setData }: SuppliesTableProps) {
 
   const columns = Array.from(
     new Set(data.flatMap((item) => Object.keys(item))),
-  );
+  ) as (keyof T)[];
 
-  const filteredData = filterData(data, searchQuery);
+  const filteredData = filterData<T>(data, searchQuery);
   const sortedData = sortKey
-    ? sortData(filteredData, sortKey, sortAsc)
+    ? sortData<T>(filteredData, sortKey, sortAsc)
     : filteredData;
 
-  const handleSort = (key: string) => {
+  const handleSort = (key: keyof T) => {
     if (sortKey === key) {
       setSortAsc(!sortAsc);
     } else {
@@ -52,16 +55,21 @@ export default function SuppliesTable({ data, setData }: SuppliesTableProps) {
   };
 
   const exportCSV = () => {
-    const csv = getCSV(data, columns);
+    const csv = getCSV<T>(data, columns);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     saveAs(blob, "supplies_export.csv");
   };
 
-  const handleChange = (id: string, key: string, value: string) => {
+  const handleChange = (id: string, key: keyof T, value: string) => {
     setData(
       data.map((item) =>
         item.id === id
-          ? { ...item, [key]: isNaN(Number(value)) ? value : Number(value) }
+          ? {
+              ...item,
+              [key]: isNaN(Number(value))
+                ? value
+                : (Number(value) as T[keyof T]),
+            }
           : item,
       ),
     );
@@ -91,14 +99,12 @@ export default function SuppliesTable({ data, setData }: SuppliesTableProps) {
             Export CSV
           </button>
           {editMode && (
-            <>
-              <button
-                onClick={toggleSelectAll}
-                className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-1.5 rounded-md border border-gray-300 shadow-sm"
-              >
-                {selected.size === data.length ? "Unselect All" : "Select All"}
-              </button>
-            </>
+            <button
+              onClick={toggleSelectAll}
+              className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-1.5 rounded-md border border-gray-300 shadow-sm"
+            >
+              {selected.size === data.length ? "Unselect All" : "Select All"}
+            </button>
           )}
         </div>
       </div>
@@ -110,11 +116,11 @@ export default function SuppliesTable({ data, setData }: SuppliesTableProps) {
               {editMode && <th className="px-2">#</th>}
               {columns.map((col) => (
                 <th
-                  key={col}
+                  key={String(col)}
                   onClick={() => handleSort(col)}
                   className="px-4 py-2 whitespace-nowrap cursor-pointer hover:underline"
                 >
-                  {col} {sortKey === col ? (sortAsc ? "↑" : "↓") : ""}
+                  {String(col)} {sortKey === col ? (sortAsc ? "↑" : "↓") : ""}
                 </th>
               ))}
             </tr>
@@ -133,19 +139,19 @@ export default function SuppliesTable({ data, setData }: SuppliesTableProps) {
                 )}
                 {columns.map((col) => (
                   <td
-                    key={col}
+                    key={String(col)}
                     className="px-4 py-2 text-gray-700 whitespace-nowrap"
                   >
                     {editMode ? (
                       <input
                         className="w-full border px-2 py-1 rounded"
-                        value={item[col] ?? ""}
+                        value={String(item[col] ?? "")}
                         onChange={(e) =>
                           handleChange(item.id, col, e.target.value)
                         }
                       />
                     ) : (
-                      (item[col] ?? "-")
+                      <>{String(item[col] ?? "-")}</>
                     )}
                   </td>
                 ))}

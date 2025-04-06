@@ -1,10 +1,10 @@
 "use client";
 
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { Dialog, DialogPanel } from "@headlessui/react";
 import MultiSelectCombobox from "../../MultiSelectCombobox";
 import LabeledInput from "./LabeledInput";
 import { TeamMember } from "@/app/types/project";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/app/config/supabaseClient";
 
 const uploadFields = [
@@ -156,10 +156,3 @@ export default function NewProjectDialog({
     </Dialog>
   );
 }
-
-const dummy = [
-  { id: "1", name: "Yongsoo" },
-  { id: "2", name: "Mike" },
-  { id: "3", name: "Cho" },
-  { id: "4", name: "Miek" },
-];

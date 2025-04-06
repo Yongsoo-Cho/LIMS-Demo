@@ -7,6 +7,7 @@ const isCacheValid = (timestamp: string | null, maxAgeMinutes: number) => {
   const diffInMinutes = (now - saved) / (1000 * 60);
   return diffInMinutes < maxAgeMinutes;
 };
+
 export function useCachedFetch<T>(
   key: string,
   fetchFn: () => Promise<T | null>,
@@ -14,12 +15,12 @@ export function useCachedFetch<T>(
 ): {
   data: T | null;
   loading: boolean;
-  error: any;
+  error: Error | null;
   refetch: () => Promise<void>;
 } {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const refetch = async () => {
     setLoading(true);
@@ -32,7 +33,7 @@ export function useCachedFetch<T>(
       }
     } catch (err) {
       console.error("Fetch error:", err);
-      setError(err);
+      setError(err as Error);
     }
     setLoading(false);
   };

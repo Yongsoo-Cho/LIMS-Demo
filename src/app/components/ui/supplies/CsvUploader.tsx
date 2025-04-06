@@ -2,11 +2,13 @@
 
 import { ChangeEvent } from "react";
 
-interface CsvUploaderProps {
-  onUpload: (data: any[]) => void;
+interface CsvUploaderProps<T> {
+  onUpload: (data: T[]) => void;
 }
 
-export default function CsvUploader({ onUpload }: CsvUploaderProps) {
+export default function CsvUploader<T extends Record<string, string | number>>({
+  onUpload,
+}: CsvUploaderProps<T>) {
   const handleCSVUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -19,12 +21,12 @@ export default function CsvUploader({ onUpload }: CsvUploaderProps) {
 
       const parsedData = rows.slice(1).map((row, idx) => {
         const values = row.split(",").map((v) => v.trim());
-        const entry: any = { id: `csv-${idx}` };
+        const entry: Record<string, string | number> = { id: `csv-${idx}` };
         headers.forEach((header, i) => {
           const value = values[i];
           entry[header] = isNaN(Number(value)) ? value : Number(value);
         });
-        return entry;
+        return entry as T;
       });
 
       onUpload(parsedData);

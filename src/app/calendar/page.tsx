@@ -7,7 +7,7 @@ import { DayPicker } from "react-day-picker";
 import { supabase } from "../config/supabaseClient";
 import { Project } from "../types/project";
 import "react-day-picker/dist/style.css";
-import { TeamMember } from "../types/project";
+//import { TeamMember } from "../types/project";
 import { useCachedFetch } from "../hooks/useCachedFetch";
 
 export default function CalendarPage() {
