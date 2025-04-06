@@ -10,7 +10,7 @@ import NewProjectModal from "../components/ui/projects/modals/NewProjectModal";
 import { supabase } from "../config/supabaseClient";
 import { useCachedFetch } from "../hooks/useCachedFetch";
 
-import '@xyflow/react/dist/style.css';
+import "@xyflow/react/dist/style.css";
 
 export default function ProjectsPage() {
   const [isOpen, setIsOpen] = useState<boolean>(false);

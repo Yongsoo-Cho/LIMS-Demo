@@ -20,9 +20,13 @@ import DownloadButton from "./DownloadButton";
 
 type InnerFlowProps = {
   projects: Project[];
+  profiles: Record<string, string>;
 };
 
-export default function InnerProjectFlow({ projects }: InnerFlowProps) {
+export default function InnerProjectFlow({
+  projects,
+  profiles,
+}: InnerFlowProps) {
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -30,7 +34,7 @@ export default function InnerProjectFlow({ projects }: InnerFlowProps) {
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    []
+    [],
   );
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -47,25 +51,30 @@ export default function InnerProjectFlow({ projects }: InnerFlowProps) {
 
       const position = screenToFlowPosition({
         x: event.clientX,
-        y: event.clientY
+        y: event.clientY,
       });
 
       const project = projects.find((p) => p.id == projectId);
       if (!project) return;
 
-      const newNode = transformProjectToNode({
-        ...project,
-        coordinates: [position.x, position.y]
-      });
+      const newNode = transformProjectToNode(
+        {
+          ...project,
+          coordinates: [position.x, position.y],
+        },
+        profiles,
+      );
 
       setNodes((nds) => [...nds, newNode]);
     },
-    [projects, nodes, screenToFlowPosition]
+    [projects, nodes, screenToFlowPosition],
   );
 
   useEffect(() => {
     const placedProjects = projects.filter((p) => p.coordinates !== null);
-    const placedNodes = placedProjects.map(transformProjectToNode);
+    const placedNodes = placedProjects.map((p) =>
+      transformProjectToNode(p, profiles),
+    );
     setNodes(placedNodes);
   }, [projects]);
 

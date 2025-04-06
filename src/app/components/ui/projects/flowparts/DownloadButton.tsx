@@ -30,11 +30,11 @@ export default function DownloadButton() {
       imageHeight,
       0.5,
       2,
-      0.1
+      0.1,
     );
 
     const viewportEl = document.querySelector(
-      ".react-flow__viewport"
+      ".react-flow__viewport",
     ) as HTMLElement | null;
 
     if (!viewportEl) {

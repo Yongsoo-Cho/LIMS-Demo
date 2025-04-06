@@ -7,14 +7,14 @@ import InnerProjectFlow from "./flowparts/InnerProjectFlow";
 
 type ProjectFlowProps = {
   projects: Project[];
-  profiles?: Record<string, string>;
+  profiles: Record<string, string>;
 };
 
-export default function ProjectFlow({ projects }: ProjectFlowProps) {
+export default function ProjectFlow({ projects, profiles }: ProjectFlowProps) {
   return (
     <ReactFlowProvider>
       <DnDProvider>
-        <InnerProjectFlow projects={projects} />
+        <InnerProjectFlow projects={projects} profiles={profiles} />
       </DnDProvider>
     </ReactFlowProvider>
   );

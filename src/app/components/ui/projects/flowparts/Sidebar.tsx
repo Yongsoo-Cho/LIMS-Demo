@@ -11,9 +11,8 @@ export default function Sidebar({ projects }: SidebarProps) {
 
   const onDragStart = (
     event: ReactDragEvent<HTMLLIElement>,
-    projectId: string
+    projectId: string,
   ) => {
-    // setType("default"); // still setting in case you want to support typed nodes later
     event.dataTransfer.setData("application/project-id", projectId);
     event.dataTransfer.effectAllowed = "move";
   };

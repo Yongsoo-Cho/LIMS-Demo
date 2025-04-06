@@ -7,10 +7,13 @@ export const baseNodeStyle = {
   border: "1px solid #e5e7eb",
   backgroundColor: "#ffffff",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-  width: 280
+  width: 280,
 };
 
-export const transformProjectToNode = (project: Project): Node => ({
+export const transformProjectToNode = (
+  project: Project,
+  profiles: Record<string, string>,
+): Node => ({
   id: project.id + "",
   position: {
     x: project.coordinates?.[0] || 0,
@@ -44,12 +47,12 @@ export const transformProjectToNode = (project: Project): Node => ({
         </div>
 
         <div className="flex flex-wrap gap-2 mt-1">
-          {project.assignees.map((name, idx) => (
+          {project.assignees.map((id, idx) => (
             <span
               key={idx}
               className="text-[11px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full"
             >
-              {name}
+              {profiles[id]}
             </span>
           ))}
         </div>
