@@ -6,7 +6,7 @@ import {
 } from "@headlessui/react";
 import { useState } from "react";
 import { FaCheck, FaChevronDown, FaTimes } from "react-icons/fa";
-import { ProjectAssignee, MultiSelectComboboxProps } from "@/app/types/project";
+import { TeamMember, MultiSelectComboboxProps } from "@/app/types/project";
 
 export default function MultiSelectCombobox({
   options,
@@ -23,10 +23,10 @@ export default function MultiSelectCombobox({
           item.name.toLowerCase().includes(query.toLowerCase()),
         );
 
-  const isSelected = (item: ProjectAssignee) =>
+  const isSelected = (item: TeamMember) =>
     selected.some((s) => s.id === item.id);
 
-  const toggleSelect = (item: ProjectAssignee) => {
+  const toggleSelect = (item: TeamMember) => {
     if (isSelected(item)) {
       setSelected(selected.filter((s) => s.id !== item.id));
     } else {
@@ -37,7 +37,7 @@ export default function MultiSelectCombobox({
   return (
     <Combobox
       value={selected}
-      onChange={(newSelected: ProjectAssignee[]) => setSelected(newSelected)}
+      onChange={(newSelected: TeamMember[]) => setSelected(newSelected)}
       by="id"
       multiple
       onClose={() => setQuery("")}
