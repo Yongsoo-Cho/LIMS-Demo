@@ -10,6 +10,8 @@ import NewProjectModal from "../components/ui/projects/modals/NewProjectModal";
 import { supabase } from "../config/supabaseClient";
 import { useCachedFetch } from "../hooks/useCachedFetch";
 
+import '@xyflow/react/dist/style.css';
+
 export default function ProjectsPage() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"list" | "flow">("list");
@@ -63,7 +65,7 @@ export default function ProjectsPage() {
             >
               {viewMode === "list" ? (
                 <>
-                  <FaProjectDiagram /> Flow View
+                  <FaProjectDiagram /> Flow Editor
                 </>
               ) : (
                 <>

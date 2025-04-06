@@ -63,7 +63,9 @@ export default function CalendarPage() {
           </h1>
           <p className="text-gray-600 mb-8 max-w-2xl">
             Track important dates for lab projects, protocols, and deadlines.
-            Days with scheduled projects are highlighted. Things to work on in this page include hierarchical design (one pane should be bigger than other), export to calendar, and sorting by team member.
+            Days with scheduled projects are highlighted. Things to work on in
+            this page include hierarchical design (one pane should be bigger
+            than other), export to calendar, and sorting by team member.
           </p>
         </div>
 
@@ -127,7 +129,8 @@ export default function CalendarPage() {
                         {project.assignees
                           .map(
                             (assigneeId) =>
-                              profileData?.[assigneeId].split("@")[0] ?? "Unknown",
+                              profileData?.[assigneeId].split("@")[0] ??
+                              "Unknown",
                           )
                           .join(", ")}
                       </p>

@@ -7,11 +7,11 @@ export const baseNodeStyle = {
   border: "1px solid #e5e7eb",
   backgroundColor: "#ffffff",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-  width: 280,
+  width: 280
 };
 
 export const transformProjectToNode = (project: Project): Node => ({
-  id: project.id,
+  id: project.id + "",
   position: {
     x: project.coordinates?.[0] || 0,
     y: project.coordinates?.[1] || 0,
