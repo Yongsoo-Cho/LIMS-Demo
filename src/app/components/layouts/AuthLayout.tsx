@@ -11,7 +11,7 @@ export default function AuthLayout({
 }) {
   const { isChecking, isAuthed } = useAuthGuard();
 
-  if (isChecking) return null;
+  if (isChecking) return <div className="w-screen h-screen bg-red-300"></div>;
 
   if (!isAuthed) return <Loading />;
 
