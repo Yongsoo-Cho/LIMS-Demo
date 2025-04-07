@@ -7,6 +7,7 @@ import {
   FaCalendarAlt,
   FaBoxOpen,
   FaProjectDiagram,
+  FaUsers,
   FaSignOutAlt,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
@@ -39,6 +40,11 @@ export default function Navbar() {
       href: "/projects",
       icon: <FaProjectDiagram className="mr-3" />,
     },
+    {
+      name: "Team Members",
+      href: "/profiles", // 👈 This is the new route
+      icon: <FaUsers className="mr-3" />,
+    },
   ];
 
   const handleLogout = async () => {
@@ -70,7 +76,7 @@ export default function Navbar() {
           })}
         </nav>
       </div>
-      <div className="p-6">
+      <div className="p-6 mt-auto">
         <button
           onClick={handleLogout}
           className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium transition ${

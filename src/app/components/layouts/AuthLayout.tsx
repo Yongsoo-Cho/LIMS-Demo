@@ -9,8 +9,11 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isChecking } = useAuthGuard();
-  if (isChecking) return <Loading />;
+  const { isChecking, isAuthed } = useAuthGuard();
+
+  if (isChecking) return null;
+
+  if (!isAuthed) return <Loading />;
 
   return (
     <div className="flex min-h-screen w-screen">

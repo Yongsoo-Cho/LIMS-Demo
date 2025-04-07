@@ -1,16 +1,30 @@
-import { useEffect } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
+import { supabase } from "@/app/config/supabaseClient";
 
 export function useAuthGuard() {
-  const { user, loading } = useAuth();
+  const [isChecking, setIsChecking] = useState(true);
+  const [isAuthed, setIsAuthed] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
-  }, [user, loading, router]);
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
 
-  return { isChecking: loading };
+      if (data?.user) {
+        setIsAuthed(true);
+      } else {
+        setIsAuthed(false);
+        router.replace("/login");
+      }
+
+      setIsChecking(false);
+    };
+
+    checkUser();
+  }, [router]);
+
+  return { isChecking, isAuthed };
 }

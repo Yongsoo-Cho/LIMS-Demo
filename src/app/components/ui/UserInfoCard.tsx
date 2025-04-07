@@ -17,6 +17,7 @@ export default function UserInfoCard({ user }: UserInfoCardProps) {
     if (user?.user_metadata?.iss?.includes("slack.com")) return "Slack";
     if (user?.app_metadata?.provider === "google") return "Google";
     if (user?.app_metadata?.provider === "email") return "Email";
+    if (user?.app_metadata?.provider === "discord") return "Discord";
     return null;
   })();
 
