@@ -2,9 +2,9 @@
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useState } from "react";
-import { supabase } from "@/app/config/supabaseClient";
+import { createClient } from "@/lib/supabase/browserClient";
 import { Project, TeamMember } from "@/app/types/project";
-import MultiSelectCombobox from "../../MultiSelectCombobox";
+import MultiSelectCombobox from "../../../components/ui/MultiSelectCombobox";
 
 type EditProjectModalProps = {
   isOpen: boolean;
@@ -21,6 +21,8 @@ export default function EditProjectModal({
   profiles,
   onSave,
 }: EditProjectModalProps) {
+  const supabase = createClient();
+
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description);
   const [status, setStatus] = useState(project.status);

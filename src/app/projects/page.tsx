@@ -4,10 +4,10 @@ import AuthLayout from "@/app/components/layouts/AuthLayout";
 import { useState } from "react";
 import { FaPlus, FaProjectDiagram, FaListUl } from "react-icons/fa";
 import { Project } from "../types/project";
-import ProjectList from "../components/ui/projects/ProjectList";
-import ProjectFlow from "../components/ui/projects/ProjectFlow";
-import NewProjectModal from "../components/ui/projects/modals/NewProjectModal";
-import { supabase } from "../config/supabaseClient";
+import ProjectList from "./components/ProjectList";
+import ProjectFlow from "./components/ProjectFlow";
+import NewProjectModal from "./components/modals/NewProjectModal";
+import { fetchProfiles, fetchProjects } from "./action";
 import { useCachedFetch } from "../hooks/useCachedFetch";
 
 import "@xyflow/react/dist/style.css";
@@ -20,27 +20,13 @@ export default function ProjectsPage() {
     data: projects,
     loading: loadingProjects,
     refetch: refetchProjects,
-  } = useCachedFetch<Project[]>("cached_projects", async () => {
-    const { data, error } = await supabase.from("projects").select("*");
-    if (error) throw error;
-    return data;
-  });
+  } = useCachedFetch<Project[]>("cached_projects", fetchProjects);
 
   const {
     data: profileData,
     loading: loadingProfiles,
     refetch: refetchProfiles,
-  } = useCachedFetch<Record<string, string>>("cached_profiles", async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, display_name");
-    if (error) throw error;
-    const profileMap: Record<string, string> = {};
-    for (const profile of data || []) {
-      profileMap[profile.id] = profile.display_name;
-    }
-    return profileMap;
-  });
+  } = useCachedFetch<Record<string, string>>("cached_profiles", fetchProfiles);
 
   const loading = loadingProjects || loadingProfiles;
 

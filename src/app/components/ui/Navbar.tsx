@@ -70,7 +70,7 @@ export default function Navbar() {
         </nav>
       </div>
       <div className="p-6 mt-auto">
-        <LogoutButton/>
+        <LogoutButton />
       </div>
     </aside>
   );

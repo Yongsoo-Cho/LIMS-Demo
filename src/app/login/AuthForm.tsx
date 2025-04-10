@@ -7,7 +7,7 @@ export default function AuthForm() {
   const handleSlackLogin = async () => {
     try {
       const url = await slackLogin();
-      
+
       window.location.href = url;
     } catch (error) {
       console.error("Login failed:", error);
@@ -16,7 +16,7 @@ export default function AuthForm() {
   const handleDiscordLogin = async () => {
     try {
       const url = await discordLogin();
-      
+
       window.location.href = url;
     } catch (error) {
       console.error("Login failed:", error);

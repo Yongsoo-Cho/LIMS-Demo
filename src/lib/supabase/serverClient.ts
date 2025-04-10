@@ -1,13 +1,13 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { type NextRequest, type NextResponse } from "next/server"
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { type NextRequest, type NextResponse } from "next/server";
 
 //May have to refactor but currently this was the only reliable way I could get things working.
 //Recommended getAll setAll functions do not properly set cookies and when reading OAuth code uses two different sessions.
 
 //component: boolean = false consider adding for future
 export async function createClient() {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,11 +21,11 @@ export async function createClient() {
           cookieStore.set({ name, value, ...options });
         },
         remove(name, options) {
-          cookieStore.set({ name, value: '', ...options });
-        }
+          cookieStore.set({ name, value: "", ...options });
+        },
       },
-      },
-  )
+    },
+  );
 }
 
 export async function createSupabaseServerComponentClient() {
@@ -36,7 +36,7 @@ export async function createSupabaseServerComponentClient() {
 
 export async function createSupabaseReqResClient(
   req: NextRequest,
-  res: NextResponse
+  res: NextResponse,
 ) {
   const cookieStore = await cookies();
   cookieStore.getAll();
@@ -50,10 +50,10 @@ export async function createSupabaseReqResClient(
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
+            res.cookies.set(name, value, options),
           );
         },
       },
-    }
+    },
   );
 }

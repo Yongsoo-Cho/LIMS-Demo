@@ -1,29 +1,17 @@
 "use client";
 
-import { supabase } from "@/app/config/supabaseClient";
 import AuthLayout from "@/app/components/layouts/AuthLayout";
 import Image from "next/image";
 import { useCachedFetch } from "@/app/hooks/useCachedFetch";
-
-interface Profile {
-  id: string;
-  display_name: string;
-  avatar_url?: string;
-}
+import { fetchTeamProfiles } from "./action";
+import type { MinimalProfile } from "./action";
 
 export default function TeamPage() {
   const {
     data: profiles,
     loading,
     error,
-  } = useCachedFetch<Profile[]>("cached_profiles", async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, display_name, avatar_url");
-
-    if (error) throw error;
-    return data;
-  });
+  } = useCachedFetch<MinimalProfile[]>("cached_profiles", fetchTeamProfiles);
 
   return (
     <AuthLayout>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import NewProjectDialog from "./NewProjectDialog";
 import DiscardWarningModal from "./DiscardWarningModal";
 import { TeamMember } from "@/app/types/project";
-import { supabase } from "@/app/config/supabaseClient";
+import { createClient } from "@/lib/supabase/browserClient";
 
 type NewProjectModalProps = {
   isOpen: boolean;
@@ -15,6 +15,7 @@ export default function NewProjectModal({
   setIsOpen,
   onSuccess,
 }: NewProjectModalProps) {
+  const supabase = createClient();
   const [projectName, setProjectName] = useState<string>("");
   const [assignees, setAssignees] = useState<TeamMember[]>([]);
   const [dueDate, setDueDate] = useState<string>("");

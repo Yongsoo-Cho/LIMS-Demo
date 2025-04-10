@@ -1,11 +1,11 @@
 "use client";
 
 import { Dialog, DialogPanel } from "@headlessui/react";
-import MultiSelectCombobox from "../../MultiSelectCombobox";
+import MultiSelectCombobox from "../../../components/ui/MultiSelectCombobox";
 import LabeledInput from "./LabeledInput";
 import { TeamMember } from "@/app/types/project";
 import { useEffect, useState } from "react";
-import { supabase } from "@/app/config/supabaseClient";
+import { createClient } from "@/lib/supabase/browserClient";
 
 const uploadFields = [
   { label: "SOP Upload", type: "file", accept: ".pdf,.doc,.docx" },
@@ -43,6 +43,8 @@ export default function NewProjectDialog({
   onClose,
   onSubmit,
 }: NewProjectDialogProps) {
+  const supabase = createClient();
+
   const [userOptions, setUserOptions] = useState<TeamMember[]>([]);
 
   useEffect(() => {
