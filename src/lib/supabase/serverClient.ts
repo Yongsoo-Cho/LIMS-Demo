@@ -4,7 +4,9 @@ import { type NextRequest, type NextResponse } from "next/server"
 
 //May have to refactor but currently this was the only reliable way I could get things working.
 //Recommended getAll setAll functions do not properly set cookies and when reading OAuth code uses two different sessions.
-export async function createClient(component: boolean = false) {
+
+//component: boolean = false consider adding for future
+export async function createClient() {
   const cookieStore = await cookies()
 
   return createServerClient(
@@ -29,7 +31,7 @@ export async function createClient(component: boolean = false) {
 export async function createSupabaseServerComponentClient() {
   const cookieStore = await cookies();
   cookieStore.getAll();
-  return createClient(true);
+  return createClient();
 }
 
 export async function createSupabaseReqResClient(

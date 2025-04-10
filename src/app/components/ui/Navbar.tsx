@@ -10,12 +10,10 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { useAuth } from "@/app/context/AuthProvider";
-import { supabase } from "../../config/supabaseClient";
 import UserInfoCard from "./UserInfoCard";
 import LogoutButton from "./LogoutButton";
 
 export default function Navbar() {
-  const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
 
