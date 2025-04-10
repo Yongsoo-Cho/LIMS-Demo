@@ -1,5 +1,3 @@
-"use client";
-
 import { FaFlask, FaUserTie } from "react-icons/fa";
 
 interface LabUser {

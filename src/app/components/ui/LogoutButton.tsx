@@ -1,22 +1,13 @@
-"use client";
-
-import { supabase } from "../../config/supabaseClient";
-import { useRouter } from "next/navigation";
+import { FaSignOutAlt } from "react-icons/fa";
 
 export default function LogoutButton() {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   return (
-    <button
-      onClick={handleLogout}
-      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-semibold text-gray-700 rounded-lg border border-gray-300 transition duration-200 shadow-sm"
-    >
-      Logout
-    </button>
+    <form action="/auth/signout" method="post">
+      <button
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium transition bg-gray-100 hover:bg-gray-200 text-gray-800`}
+        >
+          <FaSignOutAlt /> Logout
+        </button>
+    </form>
   );
 }

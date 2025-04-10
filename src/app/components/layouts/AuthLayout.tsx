@@ -1,20 +1,10 @@
-"use client";
-
-import { useAuthGuard } from "@/app/hooks/useAuthGuard";
 import Navbar from "../ui/Navbar";
-import Loading from "../ui/Loading";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isChecking, isAuthed } = useAuthGuard();
-
-  if (isChecking) return null;
-
-  if (!isAuthed) return <Loading />;
-
   return (
     <div className="flex min-h-screen w-screen">
       <Navbar />
