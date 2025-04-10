@@ -2,9 +2,9 @@
 
 import AuthLayout from "../components/layouts/AuthLayout";
 import { useState } from "react";
-import CsvUploader from "../components/ui/supplies/CsvUploader";
-import SuppliesTable from "../components/ui/supplies/SuppliesTable";
-import TablePreviewModal from "../components/ui/supplies/TablePreviewModal";
+import CsvUploader from "./components/CsvUploader";
+import SuppliesTable from "./components/SuppliesTable";
+import TablePreviewModal from "./components/TablePreviewModal";
 
 type SupplyItem = {
   id: string;
