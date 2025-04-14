@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import AuthLayout from "@/app/components/layouts/AuthLayout";
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa";
+import CsvUploader from "../components/CsvUploader";
 
 type PageParams = Promise<{ id: string }>;
 
@@ -15,7 +16,6 @@ export default async function WorkspaceDetailPage({
   const allWorkspaces = await fetchWorkspaces();
 
   const workspace = allWorkspaces.find((w) => w.id == Number(id));
-
   if (!workspace) return notFound();
 
   return (
@@ -29,21 +29,24 @@ export default async function WorkspaceDetailPage({
         </Link>
 
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {workspace.title}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">{workspace.title}</h1>
           <p className="text-sm text-gray-400 mt-1">
             Created on {new Date(workspace.created_at).toLocaleDateString()}
           </p>
         </div>
 
-        <div className="border-t pt-4">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">
-            Description
-          </h2>
-          <p className="text-gray-800 leading-relaxed">
-            {workspace.description || "No description provided."}
-          </p>
+        <div className="border-t pt-4 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 mb-2">Description</h2>
+            <p className="text-gray-800 leading-relaxed">
+              {workspace.description || "No description provided."}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 mb-2">Upload Data</h2>
+            <CsvUploader />
+          </div>
         </div>
       </main>
     </AuthLayout>
