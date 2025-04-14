@@ -20,11 +20,26 @@ function inferHeaderRow(rows: string[][]): { hasHeader: boolean; headers: string
 
   return {
     hasHeader: isFirstRowAllStrings && isSecondRowNumericOrMixed,
-    headers: isFirstRowAllStrings ? firstRow : rows[0].map((_, i) => `column_${i + 1}`)
+    headers: isFirstRowAllStrings ? firstRow : rows[0].map((_, i) => `column_${i + 1}`),
   };
 }
 
-function inferFieldType(values: string[]): string {
+export type FieldTypeName = "boolean" | "number" | "datetime" | "enum" | "string";
+
+export type FieldMetadata = {
+  name: string;
+  type: FieldTypeName;
+  entries: string[];
+  values?: string[];  // Only use for inferred enum types.
+};
+
+export type MetadataSchema = {
+  fields: FieldMetadata[];
+  rowCount: number;
+  hasHeaderRow: boolean;
+};
+
+function inferFieldType(values: string[]): FieldTypeName {
   const unique = [...new Set(values.map(v => v.trim().toLowerCase()))];
 
   if (unique.every(v => v === "0" || v === "1" || v === "true" || v === "false")) {
@@ -42,15 +57,15 @@ function inferFieldType(values: string[]): string {
   return "string";
 }
 
-function generateMetadata(rows: string[][]) {
+function generateMetadata(rows: string[][]): MetadataSchema {
   const { hasHeader, headers } = inferHeaderRow(rows);
   const dataRows = hasHeader ? rows.slice(1) : rows;
 
-  const fields = headers.map((header, colIndex) => {
-    const columnValues = dataRows.map(row => row[colIndex]?.trim() ?? "");
+  const fields: FieldMetadata[] = headers.map((header, colIndex) => {
+    const columnValues: string[] = dataRows.map(row => row[colIndex]?.trim() ?? "");
     const type = inferFieldType(columnValues);
 
-    const field: any = {
+    const field: FieldMetadata = {
       name: header,
       type,
       entries: columnValues,
@@ -70,7 +85,7 @@ function generateMetadata(rows: string[][]) {
   };
 }
 
-export async function handleCsvToMetadata(csvText: string) {
+export async function handleCsvToMetadata(csvText: string): Promise<MetadataSchema> {
   const rows = await parseCsv(csvText);
   const metadata = generateMetadata(rows);
   return metadata;
