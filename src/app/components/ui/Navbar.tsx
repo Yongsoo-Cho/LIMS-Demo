@@ -51,7 +51,8 @@ export default function Navbar() {
         <UserInfoCard user={user} />
         <nav className="mt-6 flex flex-col gap-2">
           {navItems.map(({ name, href, icon }) => {
-            const isActive = pathname === href;
+            const isActive =
+              href === "/" ? pathname === "/" : pathname.startsWith(href);
             return (
               <Link
                 key={name}
