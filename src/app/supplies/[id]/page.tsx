@@ -4,13 +4,13 @@ import AuthLayout from "@/app/components/layouts/AuthLayout";
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa";
 
-type Props = {
+type PageProps = {
   params: {
     id: string;
   };
 };
 
-export default async function WorkspaceDetailPage({ params }: Props) {
+export default async function WorkspaceDetailPage({ params }: PageProps) {
   const allWorkspaces = await fetchWorkspaces();
   const workspace = allWorkspaces.find((w) => w.id == Number(params.id));
 
