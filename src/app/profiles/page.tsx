@@ -4,14 +4,14 @@ import AuthLayout from "@/app/components/layouts/AuthLayout";
 import Image from "next/image";
 import { useCachedFetch } from "@/app/hooks/useCachedFetch";
 import { fetchTeamProfiles } from "./action";
-import type { MinimalProfile } from "./action";
+import type { ProfileInfo } from "./action";
 
 export default function TeamPage() {
   const {
     data: profiles,
     loading,
     error,
-  } = useCachedFetch<MinimalProfile[]>("cached_profiles", fetchTeamProfiles);
+  } = useCachedFetch<ProfileInfo[]>("cached_profiles", fetchTeamProfiles);
 
   return (
     <AuthLayout>
@@ -20,45 +20,73 @@ export default function TeamPage() {
           Team Members
         </h1>
 
-        {loading ? (
-          <ul className="divide-y divide-gray-100 border border-gray-200 rounded-xl overflow-hidden animate-pulse">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i} className="flex items-center px-4 py-3 gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-200" />
-                <div className="flex flex-col gap-1 w-full">
-                  <div className="w-1/3 h-3 bg-gray-200 rounded" />
-                  <div className="w-1/5 h-2 bg-gray-100 rounded" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : error ? (
-          <p className="text-red-500">Failed to load profiles.</p>
-        ) : (
-          <ul className="divide-y divide-gray-100 border border-gray-200 rounded-xl overflow-hidden">
-            {profiles?.map((user) => (
-              <li
-                key={user.id}
-                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition"
-              >
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={user.avatar_url || "/default-avatar.png"}
-                    alt={`${user.display_name}'s avatar`}
-                    width={32}
-                    height={32}
-                    className="rounded-full border border-gray-200 object-cover"
-                  />
-                  <div className="flex flex-col text-sm leading-tight">
-                    <span className="font-medium text-gray-900">
+        <div className="overflow-x-auto border border-gray-200">
+          <table className="min-w-full bg-white text-sm text-left text-gray-700">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+              <tr>
+                <th scope="col" className="px-6 py-3 font-medium">
+                  Avatar
+                </th>
+                <th scope="col" className="px-6 py-3 font-medium">
+                  Name
+                </th>
+                <th scope="col" className="px-6 py-3 font-medium">
+                  Email
+                </th>
+                {/* future fields:
+                <th scope="col" className="px-6 py-3 font-medium">Role</th>
+                <th scope="col" className="px-6 py-3 font-medium">Team</th>
+                */}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {loading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-6 py-7">
+                      <div className="w-8 h-8 rounded-full bg-gray-200" />
+                    </td>
+                    <td className="px-6 py-7">
+                      <div className="h-3 w-24 bg-gray-200 rounded" />
+                    </td>
+                    <td className="px-6 py-7">
+                      <div className="h-3 w-32 bg-gray-100 rounded" />
+                    </td>
+                  </tr>
+                ))
+              ) : error ? (
+                <tr>
+                  <td colSpan={3} className="px-6 py-7">
+                    Failed to load profiles.
+                  </td>
+                </tr>
+              ) : (
+                profiles?.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-7">
+                      <div className="w-8 h-8 rounded-full overflow-hidden">
+                        <Image
+                          src={user.avatar_url || "/default-avatar.png"}
+                          alt={`${user.display_name}'s avatar`}
+                          width={32}
+                          height={32}
+                          className="rounded-full border border-gray-200 object-cover"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-7 font-medium text-gray-900">
                       {user.display_name}
-                    </span>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                    </td>
+                    <td className="px-6 py-7 text-gray-600">{user.email}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </main>
     </AuthLayout>
   );

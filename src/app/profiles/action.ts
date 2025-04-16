@@ -8,12 +8,14 @@ export type MinimalProfile = Pick<
   "id" | "display_name" | "avatar_url"
 >;
 
-export async function fetchTeamProfiles(): Promise<MinimalProfile[]> {
+export type ProfileInfo = Database["public"]["Tables"]["profiles"]["Row"];
+
+export async function fetchTeamProfiles(): Promise<ProfileInfo[]> {
   const supabase = await createSupabaseServerComponentClient();
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, avatar_url")
+    .select("id, display_name, avatar_url, email")
     .order("display_name", { ascending: true });
 
   if (error) throw new Error(error.message);

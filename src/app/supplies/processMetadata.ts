@@ -11,26 +11,37 @@ export function parseCsv(text: string): Promise<string[][]> {
   });
 }
 
-function inferHeaderRow(rows: string[][]): { hasHeader: boolean; headers: string[] } {
+function inferHeaderRow(rows: string[][]): {
+  hasHeader: boolean;
+  headers: string[];
+} {
   const firstRow = rows[0];
   const secondRow = rows[1];
 
-  const isFirstRowAllStrings = firstRow.every(val => isNaN(Number(val)));
-  const isSecondRowNumericOrMixed = secondRow?.some(val => !isNaN(Number(val))) ?? false;
+  const isFirstRowAllStrings = firstRow.every((val) => isNaN(Number(val)));
+  const isSecondRowNumericOrMixed =
+    secondRow?.some((val) => !isNaN(Number(val))) ?? false;
 
   return {
     hasHeader: isFirstRowAllStrings && isSecondRowNumericOrMixed,
-    headers: isFirstRowAllStrings ? firstRow : rows[0].map((_, i) => `column_${i + 1}`),
+    headers: isFirstRowAllStrings
+      ? firstRow
+      : rows[0].map((_, i) => `column_${i + 1}`),
   };
 }
 
-export type FieldTypeName = "boolean" | "number" | "datetime" | "enum" | "string";
+export type FieldTypeName =
+  | "boolean"
+  | "number"
+  | "datetime"
+  | "enum"
+  | "string";
 
 export type FieldMetadata = {
   name: string;
   type: FieldTypeName;
   entries: string[];
-  values?: string[];  // Only use for inferred enum types.
+  values?: string[]; // Only use for inferred enum types.
 };
 
 export type MetadataSchema = {
@@ -40,15 +51,17 @@ export type MetadataSchema = {
 };
 
 function inferFieldType(values: string[]): FieldTypeName {
-  const unique = [...new Set(values.map(v => v.trim().toLowerCase()))];
+  const unique = [...new Set(values.map((v) => v.trim().toLowerCase()))];
 
-  if (unique.every(v => v === "0" || v === "1" || v === "true" || v === "false")) {
+  if (
+    unique.every((v) => v === "0" || v === "1" || v === "true" || v === "false")
+  ) {
     return "boolean";
   }
-  if (unique.every(v => !isNaN(Number(v)))) {
+  if (unique.every((v) => !isNaN(Number(v)))) {
     return "number";
   }
-  if (unique.every(v => !isNaN(Date.parse(v)))) {
+  if (unique.every((v) => !isNaN(Date.parse(v)))) {
     return "datetime";
   }
   if (unique.length <= 10) {
@@ -62,7 +75,9 @@ function generateMetadata(rows: string[][]): MetadataSchema {
   const dataRows = hasHeader ? rows.slice(1) : rows;
 
   const fields: FieldMetadata[] = headers.map((header, colIndex) => {
-    const columnValues: string[] = dataRows.map(row => row[colIndex]?.trim() ?? "");
+    const columnValues: string[] = dataRows.map(
+      (row) => row[colIndex]?.trim() ?? "",
+    );
     const type = inferFieldType(columnValues);
 
     const field: FieldMetadata = {
@@ -85,7 +100,9 @@ function generateMetadata(rows: string[][]): MetadataSchema {
   };
 }
 
-export async function handleCsvToMetadata(csvText: string): Promise<MetadataSchema> {
+export async function handleCsvToMetadata(
+  csvText: string,
+): Promise<MetadataSchema> {
   const rows = await parseCsv(csvText);
   const metadata = generateMetadata(rows);
   return metadata;
