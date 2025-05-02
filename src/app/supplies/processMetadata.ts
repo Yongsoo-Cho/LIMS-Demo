@@ -1,8 +1,76 @@
 import Papa from "papaparse";
 
-export function parseCsv(text: string): Promise<string[][]> {
+// export type FieldMetadata = {
+//   name: string;
+//   type: FieldTypeName;
+//   entries: string[];
+//   values?: string[]; // Only use for inferred enum types.
+// };
+
+// export type MetadataSchema = {
+//   fields: FieldMetadata[];
+//   rowCount: number;
+//   hasHeaderRow: boolean;
+// };
+
+// function generateMetadata(rows: string[][]): MetadataSchema {
+//   const { hasHeader, headers } = inferHeaderRow(rows);
+//   const dataRows = hasHeader ? rows.slice(1) : rows;
+
+//   const fields: FieldMetadata[] = headers.map((header, colIndex) => {
+//     const columnValues: string[] = dataRows.map(
+//       (row) => row[colIndex]?.trim() ?? "",
+//     );
+//     const type = inferFieldType(columnValues);
+
+//     const field: FieldMetadata = {
+//       name: header,
+//       type,
+//       entries: columnValues,
+//     };
+
+//     if (type === "enum") {
+//       field.values = [...new Set(columnValues)];
+//     }
+
+//     return field;
+//   });
+
+//   return {
+//     fields,
+//     rowCount: dataRows.length,
+//     hasHeaderRow: hasHeader,
+//   };
+// }
+
+// export async function handleCsvToMetadata(file: File): Promise<MetadataSchema> {
+//   const rows = await parseCsv(file);
+//   const metadata = generateMetadata(rows);
+//   return metadata;
+// }
+
+export type FieldTypeName =
+  | "boolean"
+  | "number"
+  | "datetime"
+  | "enum"
+  | "string";
+
+export type Cell = {
+  value: string,
+  type: FieldTypeName
+}
+
+export type TableData = {
+  headers: string[] | null,
+  types: FieldTypeName[],
+  rows: Cell[][],
+  dims: [number, number]
+} | null
+
+export function parseCsv(file: File): Promise<string[][]> {
   return new Promise((resolve, reject) => {
-    Papa.parse<string[]>(text, {
+    Papa.parse<string[]>(file, {
       header: false,
       skipEmptyLines: true,
       complete: (result) => resolve(result.data as string[][]),
@@ -30,27 +98,8 @@ function inferHeaderRow(rows: string[][]): {
   };
 }
 
-export type FieldTypeName =
-  | "boolean"
-  | "number"
-  | "datetime"
-  | "enum"
-  | "string";
-
-export type FieldMetadata = {
-  name: string;
-  type: FieldTypeName;
-  entries: string[];
-  values?: string[]; // Only use for inferred enum types.
-};
-
-export type MetadataSchema = {
-  fields: FieldMetadata[];
-  rowCount: number;
-  hasHeaderRow: boolean;
-};
-
 function inferFieldType(values: string[]): FieldTypeName {
+  console.log(values);
   const unique = [...new Set(values.map((v) => v.trim().toLowerCase()))];
 
   if (
@@ -70,40 +119,34 @@ function inferFieldType(values: string[]): FieldTypeName {
   return "string";
 }
 
-function generateMetadata(rows: string[][]): MetadataSchema {
-  const { hasHeader, headers } = inferHeaderRow(rows);
-  const dataRows = hasHeader ? rows.slice(1) : rows;
+export async function generateTableData(file: File): Promise<TableData> {
 
-  const fields: FieldMetadata[] = headers.map((header, colIndex) => {
-    const columnValues: string[] = dataRows.map(
-      (row) => row[colIndex]?.trim() ?? "",
-    );
-    const type = inferFieldType(columnValues);
+  let res = await parseCsv(file); // How to handle if promise fails???
+  let hdr = inferHeaderRow(res).headers; // Get header
 
-    const field: FieldMetadata = {
-      name: header,
-      type,
-      entries: columnValues,
-    };
+  // Infer cell types
+  let types: FieldTypeName[] = []
+  for (let j=0;j<hdr.length;j++) {
+    let values: string[] = hdr.map((_,i) => (hdr[i][j]));
+    types.push(inferFieldType(values));
+  }
 
-    if (type === "enum") {
-      field.values = [...new Set(columnValues)];
-    }
+  let dims: [number, number] = [res.length, hdr.length]; // Dimensions
 
-    return field;
-  });
+  let _ = res.shift(); // Remove header
+  let rows: Cell[][] = res.map((v, _) => { // Convert to cell type
+    return v.map((s, idx) => {
+      return {
+        value: s,
+        type: types[idx]
+      }
+    })
+  })
 
   return {
-    fields,
-    rowCount: dataRows.length,
-    hasHeaderRow: hasHeader,
-  };
-}
-
-export async function handleCsvToMetadata(
-  csvText: string,
-): Promise<MetadataSchema> {
-  const rows = await parseCsv(csvText);
-  const metadata = generateMetadata(rows);
-  return metadata;
+    headers: hdr,
+    types: types,
+    rows: rows,
+    dims: dims
+  }
 }
