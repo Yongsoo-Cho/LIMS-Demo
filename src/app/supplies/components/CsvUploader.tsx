@@ -17,7 +17,9 @@ export default function CsvUploader() {
       if (file === null) return;
 
       // Get Metadata
-      setTable(await generateTableData(file));
+      let new_table = await generateTableData(file)
+      console.log(new_table)
+      setTable(new_table);
     };
 
     setMetadata();

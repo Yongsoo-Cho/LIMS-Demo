@@ -99,7 +99,7 @@ function inferHeaderRow(rows: string[][]): {
 }
 
 function inferFieldType(values: string[]): FieldTypeName {
-  console.log(values);
+  //console.log(values);
   const unique = [...new Set(values.map((v) => v.trim().toLowerCase()))];
 
   if (
@@ -127,7 +127,7 @@ export async function generateTableData(file: File): Promise<TableData> {
   // Infer cell types
   let types: FieldTypeName[] = []
   for (let j=0;j<hdr.length;j++) {
-    let values: string[] = hdr.map((_,i) => (hdr[i][j]));
+    let values: string[] = res.map((_,i) => (res[i][j]));
     types.push(inferFieldType(values));
   }
 
