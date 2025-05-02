@@ -1,48 +1,81 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { TableData, Cell } from "../processMetadata";
 
 type PropInterface = {
-    data: TableData
+    data: TableData,
+    editMode: boolean,
+    handleCellChange: (val: string, pt:[number,number]) => boolean
 }
 
-export class Spreadsheet extends React.Component<PropInterface> {
+export default function Spreadsheet(props: PropInterface) {
 
-    // will get the header cells
-    getHeaders() {
-        if (this.props.data === null || this.props.data.headers === null) return;
+    // MARK: State Handlers
+    const [edit, setEdit] = useState<[number, number] | null>(null);
 
-        let cells = this.props.data.headers.map((val, col_idx) => {
+    // MARK: Event Handlers
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+          setEdit(null)
+        } else if (e.key === "Escape") {
+          // Revert this specific cell edit
+          console.log(null);
+        }
+      }
+
+    // MARK: Renderers
+
+    function renderCell(isEditing: boolean, cell: Cell, pt: [number,number]) {
+        // Render cell based on if it's being edited
+        if (isEditing) return <input
+            type="text"
+            value={cell.value}
+            onChange={(e) => props.handleCellChange(e.target.value, pt)}
+            onKeyDown={handleKeyDown}
+            onBlur={() => setEdit(null)}
+            className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />;
+
+        return (
+            <button
+                onClick={() => {if (props.editMode) setEdit(pt)}}
+            >
+                {cell.value}
+            </button>
+        );
+    }
+
+    function getHeaders() {
+        if (props.data === null || props.data.headers === null) return;
+
+        let cells = props.data.headers.map((val, col_idx) => {
             return (
                 <th
                     key={col_idx}
-                    className="min-w-[100px] h-10 bg-gray-100 border border-gray-300 text-sm font-medium !text-black"
+                    className="text-left px-4 py-3 font-medium !text-black"
                 >
                     {val}
                 </th>
             );
         })
-        cells.unshift(<th key={-1} className="w-10 h-10 bg-gray-100 border border-gray-300 text-sm font-medium !text-black">{/*Empty Cell*/}</th>);
-
         return cells;
     }
 
-    getBody() {
-        if (this.props.data === null) return;
+    function getBody() {
+        if (props.data === null) return;
 
-        const getCells = (row: Cell[], _: number) => {
+        const getCells = (row: Cell[], row_idx: number) => {
             return row.map((cell, col_idx) => {
-                return <td key={col_idx} className="h-10 border border-gray-300 px-2 py-1 !text-black">
-                    {cell.value}
-                </td>
+                let editCell = edit !== null && edit[0] === row_idx && edit[1] === col_idx
+                return <td key={col_idx} className="px-4 py-3 border-t !text-black">
+                    {renderCell(props.editMode && editCell, cell, [row_idx, col_idx])}
+                </td>;
             })
         }
 
-        let body = this.props.data.rows.map((row, row_idx) => {
+        let body = props.data.rows.map((row, row_idx) => {
             return (
-                <tr key={row_idx}>
-                    <td className="w-10 h-10 bg-gray-100 border border-gray-300 text-center text-sm font-medium !text-black">
-                        {row_idx + 1}
-                    </td>
+                <tr key={row_idx} className={row_idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                     {getCells(row, row_idx)}
                 </tr>
             )
@@ -51,24 +84,22 @@ export class Spreadsheet extends React.Component<PropInterface> {
         return body;
     }
 
-    render() {
+    if (props.data === null) return <></>;
 
-        if (this.props.data === null) return <></>;
-
-        return (
-            <div className="h-full w-full max-w-4xl mx-auto p-4 overflow-auto">
-
-                <div className="border border-gray-300 rounded-md overflow-hidden">
-                    <table className="w-full border-collapse">
+    return (
+        <div className="border rounded-md overflow-hidden">
+            <div className="max-h-[500px] overflow-auto">
+                <table className="w-full border-collapse">
                     <thead>
-                        <tr>{this.getHeaders()}</tr>
+                        <tr className="bg-gray-50 border-b">
+                            {getHeaders()}
+                        </tr>
                     </thead>
                     <tbody>
-                        {this.getBody()}
+                        {getBody()}
                     </tbody>
-                    </table>
-                </div>
+                </table>
+            </div>
         </div>
-        )
-    }
+    )
 }

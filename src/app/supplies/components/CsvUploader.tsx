@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { parseCsv, generateTableData, TableData } from "../processMetadata";
 
+import { Save, X } from "lucide-react";
 import { FaUpload } from "react-icons/fa";
-import { Spreadsheet } from "./Spreadsheet";
+import Spreadsheet from "./Spreadsheet";
 
 export default function CsvUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [table, setTable] = useState<TableData>(null);
+  const [editMode, setEditMode] = useState<boolean>(false);
 
   // This 'useEffect' setup prevents the cleanup bug
   useEffect(() => {
@@ -29,75 +31,82 @@ export default function CsvUploader() {
     };
   }, [file]);
 
-  return (
-    <>
-      <div className="flex-row items-center align-middle p-6 rounded-xl m-4 w-full max-w-md">
-        <div className="inline-block">
-          <label
-            htmlFor="file-upload"
-            className="h-fit cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-gray-700 custom-file-upload"
-          >
-            <FaUpload className="text-blue-500" />
-            {file ? "Change File" : "Upload CSV"}
-          </label>
+  function buttonPanel() {
+    if (editMode) return <>
+      <button type="button" 
+              className={
+                "inline-flex align-middle content-center-safe gap-2 px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700"
+              }
+              onClick={() => null /* Here, you'll handle the confirmation of changes*/}
+      >
+      <Save className="inline-block" size={16} />
+      <span>Save</span>
+      </button>
+      <button type="button"
+              onClick={() => null /* Here, you'll handle cancellation of the changes */}
+              className="px-4 py-2 border border-gray-200 !rounded-md text-gray-700 bg-white hover:bg-gray-50 flex items-center gap-2"
+      >
+        <X size={16} />
+        Cancel
+      </button>
+    </>;
 
-          <input
-            id="file-upload"
-            type="file"
-            accept=".csv"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="hidden"
-          />
-        </div>
-
-        <div className="inline-block text-gray-500 p-9">
-          {file?.name}
-        </div>
-      </div>
-      <Spreadsheet data={table} />
+    return <>
+      <button type="button" 
+                    className="px-4 py-2 border !rounded-md border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                    onClick={() => {setEditMode(!editMode)}}
+            >
+            Edit Mode
+      </button>
+      <button type="button" 
+              onClick={() => null /* Here you'll handle exporting the table as .csv*/}
+              className="px-4 py-2 !rounded-md text-white bg-blue-600 hover:bg-blue-700">
+        Export CSV
+      </button>
     </>
-  );
+  }
 
-  // return (
-  //   <div>
-  //     <div className="mb-6">
-  //         <div className="flex items-start gap-4">
-  //           <div className="w-24 font-medium">Upload CSV:</div>
-  //           <div className="flex-1">
-  //             <div className="flex items-center gap-4">
-  //             <label htmlFor="file-upload"
-  //                    className="h-fit cursor-pointer inline-flex items-center gap-2 text-sm font-medium text-gray-700 custom-file-upload">
-  //               <FaUpload className="text-blue-500" />
-  //               {file ? "Change File" : "Upload CSV"}
-  //               <input id="file-upload" type="file" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] || null)} className="hidden" />
-  //             </label>
-  //               <span className="text-gray-600">
-  //                 {file?.name}
-  //               </span>
-  //             </div>
-  //           </div>
-  //         </div>
-  //     </div>
+  return (
+    <div>
+      <div className="mb-6">
+          <div className="flex items-start align-middle gap-4">
+              <div className="flex items-center gap-4">
+                <label htmlFor="file-upload" className="h-fit inline-flex flex-row gap-2 text-sm font-medium items-center custom-file-upload cursor-pointer">
+                  <span className="bg-blue-50 text-blue-600 px-4 py-2 rounded border border-blue-200 cursor-pointer hover:bg-blue-100">
+                    <FaUpload className="text-blue-500 inline-block" />
+                    {file ? "Change File" : "Choose File"}
+                  </span>
+                  <input id="file-upload" type="file" accept=".csv" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                </label>
+                <span className="text-gray-600">
+                  {file?.name}
+                </span>
+              </div>
+          </div>
+      </div>
 
-  //     <div className="flex justify-between mb-6">
-  //         <div className="relative w-[400px]">
-  //           {/*Search Bar Logic Comes Here*/}
-  //         </div>
-  //         <div className="flex gap-3">
-  //           <button type="button" className="px-4 py-2 border border-gray-200 rounded-md text-gray-700 bg-white hover:bg-gray-50">
-  //             Edit Mode
-  //           </button>
-  //           <button type="button" className="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700">
-  //             Export CSV
-  //           </button>
-  //         </div>
-  //     </div>
+      <div className="flex justify-between mb-6">
+          <div className="relative w-[400px]">
+            {/*Search Bar Logic Comes Here*/}
+          </div>
+          <div className="flex gap-3">
+            {buttonPanel()}
+          </div>
+      </div>
 
-  //     <div>
-  //       <Spreadsheet data={table} />
-  //     </div>
-  //   </div>
-  // )
+      {(editMode) ? (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
+        <p>
+          <strong>Edit Mode Active:</strong> Click on any cell to edit its value. Press Enter to confirm or Esc to
+          cancel. When finished, click "Save Changes" to apply all edits or "Cancel" to discard them.
+        </p>
+      </div>
+      ) : null}
+      <div>
+        <Spreadsheet data={table} editMode={editMode} handleCellChange={(something: string, later: [number,number]) => true} />
+      </div>
+    </div>
+  )
 }
 
 
