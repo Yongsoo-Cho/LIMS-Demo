@@ -1,9 +1,10 @@
-import { fetchWorkspaces } from "../action";
+import { fetchWorkspace } from "../action";
 import { notFound } from "next/navigation";
 import AuthLayout from "@/app/components/layouts/AuthLayout";
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa";
 import CsvUploader from "../components/CsvUploader";
+import { TableData } from "../processMetadata";
 
 type PageParams = Promise<{ id: string }>;
 
@@ -13,14 +14,17 @@ export default async function WorkspaceDetailPage({
   params: PageParams;
 }) {
   const { id } = await params;
-  const allWorkspaces = await fetchWorkspaces();
-
-  const workspace = allWorkspaces.find((w) => w.id == Number(id));
+  const workspace = await fetchWorkspace(id);
   if (!workspace) return notFound();
+
+  const initialMetadata: TableData | undefined =
+    typeof workspace.metadata === "string"
+      ? JSON.parse(workspace.metadata)
+      : (workspace.metadata as TableData | undefined);
 
   return (
     <AuthLayout>
-      <main className="p-6 sm:p-10 space-y-6">
+      <main className="p-6 sm:p-10 space-y-6 overflow-scroll">
         <Link href="/supplies">
           <button className="flex items-center gap-2 text-sm mb-6 font-medium text-gray-600 hover:text-blue-600 transition">
             <FaArrowLeft className="text-base" />
@@ -51,7 +55,7 @@ export default async function WorkspaceDetailPage({
             <h2 className="text-lg font-semibold text-gray-700 mb-2">
               Upload Data
             </h2>
-            <CsvUploader />
+            <CsvUploader workspaceId={id} initialMetadata={initialMetadata} />
           </div>
         </div>
       </main>

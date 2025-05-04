@@ -41,15 +41,17 @@ export default function SuppliesPage() {
         </header>
 
         <ul className="list-disc ml-6 space-y-2 text-gray-800">
-          <li className="text-green-900">Automatic determination of header rows</li>
+          <li className="text-green-900">
+            Automatic determination of header rows
+          </li>
           <li>Alert configurations: when to send alerts to and to who</li>
           <li>
             A field in the database that takes a JSON called FEATURES that makes
-            it so that uploaded columns arent limited to a predetermined schema. 
+            it so that uploaded columns arent limited to a predetermined schema.
           </li>
           <li>
             Intelligent inference of data fields e.g. a whole column is 0 and
-            1s, infer that this a boolean field. Ability to add or at least 
+            1s, infer that this a boolean field. Ability to add or at least
             infer ENUM types? like dropdowns, idk how
           </li>
           <li>Merge suggestions for similar items</li>
