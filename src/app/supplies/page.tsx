@@ -56,8 +56,14 @@ export default function SuppliesPage() {
           </li>
           <li>Merge suggestions for similar items</li>
           <li>Reordering suggestions (and perhaps a storefront if it fits)</li>
-          <li>Feedback: Show loading bar during fetch and update | Feedback message to notify the upload to database is successful.</li>
-          <li>Safety: Uploading CSV is a destructive act since it overwrites previous table. Notify user before proceeding.</li>
+          <li>
+            Feedback: Show loading bar during fetch and update | Feedback
+            message to notify the upload to database is successful.
+          </li>
+          <li>
+            Safety: Uploading CSV is a destructive act since it overwrites
+            previous table. Notify user before proceeding.
+          </li>
           <li>More efficient way to store local changes (faster runtime)?</li>
         </ul>
 
