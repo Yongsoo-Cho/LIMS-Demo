@@ -10,6 +10,14 @@ export async function fetchProjects(): Promise<Project[]> {
   return data ?? [];
 }
 
+export async function fetchProject(id: string): Promise<Project> {
+  const supabase = await createSupabaseServerComponentClient();
+  const { data, error } = await supabase.from("projects").select("*").eq("id", id).single();
+  if (error) throw new Error(error.message);
+  return data ?? null;
+}
+
+
 export async function fetchProfiles(): Promise<Record<string, string>> {
   const supabase = await createSupabaseServerComponentClient();
   const { data, error } = await supabase

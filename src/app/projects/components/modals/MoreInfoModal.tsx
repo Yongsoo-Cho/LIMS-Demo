@@ -4,9 +4,9 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/browserClient";
 import { Project, TeamMember } from "@/app/types/project";
-import MultiSelectCombobox from "../../../components/ui/MultiSelectCombobox";
+import MultiSelectCombobox from "./MultiSelectCombobox";
 
-type EditProjectModalProps = {
+type MoreInfoModalProps = {
   isOpen: boolean;
   onClose: () => void;
   project: Project;
@@ -14,13 +14,13 @@ type EditProjectModalProps = {
   onSave?: () => void;
 };
 
-export default function EditProjectModal({
+export default function MoreInfoModal({
   isOpen,
   onClose,
   project,
   profiles,
   onSave,
-}: EditProjectModalProps) {
+}: MoreInfoModalProps) {
   const supabase = createClient();
 
   const [name, setName] = useState(project.name);

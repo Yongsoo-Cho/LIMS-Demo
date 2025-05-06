@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog, DialogPanel } from "@headlessui/react";
-import MultiSelectCombobox from "../../../components/ui/MultiSelectCombobox";
+import MultiSelectCombobox from "./MultiSelectCombobox";
 import LabeledInput from "./LabeledInput";
 import { TeamMember } from "@/app/types/project";
 import { useEffect, useState } from "react";

@@ -76,7 +76,6 @@ export default function ProjectsPage() {
           <ProjectList
             projects={projects || []}
             profiles={profileData || {}}
-            refetchProjects={refetchProjects}
           />
         ) : (
           <ProjectFlow projects={projects || []} profiles={profileData || {}} />
