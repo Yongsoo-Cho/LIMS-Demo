@@ -15,10 +15,7 @@ type ProjectListProps = {
   profiles: Record<string, string>; // userId -> display_name
 };
 
-export default function ProjectList({
-  projects,
-  profiles,
-}: ProjectListProps) {
+export default function ProjectList({ projects, profiles }: ProjectListProps) {
   const router = useRouter();
 
   return (
