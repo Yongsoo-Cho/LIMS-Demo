@@ -62,3 +62,31 @@ export default async function WorkspaceDetailPage({
     </AuthLayout>
   );
 }
+
+  // // MARK: Lifecycle
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [update, setUpdate] = useState(false); // just a trigger to invoke reload from child
+  // const [workspace, setWorkspace] = useState<SupplyFolder | null>(null);
+
+  // async function reload() {
+  //   setIsLoading(true);
+  //   setWorkspace(null);
+  //   setWorkspace(await fetchWorkspace(id));
+  //   setIsLoading(false);
+  // }
+
+  // // 1st Render
+  // useEffect(() => {
+  //   reload();
+  // }, [])
+
+  // // On Child Trigger
+  // useEffect(() => {
+  //   reload();
+  // }, [update])
+
+  // MARK: Display
+
+  // if (isLoading) return <div>
+  //   LOADING PLS HOLD
+  // </div>

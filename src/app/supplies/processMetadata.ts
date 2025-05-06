@@ -62,10 +62,10 @@ export type Cell = {
 };
 
 export type TableData = {
-  headers: string[] | null;
-  types: FieldTypeName[];
-  rows: Cell[][];
-  dims: [number, number];
+  headers: string[],
+  types: FieldTypeName[],
+  rows: Cell[][],
+  dims: [number, number]
 } | null;
 
 export function parseCsv(file: File): Promise<string[][]> {

@@ -8,7 +8,8 @@ type PropInterface = {
 };
 
 export default function Spreadsheet(props: PropInterface) {
-  // MARK: State Handlers
+
+  // MARK: Lifecycle
   const [edit, setEdit] = useState<[number, number] | null>(null);
 
   // MARK: Event Handlers

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { generateTableData, TableData } from "../processMetadata";
+import { fetchWorkspace, updateWorkspaceMetadata, WorkspaceMetadata } from "../action";
 
 import { Save, X } from "lucide-react";
 import { FaUpload } from "react-icons/fa";
@@ -18,19 +19,75 @@ export default function CsvUploader({
   const [table, setTable] = useState<TableData>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // MARK: Changes
+
+  interface ChangeLog {
+    [key: number]: {[key: number]: string};
+  }
+
+  const [changes, setChanges] = useState<ChangeLog>({});
+
+  const flushChanges = () => { setChanges({}); }
+
+  function fuseChanges(): TableData {
+
+    if (table === null || table === undefined) return null;
+
+    let copy = Object.assign({}, table) // Copy of table
+    for (let row in changes) {
+      for (let col in changes[row]) {
+        copy.rows[row][col].value = changes[row][col]
+      }
+    }
+    return copy;
+  }
+
+  function uploadChanges() {
+    // Fuse changes
+    let upload_table: TableData = fuseChanges();
+    // Safety
+    if (upload_table === null) return;
+    // Update database
+    fetch("/api/updateMetadata", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: workspaceId,
+        metadata: upload_table,
+      }),
+    }).then(async () => {
+      console.log('Changes Uploaded to Database.')
+      // Reset CsvUploader
+      flushChanges();
+      setFile(null);
+      let reload = ((await fetchWorkspace(workspaceId)).metadata as TableData | undefined);
+      if (reload) { setTable(reload) } else setTable(null);
+      console.log('Editor Re-set.')
+    })
+  }
+
+  // MARK: Lifecycle
+
+  // Only runs first render
+  useEffect(() => {
+    if (initialMetadata) {
+      setTable(initialMetadata)
+      console.log('Database metadata exists and set to table.')
+    }
+  }, [])
+
   // This 'useEffect' setup prevents the cleanup bug
   useEffect(() => {
     const setMetadata = async () => {
       // Safety return
-      if (!file && initialMetadata) {
-        setTable(initialMetadata);
-      }
       if (!file) return;
 
       // Get Metadata
-      let new_table = await generateTableData(file);
-      console.log(new_table);
+      let new_table: TableData = await generateTableData(file);
       setTable(new_table);
+      setLoading(true)
       await fetch("/api/updateMetadata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -39,6 +96,8 @@ export default function CsvUploader({
           metadata: new_table,
         }),
       });
+      setLoading(false)
+      console.log('File set to table.')
     };
 
     setMetadata();
@@ -48,6 +107,8 @@ export default function CsvUploader({
     };
   }, [file]);
 
+  // MARK: Display
+
   function buttonPanel() {
     if (editMode)
       return (
@@ -55,10 +116,16 @@ export default function CsvUploader({
           <button
             type="button"
             className={
-              "inline-flex align-middle content-center-safe gap-2 px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700"
+              //"inline-flex align-middle content-center-safe gap-2 px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700"
+              "px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center gap-2"
             }
             onClick={
-              () => null /* Here, you'll handle the confirmation of changes*/
+              () => {
+                setLoading(true)
+                uploadChanges() // fuse changes | upload to supabase | reload
+                setLoading(false)
+                setEditMode(!editMode)
+              } 
             }
           >
             <Save className="inline-block" size={16} />
@@ -67,7 +134,10 @@ export default function CsvUploader({
           <button
             type="button"
             onClick={
-              () => null /* Here, you'll handle cancellation of the changes */
+              () => {
+                flushChanges();
+                setEditMode(!editMode);
+              }
             }
             className="px-4 py-2 border border-gray-200 !rounded-md text-gray-700 bg-white hover:bg-gray-50 flex items-center gap-2"
           >
@@ -100,6 +170,10 @@ export default function CsvUploader({
       </>
     );
   }
+
+  if (loading) return <div>
+    LOADING WAIT PLS
+  </div>
 
   return (
     <div>
@@ -145,16 +219,26 @@ export default function CsvUploader({
       ) : null}
       <div>
         <Spreadsheet
-          data={table}
+          data={fuseChanges()} // Show local updates
           editMode={editMode}
-          handleCellChange={(something: string, later: [number, number]) =>
-            true
+          handleCellChange={
+            (val: string, [row, col]: [number, number]) => {
+              // Copy changes object
+              let change_dict = Object.assign({}, changes)
+              // Apply recent change
+              if (change_dict[row]) {
+                change_dict[row][col] = val;
+              } else {
+                let _new: {[key: number]: string} = { [col]: val };
+                change_dict[row] = _new;
+              }
+              // Set new change state
+              setChanges(change_dict)
+              return true; // Might remove return type later
+            }
           }
         />
       </div>
     </div>
   );
 }
-
-//<div className="w-1 h-1 overflow-x-scroll overflow-y-scroll">
-//</div>
