@@ -1,5 +1,7 @@
 import type { Node } from "@xyflow/react";
 import { Project } from "@/app/types/project";
+import Link from "next/link";
+
 
 export const baseNodeStyle = {
   padding: 20,
@@ -57,9 +59,11 @@ export const transformProjectToNode = (
           ))}
         </div>
 
-        <button className="w-fit text-xs text-blue-600 hover:text-blue-700 font-medium mt-2 transition hover:underline">
-          View Details →
-        </button>
+        <Link href={`/projects/${project.id}`}>
+          <button className="w-fit text-xs text-blue-600 hover:text-blue-700 font-medium mt-2 transition hover:underline">
+            View Details →
+          </button>
+        </Link>
       </div>
     ),
   },

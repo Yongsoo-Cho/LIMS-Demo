@@ -216,7 +216,7 @@ export default function CsvUploader({
           <p>
             <strong>Edit Mode Active:</strong> Click on any cell to edit its
             value. Press Enter to confirm or Esc to cancel. When finished, click
-            "Save Changes" to apply all edits or "Cancel" to discard them.
+            &quot;Save Changes&quot; to apply all edits or &quot;Cancel&quot; to discard them.
           </p>
         </div>
       ) : null}
@@ -226,12 +226,12 @@ export default function CsvUploader({
           editMode={editMode}
           handleCellChange={(val: string, [row, col]: [number, number]) => {
             // Copy changes object
-            let change_dict = Object.assign({}, changes);
+            const change_dict = Object.assign({}, changes);
             // Apply recent change
             if (change_dict[row]) {
               change_dict[row][col] = val;
             } else {
-              let _new: { [key: number]: string } = { [col]: val };
+              const _new: { [key: number]: string } = { [col]: val };
               change_dict[row] = _new;
             }
             // Set new change state
