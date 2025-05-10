@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { generateTableData, TableData } from "../processMetadata";
 import { fetchWorkspace, updateWorkspaceMetadata, WorkspaceMetadata } from "../action";
+import UploadModal, { ModalHandler } from "./Modal";
 
-import { Save, X } from "lucide-react";
+import { Save, Upload, X } from "lucide-react";
 import { FaUpload } from "react-icons/fa";
 import Spreadsheet from "./Spreadsheet";
+import Loading from "@/app/components/ui/Loading";
 
 export default function CsvUploader({
   workspaceId,
@@ -20,6 +22,7 @@ export default function CsvUploader({
   const [editMode, setEditMode] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [modal, setModal] = useState<ModalHandler | null>(null);
 
   // MARK: Changes
 
@@ -171,12 +174,10 @@ export default function CsvUploader({
     );
   }
 
-  if (loading) return <div>
-    LOADING WAIT PLS
-  </div>
+  if (loading || !initialMetadata) return <Loading />;
 
   return (
-    <div>
+    <div className="w-full h-fit">
       <div className="mb-6">
         <div className="flex items-start align-middle gap-4">
           <div className="flex items-center gap-4">
@@ -201,10 +202,8 @@ export default function CsvUploader({
         </div>
       </div>
 
-      <div className="flex justify-between mb-6">
-        <div className="relative w-[400px]">
-          {/*Search Bar Logic Comes Here*/}
-        </div>
+      <div className="w-full h-fit flex justify-end mb-6">
+        {/* <div className="relative w-[400px]">I AM A SEARCH BAR</div> */}
         <div className="flex gap-3">{buttonPanel()}</div>
       </div>
 
@@ -217,7 +216,7 @@ export default function CsvUploader({
           </p>
         </div>
       ) : null}
-      <div>
+      <div className="w-full h-fit">
         <Spreadsheet
           data={fuseChanges()} // Show local updates
           editMode={editMode}
@@ -242,3 +241,5 @@ export default function CsvUploader({
     </div>
   );
 }
+
+// Fix Layout: Modal should have much better design | CsvUpload or page.tsx should span rest of screen (parent) | Page should be faster and more responsive to feedback

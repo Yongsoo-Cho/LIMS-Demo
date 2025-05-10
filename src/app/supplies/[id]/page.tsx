@@ -24,7 +24,7 @@ export default async function WorkspaceDetailPage({
 
   return (
     <AuthLayout>
-      <main className="p-6 sm:p-10 space-y-6 overflow-scroll">
+      <main className="w-full h-fit p-6 sm:p-10 space-y-6 overflow-scroll scrollbar-hidden">
         <Link href="/supplies">
           <button className="flex items-center gap-2 text-sm mb-6 font-medium text-gray-600 hover:text-blue-600 transition">
             <FaArrowLeft className="text-base" />
@@ -41,7 +41,7 @@ export default async function WorkspaceDetailPage({
           </p>
         </div>
 
-        <div className="border-t pt-4 space-y-4">
+        <div className="w-full h-fit border-t pt-4 space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-700 mb-2">
               Description
@@ -51,7 +51,7 @@ export default async function WorkspaceDetailPage({
             </p>
           </div>
 
-          <div>
+          <div className="w-full h-fit">
             <h2 className="text-lg font-semibold text-gray-700 mb-2">
               Upload Data
             </h2>
