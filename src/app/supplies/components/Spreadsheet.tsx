@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, Search, Filter } from 'lucide-react';
+import { download_file } from "../export";
 
 type PropInterface = {
   data: TableData;
@@ -123,7 +124,7 @@ export default function Spreadsheet(props: PropInterface) {
               <Filter className="h-4 w-4" />
               <span className="sr-only">Filter</span>
             </Button>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" onClick={() => { download_file(props.data, 'export.csv') }}>
               <Download className="h-4 w-4" />
               <span className="sr-only">Download</span>
             </Button>

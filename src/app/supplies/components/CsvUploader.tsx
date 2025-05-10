@@ -10,6 +10,7 @@ import Spreadsheet from "./Spreadsheet";
 import LoadingScreen from "@/app/components/ui/LoadingScreen";
 import { ModalHandler } from "./Modal";
 import UploadModal from "./Modal";
+import { time } from "node:console";
 
 export default function CsvUploader({
   workspaceId,
@@ -25,6 +26,8 @@ export default function CsvUploader({
   const [loading, setLoading] = useState<boolean>(true);
   // Modal (Warning) Screen Handling
   const [modal, setModal] = useState<ModalHandler | null>(null);
+  // Save Success Message Handling
+  const [success, setSuccess] = useState<boolean>(false)
 
   // MARK: Changes
 
@@ -122,6 +125,29 @@ export default function CsvUploader({
     };
   }, [file]);
 
+  useEffect(() => {
+
+    console.log(success)
+
+    if (!success) return;
+
+    console.log('tru');
+
+    async function timeSuccess(ms: number): Promise<void> {
+      const _ = await new Promise((res) => setTimeout(res, ms));
+      setSuccess(false);
+    }
+
+    timeSuccess(3000);
+
+    console.log('fls')
+
+    return () => {
+      // unmount
+    }
+
+  }, [success])
+
   // MARK: Display
 
   const buttonPanel = useMemo(() => {
@@ -139,6 +165,7 @@ export default function CsvUploader({
                 setEditMode(false)
                 setLoading(true)
                 uploadChanges() // fuse changes | upload to supabase | reload
+                setSuccess(true)
                 setLoading(false)
               } 
             }
@@ -168,6 +195,7 @@ export default function CsvUploader({
           type="button"
           className="px-4 py-2 border !rounded-md border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
           onClick={() => {
+            setSuccess(false)
             setEditMode(true);
           }}
         >
@@ -244,7 +272,15 @@ export default function CsvUploader({
                   "Save Changes" to apply all edits or "Cancel" to discard them.
                 </p>
               </div>
-            ) : null}
+            ) : (
+              (success) ? 
+                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+                    <p>
+                      <strong>Success!</strong> Saved changes to database.
+                    </p>
+                  </div>
+              : null
+            )}
             
             <div className="w-full h-fit">
               <Spreadsheet
