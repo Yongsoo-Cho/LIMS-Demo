@@ -59,8 +59,8 @@ export default function Navbar() {
                 href={href}
                 className={`flex items-center transition-colors font-medium px-3 py-2 rounded-lg ${
                   isActive
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                    ? "bg-gray-100 text-gray-950"
+                    : "text-gray-100 hover:bg-gray-800"
                 }`}
               >
                 {icon}

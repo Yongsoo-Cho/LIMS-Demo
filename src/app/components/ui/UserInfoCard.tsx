@@ -40,7 +40,7 @@ export default function UserInfoCard({ user }: UserInfoCardProps) {
           <span className="text-xs text-gray-500 truncate">{user.email}</span>
         )}
         {inferredProvider && (
-          <span className="text-xs text-blue-400">via {inferredProvider}</span>
+          <span className="text-xs text-gray-500">via {inferredProvider}</span>
         )}
       </div>
     </div>
