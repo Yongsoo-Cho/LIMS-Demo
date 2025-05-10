@@ -44,7 +44,7 @@ export default function SuppliesPage() {
           <li className="text-green-700">
             Automatic determination of header rows
           </li>
-          <li className="text-yellow-600">Safety: Uploading CSV is a destructive act since it overwrites previous table. Notify user before proceeding.</li>
+          <li className="text-green-700">Safety: Uploading CSV is a destructive act since it overwrites previous table. Notify user before proceeding.</li>
           <li>Feedback: <span className="text-green-700">Show loading bar during fetch and update</span> | <span className="text-yellow-600">Feedback message to notify the upload to database is successful.</span> </li>
           <li>Improved efficiency: <span className="text-green-700">useMemo</span> | <span className="text-yellow-600">Efficient Data Storage?</span> | <span>Render piece-by-piece?</span> | <span>Disallow files over 2000-3000 lines for efficiency?</span></li>
           <li>
