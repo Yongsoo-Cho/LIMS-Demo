@@ -131,3 +131,22 @@ export async function postComment({
 
   revalidatePath(`/projects/${project_id}`);
 }
+
+type UpdateProjectStatusInput = {
+  projectId: string;
+  status: "Planning" | "In Progress" | "Completed";
+};
+
+export async function updateProjectStatus({
+  projectId,
+  status,
+}: UpdateProjectStatusInput) {
+  const supabase = await createSupabaseServerComponentClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ status })
+    .eq("id", projectId);
+
+  if (error) throw new Error(error.message);
+}

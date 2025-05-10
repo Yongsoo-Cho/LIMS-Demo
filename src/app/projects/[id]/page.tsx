@@ -4,6 +4,10 @@ import { FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 import Comments from "./Comments";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AssigneesCard from "./AssigneesCard";
+import DueDateCard from "./DueDateCard";
+import NotificationsCard from "./NotificationsCard";
+import StatusCard from "./StatusCard";
 
 type PageParams = Promise<{ id: string }>;
 
@@ -68,14 +72,14 @@ export default async function WorkspaceDetailPage({
         </h1>
 
         <div className="grid grid-cols-2 grid-rows-2 gap-4">
-          {projectInfoCards.map(({ title, content }, i) => (
-            <div key={i} className="bg-gray-100 p-4 rounded">
-              <h3 className="text-sm font-medium text-gray-600 mb-1">
-                {title}
-              </h3>
-              <div className="text-gray-800 text-base">{content}</div>
-            </div>
-          ))}
+          <StatusCard status={project.status} projectId={id} />
+          <DueDateCard date={project.due_date} />
+          <AssigneesCard assigneeIds={project.assignees} profiles={profiles} />
+          <NotificationsCard message="None" />
+        </div>
+
+        <div>
+          {project.description}
         </div>
 
         <Comments projectId={id}/>
