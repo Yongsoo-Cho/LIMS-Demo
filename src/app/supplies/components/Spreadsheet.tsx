@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { TableData, Cell } from "../processMetadata";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Download, Search, Filter } from 'lucide-react';
 
 type PropInterface = {
   data: TableData;
@@ -7,10 +12,16 @@ type PropInterface = {
   handleCellChange: (val: string, pt: [number, number]) => boolean;
 };
 
+enum Sort {
+  ASC, DESC, NONE
+}
+
 export default function Spreadsheet(props: PropInterface) {
 
   // MARK: Lifecycle
   const [edit, setEdit] = useState<[number, number] | null>(null);
+  const [sort, setSort] = useState<Sort>(Sort.NONE);
+  const [sortHeader, setSortHeader] = useState<string | null>(null);
 
   // MARK: Event Handlers
 
@@ -26,7 +37,7 @@ export default function Spreadsheet(props: PropInterface) {
   // MARK: Renderers
 
   function renderCell(isEditing: boolean, cell: Cell, pt: [number, number]) {
-    // Render cell based on if it's being edited
+    // Button edit when it is to be edited
     if (isEditing)
       return (
         <input
@@ -38,7 +49,8 @@ export default function Spreadsheet(props: PropInterface) {
           className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       );
-
+    
+    // Button display when edit is closed
     return (
       <button
         onClick={() => {
@@ -50,23 +62,25 @@ export default function Spreadsheet(props: PropInterface) {
     );
   }
 
-  function getHeaders() {
+  const getHeaders = useMemo(() => {
     if (props.data === null || props.data.headers === null) return;
 
     let cells = props.data.headers.map((val, col_idx) => {
       return (
         <th
           key={col_idx}
-          className="text-left px-4 py-3 font-medium !text-black"
+          className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b sticky top-0 bg-muted/50 first:pl-6 last:pr-6"
         >
-          {val}
+          <div className="flex items-center cursor-pointer hover:text-foreground transition-colors">
+            {val}
+          </div>
         </th>
       );
     });
     return cells;
-  }
+  }, [props.data, props.editMode])
 
-  function getBody() {
+  const getBody = useMemo(() => {
     if (props.data === null) return;
 
     const getCells = (row: Cell[], row_idx: number) => {
@@ -74,7 +88,7 @@ export default function Spreadsheet(props: PropInterface) {
         let editCell =
           edit !== null && edit[0] === row_idx && edit[1] === col_idx;
         return (
-          <td key={col_idx} className="px-4 py-3 border-t !text-black">
+          <td key={col_idx} className="px-4 py-3 text-sm font-medium text-left !text-black">
             {renderCell(props.editMode && editCell, cell, [row_idx, col_idx])}
           </td>
         );
@@ -85,7 +99,8 @@ export default function Spreadsheet(props: PropInterface) {
       return (
         <tr
           key={row_idx}
-          className={row_idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+          className={`border-b last:border-b-0 hover:bg-muted/50 transition-colors
+                    ${row_idx % 2 === 0 ? "bg-white" : "bg-muted/20"}`}
         >
           {getCells(row, row_idx)}
         </tr>
@@ -93,20 +108,42 @@ export default function Spreadsheet(props: PropInterface) {
     });
 
     return body;
-  }
-
-  if (props.data === null) return <></>;
+  }, [edit, props.data, props.editMode])
 
   return (
-    <div className="border rounded-md overflow-hidden">
-      <div className="max-h-[500px] overflow-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-50 border-b">{getHeaders()}</tr>
-          </thead>
-          <tbody>{getBody()}</tbody>
-        </table>
-      </div>
-    </div>
-  );
+    <Card className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden">
+      <CardHeader className="pb-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <CardTitle className="text-xl font-semibold">Table</CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input type="search" placeholder="Search data..." className="w-full pl-8" />
+            </div>
+            <Button variant="outline" size="icon">
+              <Filter className="h-4 w-4" />
+              <span className="sr-only">Filter</span>
+            </Button>
+            <Button variant="outline" size="icon">
+              <Download className="h-4 w-4" />
+              <span className="sr-only">Download</span>
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className='p-0'>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-muted/50">{getHeaders}</tr>
+            </thead>
+            <tbody>
+              {getBody}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  )
+
 }

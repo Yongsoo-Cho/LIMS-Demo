@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { generateTableData, TableData } from "../processMetadata";
-import { fetchWorkspace, updateWorkspaceMetadata, WorkspaceMetadata } from "../action";
-import UploadModal, { ModalHandler } from "./Modal";
+import { fetchWorkspace } from "../action";
 
 import { Save, Upload, X } from "lucide-react";
 import { FaUpload } from "react-icons/fa";
 import Spreadsheet from "./Spreadsheet";
-import Loading from "@/app/components/ui/Loading";
+import LoadingScreen from "@/app/components/ui/LoadingScreen";
+import { ModalHandler } from "./Modal";
+import UploadModal from "./Modal";
 
 export default function CsvUploader({
   workspaceId,
@@ -21,7 +22,8 @@ export default function CsvUploader({
   const [table, setTable] = useState<TableData>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  // Modal (Warning) Screen Handling
   const [modal, setModal] = useState<ModalHandler | null>(null);
 
   // MARK: Changes
@@ -34,8 +36,8 @@ export default function CsvUploader({
 
   const flushChanges = () => { setChanges({}); }
 
-  function fuseChanges(): TableData {
-
+  // Memoize to avoid excessive computation
+  const fuseChanges: TableData = useMemo(() => {
     if (table === null || table === undefined) return null;
 
     let copy = Object.assign({}, table) // Copy of table
@@ -45,11 +47,12 @@ export default function CsvUploader({
       }
     }
     return copy;
-  }
+  }, [changes, table])
+
 
   function uploadChanges() {
     // Fuse changes
-    let upload_table: TableData = fuseChanges();
+    let upload_table: TableData = fuseChanges;
     // Safety
     if (upload_table === null) return;
     // Update database
@@ -78,7 +81,10 @@ export default function CsvUploader({
     if (initialMetadata) {
       setTable(initialMetadata)
       console.log('Database metadata exists and set to table.')
+    } else {
+      console.log('Empty workspace. No file to upload')
     }
+    setLoading(false)
   }, [])
 
   // This 'useEffect' setup prevents the cleanup bug
@@ -88,9 +94,9 @@ export default function CsvUploader({
       if (!file) return;
 
       // Get Metadata
-      let new_table: TableData = await generateTableData(file);
-      setTable(new_table);
       setLoading(true)
+      const new_table: TableData = await generateTableData(file);
+      setTable(new_table);
       await fetch("/api/updateMetadata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,7 +118,7 @@ export default function CsvUploader({
 
   // MARK: Display
 
-  function buttonPanel() {
+  const buttonPanel = useMemo(() => {
     if (editMode)
       return (
         <>
@@ -124,10 +130,10 @@ export default function CsvUploader({
             }
             onClick={
               () => {
+                setEditMode(false)
                 setLoading(true)
                 uploadChanges() // fuse changes | upload to supabase | reload
                 setLoading(false)
-                setEditMode(!editMode)
               } 
             }
           >
@@ -139,7 +145,7 @@ export default function CsvUploader({
             onClick={
               () => {
                 flushChanges();
-                setEditMode(!editMode);
+                setEditMode(false);
               }
             }
             className="px-4 py-2 border border-gray-200 !rounded-md text-gray-700 bg-white hover:bg-gray-50 flex items-center gap-2"
@@ -156,31 +162,23 @@ export default function CsvUploader({
           type="button"
           className="px-4 py-2 border !rounded-md border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
           onClick={() => {
-            setEditMode(!editMode);
+            setEditMode(true);
           }}
         >
           Edit Mode
         </button>
-        <button
-          type="button"
-          onClick={
-            () => null /* Here you'll handle exporting the table as .csv*/
-          }
-          className="px-4 py-2 !rounded-md text-white bg-blue-600 hover:bg-blue-700"
-        >
-          Export CSV
-        </button>
       </>
     );
-  }
-
-  if (loading || !initialMetadata) return <Loading />;
-
+  }, [editMode])
+  
   return (
+  <>
+    {(loading) ? <LoadingScreen message="Loading up the spreadsheet, this may take a few seconds..." /> : null}
+    {(modal) ? <UploadModal modal={modal} /> : null}
     <div className="w-full h-fit">
       <div className="mb-6">
         <div className="flex items-start align-middle gap-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <label
               htmlFor="file-upload"
               className="h-fit inline-flex flex-row gap-2 text-sm font-medium items-center custom-file-upload cursor-pointer"
@@ -194,51 +192,81 @@ export default function CsvUploader({
                 type="file"
                 accept=".csv"
                 className="hidden"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                disabled={editMode}
+                onChange={(e) => {
+
+                  if (!table) {
+                    setFile(e.target.files?.[0] || null);
+                    return;
+                  }
+
+                  const handler: ModalHandler = {
+                    title: "Warning",
+                    message: "Uploading a .csv file will overwrite the previous and changes will be instantly sent to the database. Do you wish to continue?",
+                    confirm: () => {
+                      setFile(e.target.files?.[0] || null)
+                      setModal(null)
+                    },
+                    cancel: () => {
+                      e.target.value = ""; // This is needed to allow the reselection of the same file.
+                      setModal(null)
+                    }
+                  }
+
+                  setModal(handler)
+                }}
               />
             </label>
-            <span className="text-gray-600">{file?.name}</span>
+            <span className="text-gray-500 text-xs">{file?.name}</span>
           </div>
         </div>
       </div>
 
-      <div className="w-full h-fit flex justify-end mb-6">
-        {/* <div className="relative w-[400px]">I AM A SEARCH BAR</div> */}
-        <div className="flex gap-3">{buttonPanel()}</div>
-      </div>
+      {
+        // If a table exists when not loading, display as usual. Info message otherwise
+        (loading || table) ?
+          <>
+            <div className="w-full h-fit flex justify-end mb-6">
+              <div className="flex gap-3">{buttonPanel}</div>
+            </div>
 
-      {editMode ? (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
-          <p>
-            <strong>Edit Mode Active:</strong> Click on any cell to edit its
-            value. Press Enter to confirm or Esc to cancel. When finished, click
-            "Save Changes" to apply all edits or "Cancel" to discard them.
-          </p>
-        </div>
-      ) : null}
-      <div className="w-full h-fit">
-        <Spreadsheet
-          data={fuseChanges()} // Show local updates
-          editMode={editMode}
-          handleCellChange={
-            (val: string, [row, col]: [number, number]) => {
-              // Copy changes object
-              let change_dict = Object.assign({}, changes)
-              // Apply recent change
-              if (change_dict[row]) {
-                change_dict[row][col] = val;
-              } else {
-                let _new: {[key: number]: string} = { [col]: val };
-                change_dict[row] = _new;
-              }
-              // Set new change state
-              setChanges(change_dict)
-              return true; // Might remove return type later
-            }
-          }
-        />
-      </div>
+            {editMode ? (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
+                <p>
+                  <strong>Edit Mode Active:</strong> Click on any cell to edit its
+                  value. Press Enter to confirm or Esc to cancel. When finished, click
+                  "Save Changes" to apply all edits or "Cancel" to discard them.
+                </p>
+              </div>
+            ) : null}
+            
+            <div className="w-full h-fit">
+              <Spreadsheet
+                data={fuseChanges} // Show local updates
+                editMode={editMode}
+                handleCellChange={
+                  (val: string, [row, col]: [number, number]) => {
+
+                    if (changes[row]) {
+                      setChanges(prevChanges => ({...prevChanges, [row]: { ...prevChanges[row], [col]: val}}))
+                    } else {
+                      setChanges(prevChanges => ({...prevChanges, [row]: { [col]: val }}))
+                    }
+
+                    return true; // Might remove later
+                  }
+                }
+              />
+            </div>
+          </> : 
+          <div className="w-full h-150 flex flex-col align-middle items-center">
+            <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl">Welcome!</h1>
+            <p className="mb-6 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48">In this workspace, you can upload your spreadsheets and track your inventory with ease. Upload your .csv file data to start editing.</p>
+          </div>
+      }
     </div>
+    
+  </>
   );
 }
 

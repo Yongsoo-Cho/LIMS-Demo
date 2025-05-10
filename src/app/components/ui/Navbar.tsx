@@ -46,7 +46,7 @@ export default function Navbar() {
   ];
 
   return (
-    <aside className="h-screen w-64 border-r border-gray-200 flex flex-col p-2">
+    <aside className="fixed bg-gray-950 h-screen w-64 top-0 left-0 border-r border-gray-200 flex flex-col p-2">
       <div className="flex flex-col gap-4 px-6 pt-8">
         <UserInfoCard user={user} />
         <nav className="mt-6 flex flex-col gap-2">
