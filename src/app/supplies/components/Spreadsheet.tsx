@@ -17,7 +17,6 @@ enum Sort {
 }
 
 export default function Spreadsheet(props: PropInterface) {
-
   // MARK: Lifecycle
   const [edit, setEdit] = useState<[number, number] | null>(null);
   const [sort, setSort] = useState<Sort>(Sort.NONE);

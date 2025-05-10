@@ -29,21 +29,23 @@ export default function CsvUploader({
   // MARK: Changes
 
   interface ChangeLog {
-    [key: number]: {[key: number]: string};
+    [key: number]: { [key: number]: string };
   }
 
   const [changes, setChanges] = useState<ChangeLog>({});
 
-  const flushChanges = () => { setChanges({}); }
+  const flushChanges = () => {
+    setChanges({});
+  };
 
   // Memoize to avoid excessive computation
   const fuseChanges: TableData = useMemo(() => {
     if (table === null || table === undefined) return null;
 
-    let copy = Object.assign({}, table) // Copy of table
+    let copy = Object.assign({}, table); // Copy of table
     for (let row in changes) {
       for (let col in changes[row]) {
-        copy.rows[row][col].value = changes[row][col]
+        copy.rows[row][col].value = changes[row][col];
       }
     }
     return copy;
@@ -64,14 +66,18 @@ export default function CsvUploader({
         metadata: upload_table,
       }),
     }).then(async () => {
-      console.log('Changes Uploaded to Database.')
+      console.log("Changes Uploaded to Database.");
       // Reset CsvUploader
       flushChanges();
       setFile(null);
-      let reload = ((await fetchWorkspace(workspaceId)).metadata as TableData | undefined);
-      if (reload) { setTable(reload) } else setTable(null);
-      console.log('Editor Re-set.')
-    })
+      let reload = (await fetchWorkspace(workspaceId)).metadata as
+        | TableData
+        | undefined;
+      if (reload) {
+        setTable(reload);
+      } else setTable(null);
+      console.log("Editor Re-set.");
+    });
   }
 
   // MARK: Lifecycle
@@ -105,8 +111,8 @@ export default function CsvUploader({
           metadata: new_table,
         }),
       });
-      setLoading(false)
-      console.log('File set to table.')
+      setLoading(false);
+      console.log("File set to table.");
     };
 
     setMetadata();

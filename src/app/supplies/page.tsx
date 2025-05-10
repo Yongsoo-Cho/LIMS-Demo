@@ -59,6 +59,15 @@ export default function SuppliesPage() {
             it so that uploaded columns arent limited to a predetermined schema.
           </li>
           <li>Merge suggestions for similar items</li>
+          <li>
+            Feedback: Show loading bar during fetch and update | Feedback
+            message to notify the upload to database is successful.
+          </li>
+          <li>
+            Safety: Uploading CSV is a destructive act since it overwrites
+            previous table. Notify user before proceeding.
+          </li>
+          <li>More efficient way to store local changes (faster runtime)?</li>
         </ul>
 
         {loadingSupplyFolders ? (

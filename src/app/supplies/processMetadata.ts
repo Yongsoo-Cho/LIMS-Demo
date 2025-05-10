@@ -62,10 +62,10 @@ export type Cell = {
 };
 
 export type TableData = {
-  headers: string[],
-  types: FieldTypeName[],
-  rows: Cell[][],
-  dims: [number, number]
+  headers: string[];
+  types: FieldTypeName[];
+  rows: Cell[][];
+  dims: [number, number];
 } | null;
 
 export function parseCsv(file: File): Promise<string[][]> {
@@ -120,20 +120,20 @@ function inferFieldType(values: string[]): FieldTypeName {
 }
 
 export async function generateTableData(file: File): Promise<TableData> {
-  let res = await parseCsv(file); // How to handle if promise fails???
-  let hdr = inferHeaderRow(res).headers; // Get header
+  const res = await parseCsv(file); // How to handle if promise fails???
+  const hdr = inferHeaderRow(res).headers; // Get header
 
   // Infer cell types
-  let types: FieldTypeName[] = [];
+  const types: FieldTypeName[] = [];
   for (let j = 0; j < hdr.length; j++) {
-    let values: string[] = res.map((_, i) => res[i][j]);
+    const values: string[] = res.map((_, i) => res[i][j]);
     types.push(inferFieldType(values));
   }
 
-  let dims: [number, number] = [res.length, hdr.length]; // Dimensions
+  const dims: [number, number] = [res.length, hdr.length]; // Dimensions
 
-  let _ = res.shift(); // Remove header
-  let rows: Cell[][] = res.map((v, _) => {
+  const _ = res.shift(); // Remove header
+  const rows: Cell[][] = res.map((v, _) => {
     // Convert to cell type
     return v.map((s, idx) => {
       return {

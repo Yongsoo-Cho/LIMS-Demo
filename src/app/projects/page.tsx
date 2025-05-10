@@ -73,11 +73,7 @@ export default function ProjectsPage() {
             <div className="h-6 w-6 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
           </div>
         ) : viewMode === "list" ? (
-          <ProjectList
-            projects={projects || []}
-            profiles={profileData || {}}
-            refetchProjects={refetchProjects}
-          />
+          <ProjectList projects={projects || []} profiles={profileData || {}} />
         ) : (
           <ProjectFlow projects={projects || []} profiles={profileData || {}} />
         )}

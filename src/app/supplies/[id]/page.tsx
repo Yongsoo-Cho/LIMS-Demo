@@ -63,30 +63,30 @@ export default async function WorkspaceDetailPage({
   );
 }
 
-  // // MARK: Lifecycle
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [update, setUpdate] = useState(false); // just a trigger to invoke reload from child
-  // const [workspace, setWorkspace] = useState<SupplyFolder | null>(null);
+// // MARK: Lifecycle
+// const [isLoading, setIsLoading] = useState(false);
+// const [update, setUpdate] = useState(false); // just a trigger to invoke reload from child
+// const [workspace, setWorkspace] = useState<SupplyFolder | null>(null);
 
-  // async function reload() {
-  //   setIsLoading(true);
-  //   setWorkspace(null);
-  //   setWorkspace(await fetchWorkspace(id));
-  //   setIsLoading(false);
-  // }
+// async function reload() {
+//   setIsLoading(true);
+//   setWorkspace(null);
+//   setWorkspace(await fetchWorkspace(id));
+//   setIsLoading(false);
+// }
 
-  // // 1st Render
-  // useEffect(() => {
-  //   reload();
-  // }, [])
+// // 1st Render
+// useEffect(() => {
+//   reload();
+// }, [])
 
-  // // On Child Trigger
-  // useEffect(() => {
-  //   reload();
-  // }, [update])
+// // On Child Trigger
+// useEffect(() => {
+//   reload();
+// }, [update])
 
-  // MARK: Display
+// MARK: Display
 
-  // if (isLoading) return <div>
-  //   LOADING PLS HOLD
-  // </div>
+// if (isLoading) return <div>
+//   LOADING PLS HOLD
+// </div>
