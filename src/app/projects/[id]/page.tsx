@@ -7,6 +7,9 @@ import AssigneesCard from "./AssigneesCard";
 import DueDateCard from "./DueDateCard";
 import NotificationsCard from "./NotificationsCard";
 import StatusCard from "./StatusCard";
+import ProjectNameCard from "./ProjectName";
+import DescriptionCard from "./DescriptionCard";
+import ProjectActionsDropdown from "./ProjectActionsDropdown";
 
 type PageParams = Promise<{ id: string }>;
 
@@ -30,9 +33,11 @@ export default async function WorkspaceDetailPage({
           Back to Projects
         </Link>
 
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-          {project.name}
-        </h1>
+        <div className="flex items-center justify-between">
+          <ProjectNameCard name={project.name} projectId={id} />
+          <ProjectActionsDropdown projectId={id} />
+        </div>
+        
 
         <div className="grid grid-cols-[25%_75%] grid-rows-2 gap-4">
           <StatusCard status={project.status} projectId={id} />
@@ -41,10 +46,7 @@ export default async function WorkspaceDetailPage({
           <NotificationsCard message="None" />
         </div>
 
-        <div>
-          {project.description}
-        </div>
-
+        <DescriptionCard projectId={id} description={project.description}/>
         <Comments projectId={id}/>
       </main>
     </AuthLayout>

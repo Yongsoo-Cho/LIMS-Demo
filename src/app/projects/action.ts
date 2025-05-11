@@ -184,3 +184,50 @@ export async function updateProjectAssignees({
     .eq("id", projectId);
   if (error) throw new Error(error.message);
 }
+
+export async function updateProjectName({
+  projectId,
+  name,
+}: {
+  projectId: string;
+  name: string;
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase
+    .from("projects")
+    .update({ name })
+    .eq("id", projectId);
+  if (error) throw new Error(error.message);
+}
+
+export async function updateProjectDescription({
+  projectId,
+  description,
+}: {
+  projectId: string;
+  description: string;
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ description })
+    .eq("id", projectId);
+
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteProject({ projectId }: { projectId: string }) {
+  const supabase = await createSupabaseServerComponentClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", projectId);
+
+  if (error) {
+    throw new Error(`Failed to delete project: ${error.message}`);
+  }
+
+  return { success: true };
+}
