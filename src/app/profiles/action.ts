@@ -5,7 +5,7 @@ import type { Database } from "@/lib/database.types";
 
 export type MinimalProfile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "display_name" | "avatar_url"
+  "id" | "display_name"
 >;
 
 export type ProfileInfo = Database["public"]["Tables"]["profiles"]["Row"];

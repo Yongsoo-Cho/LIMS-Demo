@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { updateProjectDate } from "../action";
 
 export default function DueDateCard({
   date,
@@ -18,12 +19,7 @@ export default function DueDateCard({
     setSaving(true);
 
     try {
-      const res = await fetch("/api/updateProjectDate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, date: newDate }),
-      });
-      if (!res.ok) throw new Error("Failed to update due date");
+      updateProjectDate({projectId, date: newDate});
     } catch (err) {
       console.error(err);
       alert("Something went wrong while updating the due date.");

@@ -37,7 +37,7 @@ export default async function WorkspaceDetailPage({
         <div className="grid grid-cols-[25%_75%] grid-rows-2 gap-4">
           <StatusCard status={project.status} projectId={id} />
           <DueDateCard date={project.due_date} projectId={id}/>
-          <AssigneesCard assigneeIds={project.assignees} profiles={profiles} />
+          <AssigneesCard assigneeIds={project.assignees} profiles={profiles} projectId={id}/>
           <NotificationsCard message="None" />
         </div>
 

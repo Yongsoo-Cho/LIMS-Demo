@@ -169,3 +169,18 @@ export async function updateProjectDate({
 
   if (error) throw new Error(error.message);
 }
+
+export async function updateProjectAssignees({
+  projectId,
+  assignees,
+}: {
+  projectId: string;
+  assignees: string[];
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase
+    .from("projects")
+    .update({ assignees })
+    .eq("id", projectId);
+  if (error) throw new Error(error.message);
+}

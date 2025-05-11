@@ -8,6 +8,7 @@ const statusColor = {
     Completed: "bg-green-100 text-green-800",
 };
 import { FaChevronDown } from "react-icons/fa"; // Import an arrow icon
+import { updateProjectStatus } from "../action";
 
 export default function StatusCard({
   status,
@@ -20,18 +21,12 @@ export default function StatusCard({
   const [saving, setSaving] = useState(false);
 
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value;
+    const newStatus = e.target.value as "Planning" | "In Progress" | "Completed";
     setCurrentStatus(newStatus);
     setSaving(true);
 
     try {
-      const res = await fetch("/api/updateProjectStatus", {
-        method: "POST",
-        headers: {"Content-Type": "application/json",},
-        body: JSON.stringify({ projectId, status: newStatus }),
-      });
-
-      if (!res.ok) throw new Error("Failed to update status");
+      await updateProjectStatus({projectId, status: newStatus})
     } catch (err) {
       console.error(err);
       alert("Something went wrong while updating status.");
