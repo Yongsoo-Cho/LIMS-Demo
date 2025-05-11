@@ -1,24 +1,9 @@
-"use client";
-
 import AuthLayout from "./components/layouts/AuthLayout";
 import LabDayCard from "./components/ui/LabDayCard";
+import { fetchUpcomingLabDay } from "./utils/fetchUpcomingLabDay";
 
-const assignees = [
-  {
-    id: "1",
-    name: "Renee V",
-    position: "Wet Lab Lead",
-    protocol: "Protein Extraction",
-  },
-  {
-    id: "2",
-    name: "Brandon W",
-    position: "Wet Lab Jr.",
-    protocol: "Transformation",
-  },
-];
-
-export default function Dashboard() {
+export default async function Dashboard() {
+  const { date, projects } = await fetchUpcomingLabDay();
   return (
     <AuthLayout>
       <main className="flex flex-col gap-10 row-start-2 items-center sm:items-start p-6 w-full">
@@ -49,10 +34,7 @@ export default function Dashboard() {
 
         {/* UI Component Showcase */}
         <section className="w-full max-w-3xl">
-          <h2 className="text-xl font-semibold mb-2">
-            Example UI Component: Lab Day Card (Still Working on It)
-          </h2>
-          <LabDayCard date="March 31, 2025" assignees={assignees} />
+          <LabDayCard date={date} projects={projects} />
         </section>
       </main>
     </AuthLayout>

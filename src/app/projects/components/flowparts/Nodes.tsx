@@ -27,7 +27,11 @@ export const transformProjectToNode = (
           <h3 className="text-base font-semibold text-gray-900 leading-snug">
             {project.name}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">{project.description}</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {project.description.length > 150
+                ? project.description.slice(0, 150) + "..."
+                : project.description}
+          </p>
         </div>
 
         <div className="flex justify-between items-center">

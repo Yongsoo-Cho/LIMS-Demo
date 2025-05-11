@@ -193,7 +193,7 @@ export default function Comments({ projectId }: { projectId: string }) {
           rows={3}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          className="w-full resize-none text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full resize-none text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-0"
         />
         <div className="flex justify-end mt-2">
           <button
