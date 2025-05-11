@@ -3,7 +3,6 @@ import { fetchProfilesByProject, fetchProject } from "../action";
 import { FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 import Comments from "./Comments";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AssigneesCard from "./AssigneesCard";
 import DueDateCard from "./DueDateCard";
 import NotificationsCard from "./NotificationsCard";
@@ -20,42 +19,6 @@ export default async function WorkspaceDetailPage({
   const project = await fetchProject(id);
   const profiles = await fetchProfilesByProject(id);
 
-  const projectInfoCards = [
-    {
-      title: "Status",
-      content: project.status,
-    },
-    {
-      title: "Due Date",
-      content: new Date(project.due_date).toLocaleDateString(),
-    },
-    {
-      title: "Assignees",
-      content: (
-        <div className="flex -space-x-2 overflow-hidden">
-          {project.assignees.map((assigneeId: string) => {
-            const profile = profiles[assigneeId];
-            return (
-              <Avatar
-                key={assigneeId}
-                className="w-8 h-8 border-2 border-white"
-              >
-                <AvatarImage src={profile?.avatar_url || ""} />
-                <AvatarFallback>
-                  {profile?.display_name?.[0]?.toUpperCase() || "?"}
-                </AvatarFallback>
-              </Avatar>
-            );
-          })}
-        </div>
-      ),
-    },
-    {
-      title: "Notifications",
-      content: "None",
-    },
-  ];
-
   return (
     <AuthLayout>
       <main className="p-6 sm:p-10 space-y-8">
@@ -71,9 +34,9 @@ export default async function WorkspaceDetailPage({
           {project.name}
         </h1>
 
-        <div className="grid grid-cols-2 grid-rows-2 gap-4">
+        <div className="grid grid-cols-[25%_75%] grid-rows-2 gap-4">
           <StatusCard status={project.status} projectId={id} />
-          <DueDateCard date={project.due_date} />
+          <DueDateCard date={project.due_date} projectId={id}/>
           <AssigneesCard assigneeIds={project.assignees} profiles={profiles} />
           <NotificationsCard message="None" />
         </div>

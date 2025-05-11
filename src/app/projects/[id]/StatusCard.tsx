@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 
+const statusColor = {
+    Planning: "bg-yellow-100 text-yellow-800",
+    "In Progress": "bg-blue-100 text-blue-800",
+    Completed: "bg-green-100 text-green-800",
+};
+import { FaChevronDown } from "react-icons/fa"; // Import an arrow icon
+
 export default function StatusCard({
   status,
   projectId,
@@ -20,9 +27,7 @@ export default function StatusCard({
     try {
       const res = await fetch("/api/updateProjectStatus", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json",},
         body: JSON.stringify({ projectId, status: newStatus }),
       });
 
@@ -38,15 +43,19 @@ export default function StatusCard({
   return (
     <div className="bg-gray-100 p-4 rounded">
       <h3 className="text-sm font-medium text-gray-600 mb-1">Status</h3>
-      <select
-        value={currentStatus}
-        onChange={handleChange}
-        disabled={saving}
-        className="text-gray-800 text-base border border-gray-300 rounded px-3 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="In Progress">In Progress</option>
-        <option value="Completed">Completed</option>
-      </select>
+      <div className="relative w-fit">
+        <select
+          value={currentStatus}
+          onChange={handleChange}
+          disabled={saving}
+          className={`appearance-none text-base pr-10 border border-gray-300 rounded px-3 py-1 focus:outline-none ${statusColor[currentStatus as keyof typeof statusColor]}`}
+        >
+          <option value="Planning">Planning</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+        <FaChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs ${statusColor[currentStatus as keyof typeof statusColor]}`} />
+      </div>
     </div>
   );
 }

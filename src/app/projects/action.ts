@@ -150,3 +150,22 @@ export async function updateProjectStatus({
 
   if (error) throw new Error(error.message);
 }
+
+type UpdateProjectDateInput = {
+  projectId: string;
+  date: string;
+};
+
+export async function updateProjectDate({
+  projectId,
+  date,
+}:  UpdateProjectDateInput) {
+  const supabase = await createSupabaseServerComponentClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({due_date: date})
+    .eq("id", projectId)
+
+  if (error) throw new Error(error.message);
+}
