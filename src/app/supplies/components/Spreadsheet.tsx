@@ -4,7 +4,7 @@ import { TableData, Cell } from "../processMetadata";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Search, Filter } from 'lucide-react';
+import { Download, Search, Filter } from "lucide-react";
 import { download_file } from "../export";
 
 type PropInterface = {
@@ -14,7 +14,9 @@ type PropInterface = {
 };
 
 enum Sort {
-  ASC, DESC, NONE
+  ASC,
+  DESC,
+  NONE,
 }
 
 export default function Spreadsheet(props: PropInterface) {
@@ -49,7 +51,7 @@ export default function Spreadsheet(props: PropInterface) {
           className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       );
-    
+
     // Button display when edit is closed
     return (
       <button
@@ -78,7 +80,7 @@ export default function Spreadsheet(props: PropInterface) {
       );
     });
     return cells;
-  }, [props.data, props.editMode])
+  }, [props.data, props.editMode]);
 
   const getBody = useMemo(() => {
     if (props.data === null) return;
@@ -88,7 +90,10 @@ export default function Spreadsheet(props: PropInterface) {
         let editCell =
           edit !== null && edit[0] === row_idx && edit[1] === col_idx;
         return (
-          <td key={col_idx} className="px-4 py-3 text-sm font-medium text-left !text-black">
+          <td
+            key={col_idx}
+            className="px-4 py-3 text-sm font-medium text-left !text-black"
+          >
             {renderCell(props.editMode && editCell, cell, [row_idx, col_idx])}
           </td>
         );
@@ -108,7 +113,7 @@ export default function Spreadsheet(props: PropInterface) {
     });
 
     return body;
-  }, [edit, props.data, props.editMode])
+  }, [edit, props.data, props.editMode]);
 
   return (
     <Card className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden">
@@ -118,32 +123,39 @@ export default function Spreadsheet(props: PropInterface) {
           <div className="flex items-center gap-2">
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search data..." className="w-full pl-8" />
+              <Input
+                type="search"
+                placeholder="Search data..."
+                className="w-full pl-8"
+              />
             </div>
             <Button variant="outline" size="icon">
               <Filter className="h-4 w-4" />
               <span className="sr-only">Filter</span>
             </Button>
-            <Button variant="outline" size="icon" onClick={() => { download_file(props.data, 'export.csv') }}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                download_file(props.data, "export.csv");
+              }}
+            >
               <Download className="h-4 w-4" />
               <span className="sr-only">Download</span>
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className='p-0'>
+      <CardContent className="p-0">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-muted/50">{getHeaders}</tr>
             </thead>
-            <tbody>
-              {getBody}
-            </tbody>
+            <tbody>{getBody}</tbody>
           </table>
         </div>
       </CardContent>
     </Card>
-  )
-
+  );
 }

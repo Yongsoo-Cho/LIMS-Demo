@@ -27,7 +27,7 @@ export default function CsvUploader({
   // Modal (Warning) Screen Handling
   const [modal, setModal] = useState<ModalHandler | null>(null);
   // Save Success Message Handling
-  const [success, setSuccess] = useState<boolean>(false)
+  const [success, setSuccess] = useState<boolean>(false);
 
   // MARK: Changes
 
@@ -52,8 +52,7 @@ export default function CsvUploader({
       }
     }
     return copy;
-  }, [changes, table])
-
+  }, [changes, table]);
 
   function uploadChanges() {
     // Fuse changes
@@ -88,13 +87,13 @@ export default function CsvUploader({
   // Only runs first render
   useEffect(() => {
     if (initialMetadata) {
-      setTable(initialMetadata)
-      console.log('Database metadata exists and set to table.')
+      setTable(initialMetadata);
+      console.log("Database metadata exists and set to table.");
     } else {
-      console.log('Empty workspace. No file to upload')
+      console.log("Empty workspace. No file to upload");
     }
-    setLoading(false)
-  }, [])
+    setLoading(false);
+  }, []);
 
   // This 'useEffect' setup prevents the cleanup bug
   useEffect(() => {
@@ -103,7 +102,7 @@ export default function CsvUploader({
       if (!file) return;
 
       // Get Metadata
-      setLoading(true)
+      setLoading(true);
       const new_table: TableData = await generateTableData(file);
       setTable(new_table);
       await fetch("/api/updateMetadata", {
@@ -126,12 +125,11 @@ export default function CsvUploader({
   }, [file]);
 
   useEffect(() => {
-
-    console.log(success)
+    console.log(success);
 
     if (!success) return;
 
-    console.log('tru');
+    console.log("tru");
 
     async function timeSuccess(ms: number): Promise<void> {
       const _ = await new Promise((res) => setTimeout(res, ms));
@@ -140,13 +138,12 @@ export default function CsvUploader({
 
     timeSuccess(3000);
 
-    console.log('fls')
+    console.log("fls");
 
     return () => {
       // unmount
-    }
-
-  }, [success])
+    };
+  }, [success]);
 
   // MARK: Display
 
@@ -160,27 +157,23 @@ export default function CsvUploader({
               //"inline-flex align-middle content-center-safe gap-2 px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700"
               "px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center gap-2"
             }
-            onClick={
-              () => {
-                setEditMode(false)
-                setLoading(true)
-                uploadChanges() // fuse changes | upload to supabase | reload
-                setSuccess(true)
-                setLoading(false)
-              } 
-            }
+            onClick={() => {
+              setEditMode(false);
+              setLoading(true);
+              uploadChanges(); // fuse changes | upload to supabase | reload
+              setSuccess(true);
+              setLoading(false);
+            }}
           >
             <Save className="inline-block" size={16} />
             <span>Save</span>
           </button>
           <button
             type="button"
-            onClick={
-              () => {
-                flushChanges();
-                setEditMode(false);
-              }
-            }
+            onClick={() => {
+              flushChanges();
+              setEditMode(false);
+            }}
             className="px-4 py-2 border border-gray-200 !rounded-md text-gray-700 bg-white hover:bg-gray-50 flex items-center gap-2"
           >
             <X size={16} />
@@ -195,7 +188,7 @@ export default function CsvUploader({
           type="button"
           className="px-4 py-2 border !rounded-md border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
           onClick={() => {
-            setSuccess(false)
+            setSuccess(false);
             setEditMode(true);
           }}
         >
@@ -203,112 +196,126 @@ export default function CsvUploader({
         </button>
       </>
     );
-  }, [editMode])
-  
+  }, [editMode]);
+
   return (
-  <>
-    {(loading) ? <LoadingScreen message="Loading up the spreadsheet, this may take a few seconds..." /> : null}
-    {(modal) ? <UploadModal modal={modal} /> : null}
-    <div className="w-full h-fit">
-      <div className="mb-6">
-        <div className="flex items-start align-middle gap-4">
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="file-upload"
-              className="h-fit inline-flex flex-row gap-2 text-sm font-medium items-center custom-file-upload cursor-pointer"
-            >
-              <span className="bg-blue-50 text-blue-600 px-4 py-2 rounded border border-blue-200 cursor-pointer hover:bg-blue-100">
-                <FaUpload className="text-blue-500 inline-block" />
-                {file ? "Change File" : "Choose File"}
-              </span>
-              <input
-                id="file-upload"
-                type="file"
-                accept=".csv"
-                className="hidden"
-                disabled={editMode}
-                onChange={(e) => {
-
-                  if (!table) {
-                    setFile(e.target.files?.[0] || null);
-                    return;
-                  }
-
-                  const handler: ModalHandler = {
-                    title: "Warning",
-                    message: "Uploading a .csv file will overwrite the previous and changes will be instantly sent to the database. Do you wish to continue?",
-                    confirm: () => {
-                      setFile(e.target.files?.[0] || null)
-                      setModal(null)
-                    },
-                    cancel: () => {
-                      e.target.value = ""; // This is needed to allow the reselection of the same file.
-                      setModal(null)
+    <>
+      {loading ? (
+        <LoadingScreen message="Loading up the spreadsheet, this may take a few seconds..." />
+      ) : null}
+      {modal ? <UploadModal modal={modal} /> : null}
+      <div className="w-full h-fit">
+        <div className="mb-6">
+          <div className="flex items-start align-middle gap-4">
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="file-upload"
+                className="h-fit inline-flex flex-row gap-2 text-sm font-medium items-center custom-file-upload cursor-pointer"
+              >
+                <span className="bg-blue-50 text-blue-600 px-4 py-2 rounded border border-blue-200 cursor-pointer hover:bg-blue-100">
+                  <FaUpload className="text-blue-500 inline-block" />
+                  {file ? "Change File" : "Choose File"}
+                </span>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  disabled={editMode}
+                  onChange={(e) => {
+                    if (!table) {
+                      setFile(e.target.files?.[0] || null);
+                      return;
                     }
-                  }
 
-                  setModal(handler)
-                }}
-              />
-            </label>
-            <span className="text-gray-500 text-xs">{file?.name}</span>
+                    const handler: ModalHandler = {
+                      title: "Warning",
+                      message:
+                        "Uploading a .csv file will overwrite the previous and changes will be instantly sent to the database. Do you wish to continue?",
+                      confirm: () => {
+                        setFile(e.target.files?.[0] || null);
+                        setModal(null);
+                      },
+                      cancel: () => {
+                        e.target.value = ""; // This is needed to allow the reselection of the same file.
+                        setModal(null);
+                      },
+                    };
+
+                    setModal(handler);
+                  }}
+                />
+              </label>
+              <span className="text-gray-500 text-xs">{file?.name}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {
-        // If a table exists when not loading, display as usual. Info message otherwise
-        (loading || table) ?
-          <>
-            <div className="w-full h-fit flex justify-end mb-6">
-              <div className="flex gap-3">{buttonPanel}</div>
-            </div>
-
-            {editMode ? (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
-                <p>
-                  <strong>Edit Mode Active:</strong> Click on any cell to edit its
-                  value. Press Enter to confirm or Esc to cancel. When finished, click
-                  "Save Changes" to apply all edits or "Cancel" to discard them.
-                </p>
+        {
+          // If a table exists when not loading, display as usual. Info message otherwise
+          loading || table ? (
+            <>
+              <div className="w-full h-fit flex justify-end mb-6">
+                <div className="flex gap-3">{buttonPanel}</div>
               </div>
-            ) : (
-              (success) ? 
-                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
-                    <p>
-                      <strong>Success!</strong> Saved changes to database.
-                    </p>
-                  </div>
-              : null
-            )}
-            
-            <div className="w-full h-fit">
-              <Spreadsheet
-                data={fuseChanges} // Show local updates
-                editMode={editMode}
-                handleCellChange={
-                  (val: string, [row, col]: [number, number]) => {
 
+              {editMode ? (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-700 text-sm">
+                  <p>
+                    <strong>Edit Mode Active:</strong> Click on any cell to edit
+                    its value. Press Enter to confirm or Esc to cancel. When
+                    finished, click "Save Changes" to apply all edits or
+                    "Cancel" to discard them.
+                  </p>
+                </div>
+              ) : success ? (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+                  <p>
+                    <strong>Success!</strong> Saved changes to database.
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="w-full h-fit">
+                <Spreadsheet
+                  data={fuseChanges} // Show local updates
+                  editMode={editMode}
+                  handleCellChange={(
+                    val: string,
+                    [row, col]: [number, number],
+                  ) => {
                     if (changes[row]) {
-                      setChanges(prevChanges => ({...prevChanges, [row]: { ...prevChanges[row], [col]: val}}))
+                      setChanges((prevChanges) => ({
+                        ...prevChanges,
+                        [row]: { ...prevChanges[row], [col]: val },
+                      }));
                     } else {
-                      setChanges(prevChanges => ({...prevChanges, [row]: { [col]: val }}))
+                      setChanges((prevChanges) => ({
+                        ...prevChanges,
+                        [row]: { [col]: val },
+                      }));
                     }
 
                     return true; // Might remove later
-                  }
-                }
-              />
+                  }}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-150 flex flex-col align-middle items-center">
+              <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl">
+                Welcome!
+              </h1>
+              <p className="mb-6 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48">
+                In this workspace, you can upload your spreadsheets and track
+                your inventory with ease. Upload your .csv file data to start
+                editing.
+              </p>
             </div>
-          </> : 
-          <div className="w-full h-150 flex flex-col align-middle items-center">
-            <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl">Welcome!</h1>
-            <p className="mb-6 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48">In this workspace, you can upload your spreadsheets and track your inventory with ease. Upload your .csv file data to start editing.</p>
-          </div>
-      }
-    </div>
-    
-  </>
+          )
+        }
+      </div>
+    </>
   );
 }
 

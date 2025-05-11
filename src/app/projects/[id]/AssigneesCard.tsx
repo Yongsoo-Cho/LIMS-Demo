@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +10,10 @@ export default function AssigneesCard({
   projectId,
 }: {
   assigneeIds: string[];
-  profiles: Record<string, { display_name: string | null; avatar_url: string | null }>;
+  profiles: Record<
+    string,
+    { display_name: string | null; avatar_url: string | null }
+  >;
   projectId: string;
 }) {
   const [showDropdown, setShowDropdown] = useState(false);

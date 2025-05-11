@@ -80,7 +80,8 @@ export async function fetchComments(project_id: string): Promise<Comment[]> {
 
   const { data, error } = await supabase
     .from("comments")
-    .select(`
+    .select(
+      `
       id,
       body,
       created_at,
@@ -91,7 +92,8 @@ export async function fetchComments(project_id: string): Promise<Comment[]> {
         display_name,
         avatar_url
       )
-    `)
+    `,
+    )
     .eq("project_id", project_id);
 
   if (error) throw new Error(error.message);
@@ -159,13 +161,13 @@ type UpdateProjectDateInput = {
 export async function updateProjectDate({
   projectId,
   date,
-}:  UpdateProjectDateInput) {
+}: UpdateProjectDateInput) {
   const supabase = await createSupabaseServerComponentClient();
 
   const { error } = await supabase
     .from("projects")
-    .update({due_date: date})
-    .eq("id", projectId)
+    .update({ due_date: date })
+    .eq("id", projectId);
 
   if (error) throw new Error(error.message);
 }
@@ -230,4 +232,25 @@ export async function deleteProject({ projectId }: { projectId: string }) {
   }
 
   return { success: true };
+}
+
+export async function updateComment({
+  id,
+  body,
+}: {
+  id: number;
+  body: string;
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase
+    .from("comments")
+    .update({ body })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteComment({ id }: { id: number }) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase.from("comments").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }

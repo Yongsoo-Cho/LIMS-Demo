@@ -3,9 +3,9 @@
 import { useState } from "react";
 
 const statusColor = {
-    Planning: "bg-yellow-100 text-yellow-800",
-    "In Progress": "bg-blue-100 text-blue-800",
-    Completed: "bg-green-100 text-green-800",
+  Planning: "bg-yellow-100 text-yellow-800",
+  "In Progress": "bg-blue-100 text-blue-800",
+  Completed: "bg-green-100 text-green-800",
 };
 import { FaChevronDown } from "react-icons/fa"; // Import an arrow icon
 import { updateProjectStatus } from "../action";
@@ -21,12 +21,15 @@ export default function StatusCard({
   const [saving, setSaving] = useState(false);
 
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as "Planning" | "In Progress" | "Completed";
+    const newStatus = e.target.value as
+      | "Planning"
+      | "In Progress"
+      | "Completed";
     setCurrentStatus(newStatus);
     setSaving(true);
 
     try {
-      await updateProjectStatus({projectId, status: newStatus})
+      await updateProjectStatus({ projectId, status: newStatus });
     } catch (err) {
       console.error(err);
       alert("Something went wrong while updating status.");
@@ -49,7 +52,9 @@ export default function StatusCard({
           <option value="In Progress">In Progress</option>
           <option value="Completed">Completed</option>
         </select>
-        <FaChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs ${statusColor[currentStatus as keyof typeof statusColor]}`} />
+        <FaChevronDown
+          className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs ${statusColor[currentStatus as keyof typeof statusColor]}`}
+        />
       </div>
     </div>
   );

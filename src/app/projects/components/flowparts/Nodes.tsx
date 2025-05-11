@@ -2,7 +2,6 @@ import type { Node } from "@xyflow/react";
 import { Project } from "@/app/types/project";
 import Link from "next/link";
 
-
 export const baseNodeStyle = {
   padding: 20,
   borderRadius: 14,

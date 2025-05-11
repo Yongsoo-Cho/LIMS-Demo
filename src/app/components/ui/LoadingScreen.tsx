@@ -1,12 +1,11 @@
-import { ClipLoader, GridLoader, PropagateLoader } from 'react-spinners';
+import { ClipLoader, GridLoader, PropagateLoader } from "react-spinners";
 
 export default function LoadingScreen(props: { message: string }) {
-
   const override = {
-    display: 'block',
-    margin: '0 auto',
+    display: "block",
+    margin: "0 auto",
     //color: '#155dfc',
-  }
+  };
 
   return (
     // <div className="flex justify-center items-center h-screen w-screen bg-white text-gray-600 text-lg">

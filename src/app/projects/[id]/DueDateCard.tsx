@@ -19,7 +19,7 @@ export default function DueDateCard({
     setSaving(true);
 
     try {
-      updateProjectDate({projectId, date: newDate});
+      updateProjectDate({ projectId, date: newDate });
     } catch (err) {
       console.error(err);
       alert("Something went wrong while updating the due date.");
