@@ -48,7 +48,7 @@ export default function CsvUploader({
     let copy = Object.assign({}, table); // Copy of table
     for (let row in changes) {
       for (let col in changes[row]) {
-        copy.rows[row][col].value = changes[row][col];
+        copy.rows[row].cells[col].value = changes[row][col];
       }
     }
     return copy;
@@ -73,13 +73,17 @@ export default function CsvUploader({
       // Reset CsvUploader
       flushChanges();
       setFile(null);
-      let reload = (await fetchWorkspace(workspaceId)).metadata as
-        | TableData
-        | undefined;
+      // Re-set file via fetch (or try at least)
+      let reload = (await fetchWorkspace(workspaceId)).metadata as TableData | undefined;
       if (reload) {
         setTable(reload);
-      } else setTable(null);
+      } else {
+        console.log('Incompatible table. Cannot read.')
+        setTable(null);
+      }
       console.log("Editor Re-set.");
+    }).catch(() => {
+      console.log('Database update has failed.');
     });
   }
 

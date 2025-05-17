@@ -46,7 +46,7 @@ export default function Spreadsheet(props: PropInterface) {
 
     for (let i=0;i<enum_cols.length;i++) {
       let col = enum_cols[i];
-      const uniq = [...(new Set(props.data.rows.map((val, _) => { return val[col].value })))];
+      const uniq = [...(new Set(props.data.rows.map((val, _) => { return val.cells[col].value })))];
       const _bind: { [key: string]: number } = {}
       uniq.map((val, idx) => {
         _bind[val] = idx;
@@ -104,7 +104,7 @@ export default function Spreadsheet(props: PropInterface) {
 
   function renderEditType(cell: Cell, pt: [number, number]) {
 
-    const standard_disp = (
+    const standard_edit = (
         <input
           type="text"
           value={cell.value}
@@ -116,12 +116,12 @@ export default function Spreadsheet(props: PropInterface) {
     )
 
     switch (cell.type) {
-      case "string": return standard_disp
-      case "boolean": return standard_disp
-      case "datetime": return standard_disp
-      case "enum": return standard_disp
-      case "number": return standard_disp
-      default: return standard_disp
+      case "string": return standard_edit
+      case "boolean": return standard_edit
+      case "datetime": return standard_edit
+      case "enum": return standard_edit
+      case "number": return standard_edit
+      default: return standard_edit
     }
   }
 
@@ -168,7 +168,7 @@ export default function Spreadsheet(props: PropInterface) {
 
   function renderCell(isEditing: boolean, cell: Cell, pt: [number, number]) {
     // Button edit when it is to be edited
-    if (isEditing) renderEditType(cell, pt);
+    if (isEditing) return renderEditType(cell, pt);
     
     // Button display when edit is closed
     return renderDispType(cell, pt);
@@ -208,14 +208,14 @@ export default function Spreadsheet(props: PropInterface) {
       });
     };
 
-    let body = sorted.rows.map((row, row_idx) => {
+    let body = sorted.rows.map((row, idx) => {
       return (
         <tr
-          key={row_idx}
+          key={row.key}
           className={`border-b last:border-b-0 hover:bg-muted/50 transition-colors
-                    ${row_idx % 2 === 0 ? "bg-white" : "bg-muted/20"}`}
+                    ${idx % 2 === 0 ? "bg-white" : "bg-muted/20"}`}
         >
-          {getCells(row, row_idx)}
+          {getCells(row.cells, row.key)}
         </tr>
       );
     });
