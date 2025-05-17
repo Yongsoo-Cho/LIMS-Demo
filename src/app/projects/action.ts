@@ -80,7 +80,8 @@ export async function fetchComments(project_id: string): Promise<Comment[]> {
 
   const { data, error } = await supabase
     .from("comments")
-    .select(`
+    .select(
+      `
       id,
       body,
       created_at,
@@ -91,7 +92,8 @@ export async function fetchComments(project_id: string): Promise<Comment[]> {
         display_name,
         avatar_url
       )
-    `)
+    `,
+    )
     .eq("project_id", project_id);
 
   if (error) throw new Error(error.message);
@@ -148,5 +150,107 @@ export async function updateProjectStatus({
     .update({ status })
     .eq("id", projectId);
 
+  if (error) throw new Error(error.message);
+}
+
+type UpdateProjectDateInput = {
+  projectId: string;
+  date: string;
+};
+
+export async function updateProjectDate({
+  projectId,
+  date,
+}: UpdateProjectDateInput) {
+  const supabase = await createSupabaseServerComponentClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ due_date: date })
+    .eq("id", projectId);
+
+  if (error) throw new Error(error.message);
+}
+
+export async function updateProjectAssignees({
+  projectId,
+  assignees,
+}: {
+  projectId: string;
+  assignees: string[];
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase
+    .from("projects")
+    .update({ assignees })
+    .eq("id", projectId);
+  if (error) throw new Error(error.message);
+}
+
+export async function updateProjectName({
+  projectId,
+  name,
+}: {
+  projectId: string;
+  name: string;
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase
+    .from("projects")
+    .update({ name })
+    .eq("id", projectId);
+  if (error) throw new Error(error.message);
+}
+
+export async function updateProjectDescription({
+  projectId,
+  description,
+}: {
+  projectId: string;
+  description: string;
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ description })
+    .eq("id", projectId);
+
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteProject({ projectId }: { projectId: string }) {
+  const supabase = await createSupabaseServerComponentClient();
+
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", projectId);
+
+  if (error) {
+    throw new Error(`Failed to delete project: ${error.message}`);
+  }
+
+  return { success: true };
+}
+
+export async function updateComment({
+  id,
+  body,
+}: {
+  id: number;
+  body: string;
+}) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase
+    .from("comments")
+    .update({ body })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteComment({ id }: { id: number }) {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase.from("comments").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }

@@ -3,11 +3,13 @@ import { fetchProfilesByProject, fetchProject } from "../action";
 import { FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 import Comments from "./Comments";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AssigneesCard from "./AssigneesCard";
 import DueDateCard from "./DueDateCard";
 import NotificationsCard from "./NotificationsCard";
 import StatusCard from "./StatusCard";
+import ProjectNameCard from "./ProjectName";
+import DescriptionCard from "./DescriptionCard";
+import ProjectActionsDropdown from "./ProjectActionsDropdown";
 
 type PageParams = Promise<{ id: string }>;
 
@@ -20,42 +22,6 @@ export default async function WorkspaceDetailPage({
   const project = await fetchProject(id);
   const profiles = await fetchProfilesByProject(id);
 
-  const projectInfoCards = [
-    {
-      title: "Status",
-      content: project.status,
-    },
-    {
-      title: "Due Date",
-      content: new Date(project.due_date).toLocaleDateString(),
-    },
-    {
-      title: "Assignees",
-      content: (
-        <div className="flex -space-x-2 overflow-hidden">
-          {project.assignees.map((assigneeId: string) => {
-            const profile = profiles[assigneeId];
-            return (
-              <Avatar
-                key={assigneeId}
-                className="w-8 h-8 border-2 border-white"
-              >
-                <AvatarImage src={profile?.avatar_url || ""} />
-                <AvatarFallback>
-                  {profile?.display_name?.[0]?.toUpperCase() || "?"}
-                </AvatarFallback>
-              </Avatar>
-            );
-          })}
-        </div>
-      ),
-    },
-    {
-      title: "Notifications",
-      content: "None",
-    },
-  ];
-
   return (
     <AuthLayout>
       <main className="p-6 sm:p-10 space-y-8">
@@ -67,22 +33,24 @@ export default async function WorkspaceDetailPage({
           Back to Projects
         </Link>
 
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-          {project.name}
-        </h1>
+        <div className="flex items-center justify-between">
+          <ProjectNameCard name={project.name} projectId={id} />
+          <ProjectActionsDropdown projectId={id} />
+        </div>
 
-        <div className="grid grid-cols-2 grid-rows-2 gap-4">
+        <div className="grid grid-cols-[25%_75%] grid-rows-2 gap-4">
           <StatusCard status={project.status} projectId={id} />
-          <DueDateCard date={project.due_date} />
-          <AssigneesCard assigneeIds={project.assignees} profiles={profiles} />
+          <DueDateCard date={project.due_date} projectId={id} />
+          <AssigneesCard
+            assigneeIds={project.assignees}
+            profiles={profiles}
+            projectId={id}
+          />
           <NotificationsCard message="None" />
         </div>
 
-        <div>
-          {project.description}
-        </div>
-
-        <Comments projectId={id}/>
+        <DescriptionCard projectId={id} description={project.description} />
+        <Comments projectId={id} />
       </main>
     </AuthLayout>
   );

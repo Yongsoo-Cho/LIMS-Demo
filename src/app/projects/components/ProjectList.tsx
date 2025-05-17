@@ -39,7 +39,9 @@ export default function ProjectList({ projects, profiles }: ProjectListProps) {
               {project.name}
             </h2>
             <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-              {project.description}
+              {project.description.length > 150
+                ? project.description.slice(0, 150) + "..."
+                : project.description}
             </p>
             <div className="flex flex-wrap gap-2 mb-4 max-h-24 overflow-y-auto pr-1">
               {project.assignees.map((assignee) => (

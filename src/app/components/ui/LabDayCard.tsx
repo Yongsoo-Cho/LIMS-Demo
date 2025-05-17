@@ -1,79 +1,57 @@
-import { FaFlask, FaUserTie } from "react-icons/fa";
+"use client";
 
-interface LabUser {
-  id: string;
-  name: string;
-  position: string;
-  protocol: string;
-}
+import { useRouter } from "next/navigation";
+import { UpcomingLabEntry } from "@/app/utils/fetchUpcomingLabDay";
 
-interface LabDayCardProps {
-  date: string;
-  assignees: LabUser[];
-}
+export default function LabDayCard({
+  date,
+  projects,
+}: {
+  date: string | null;
+  projects: UpcomingLabEntry[];
+}) {
+  const router = useRouter();
 
-export default function LabDayCard({ date, assignees }: LabDayCardProps) {
+  if (!date || projects.length === 0) {
+    return (
+      <div className="bg-white shadow-md rounded-md p-4 w-full max-w-2xl border border-gray-200">
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">Lab Schedule</h2>
+        <p className="text-sm text-gray-500">Nothing coming up.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white shadow-md rounded-md p-4 w-full max-w-2xl border border-gray-200 overflow-x-auto">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Lab Assignments for {date}
+        Lab Assignments for {new Date(date).toLocaleDateString()}
       </h2>
       <table className="min-w-full text-sm text-left border-collapse">
         <thead>
           <tr className="bg-gray-100 text-gray-600 uppercase text-xs">
-            <th className="px-4 py-2 rounded-tl-md">Name</th>
-            <th className="px-4 py-2">Assigned Protocol</th>
-            <th className="px-4 py-2 rounded-tr-md">Position</th>
+            <th className="px-4 py-2 rounded-tl-md">Assignee</th>
+            <th className="px-4 py-2 rounded-tr-md">Project Name</th>
           </tr>
         </thead>
         <tbody>
-          {assignees.map(({ id, name, position, protocol }, idx) => (
-            <tr
-              key={id}
-              className={`border-b ${
-                idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-              } hover:bg-blue-50 transition`}
-            >
-              <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
-                {name}
-              </td>
-              <td className="px-4 py-3 text-gray-700">
-                <div className="flex items-center gap-2">
-                  <FaFlask className="text-gray-400" />
-                  {protocol}
-                </div>
-              </td>
-              <td className="px-4 py-3 text-gray-700">
-                <div className="flex items-center gap-2">
-                  <FaUserTie className="text-gray-400" />
-                  {position}
-                </div>
-              </td>
-            </tr>
-          ))}
+          {projects.flatMap(({ id, name, assignees }, idx) =>
+            assignees.map((a, i) => (
+              <tr
+                key={`${id}-${a.id}`}
+                className={`border-b ${
+                  (idx + i) % 2 === 0 ? "bg-white" : "bg-gray-50"
+                } hover:bg-blue-50 transition cursor-pointer`}
+                onClick={() => router.push(`/projects/${id}`)}
+              >
+                <td className="px-4 py-3 text-gray-900 font-medium whitespace-nowrap">
+                  {a.display_name || "Unknown"}
+                </td>
+                <td className="px-4 py-3 text-gray-700">{name}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
   );
 }
-
-// Example usage (placeholder data):
-/*
-<LabDayCard
-  date="March 31, 2025"
-  assignees={[
-    {
-      id: '1',
-      name: 'Jane Doe',
-      position: 'Research Assistant',
-      protocol: 'Protein Extraction v2.1',
-    },
-    {
-      id: '2',
-      name: 'John Smith',
-      position: 'Lab Manager',
-      protocol: 'Microscopy Calibration',
-    },
-  ]}
-/>
-*/

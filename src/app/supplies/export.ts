@@ -1,52 +1,54 @@
 import { TableData } from "./processMetadata";
 
 const stringify_table: (data: TableData) => string = (data) => {
+  if (!data) return "";
 
-    if (!data) return "";
+  const h_raw = data.headers.join(",");
 
-    const h_raw = data.headers.join(',');
+  const reduced: string[] = data.rows.map((v) => {
+    const arr: string[] = v.map((c) => c.value);
+    return arr.join(",");
+  });
 
-    const reduced: string[] = data.rows.map((v) => {
-        const arr: string[] = v.map((c) => c.value)
-        return arr.join(',')
-    })
+  const raw = reduced.join("\n");
 
-    const raw = reduced.join('\n');
+  console.log(h_raw, raw);
+  return [h_raw, raw].join("\n");
+};
 
-    console.log(h_raw, raw)
-    return [h_raw, raw].join('\n');
-}
+export const download_file = (
+  data: TableData,
+  name: string,
+  bom: boolean = false,
+) => {
+  let str = stringify_table(data);
 
-export const download_file = (data: TableData, name: string, bom: boolean = false) => {
+  if (str === "") {
+    console.log("Nothing to download.");
+    return;
+  }
 
-    let str = stringify_table(data);
+  if (!name.toLowerCase().endsWith(".csv")) {
+    name += ".csv";
+  }
 
-    if (str === "") {
-        console.log('Nothing to download.')
-        return;
-    }
+  str = bom ? `uFEFF${str}` : str;
 
-    if (!name.toLowerCase().endsWith('.csv')) {
-        name += '.csv'
-    }
+  const blob = new Blob([str], { type: "text/csv;charset=utf-8;" });
 
-    str = bom ? `uFEFF${str}` : str
+  const url = URL.createObjectURL(blob);
 
-    const blob = new Blob([str], { type: 'text/csv;charset=utf-8;' });
+  // Dummy element to trigger click
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.style.display = "none";
 
-    const url = URL.createObjectURL(blob);
+  document.body.appendChild(link);
+  link.click();
 
-    // Dummy element to trigger click
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = name;
-    link.style.display = 'none';
-
-    document.body.appendChild(link);
-    link.click()
-
-    setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    }, 100);
-}
+  setTimeout(() => {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, 100);
+};

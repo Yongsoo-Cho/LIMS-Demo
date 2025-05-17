@@ -8,6 +8,7 @@ import {
   FaBoxOpen,
   FaProjectDiagram,
   FaUsers,
+  FaEye
 } from "react-icons/fa";
 import { useAuth } from "@/app/context/AuthProvider";
 import UserInfoCard from "./UserInfoCard";
@@ -32,6 +33,11 @@ export default function Navbar() {
       name: "Supplies",
       href: "/supplies",
       icon: <FaBoxOpen className="mr-3" />,
+    },
+    {
+      name: "Monitoring",
+      href: "/inventoryMonitors",
+      icon: <FaEye className="mr-3" />,
     },
     {
       name: "Projects",
