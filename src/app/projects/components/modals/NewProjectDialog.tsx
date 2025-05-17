@@ -22,8 +22,10 @@ type NewProjectDialogProps = {
   onChange: (value: string) => void;
   assignees: TeamMember[];
   setAssignees: (value: TeamMember[]) => void;
-  dueDate: string;
-  setDueDate: (value: string) => void;
+  startDate: string;
+  setStartDate: (value: string) => void;
+  endDate: string;
+  setEndDate: (value: string) => void;
   description: string;
   setDescription: (value: string) => void;
   onClose: () => void;
@@ -36,8 +38,10 @@ export default function NewProjectDialog({
   onChange,
   assignees,
   setAssignees,
-  dueDate,
-  setDueDate,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
   description,
   setDescription,
   onClose,
@@ -88,12 +92,22 @@ export default function NewProjectDialog({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Due Date
+                Start Date
               </label>
               <input
                 type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                End Date
+              </label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               />
             </div>
