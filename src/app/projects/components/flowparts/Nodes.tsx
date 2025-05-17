@@ -1,6 +1,7 @@
 import type { Node } from "@xyflow/react";
 import { Project } from "@/app/types/project";
 import Link from "next/link";
+import { formatDate } from "../../utils";
 
 export const baseNodeStyle = {
   padding: 20,
@@ -47,7 +48,7 @@ export const transformProjectToNode = (
             {project.status}
           </span>
           <span className="text-xs text-gray-400 font-medium">
-            Due: {project.due_date}
+            {formatDate(project.start_date)} – {formatDate(project.end_date)}
           </span>
         </div>
 

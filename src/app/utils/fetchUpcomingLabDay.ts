@@ -20,8 +20,8 @@ export async function fetchUpcomingLabDay(): Promise<{
   const { data, error } = await supabase
     .from("projects")
     .select("id, name, due_date, assignees")
-    .gte("due_date", today)
-    .order("due_date", { ascending: true });
+    .gte("start_date", today)
+    .order("start_date", { ascending: true });
 
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) return { date: null, projects: [] };

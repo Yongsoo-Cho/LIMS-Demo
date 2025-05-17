@@ -155,18 +155,24 @@ export async function updateProjectStatus({
 
 type UpdateProjectDateInput = {
   projectId: string;
-  date: string;
+  start_date?: string;
+  end_date?: string;
 };
 
 export async function updateProjectDate({
   projectId,
-  date,
+  start_date,
+  end_date,
 }: UpdateProjectDateInput) {
   const supabase = await createSupabaseServerComponentClient();
 
+  const updatePayload: Record<string, string> = {};
+  if (start_date) updatePayload["start_date"] = start_date;
+  if (end_date) updatePayload["end_date"] = end_date;
+
   const { error } = await supabase
     .from("projects")
-    .update({ due_date: date })
+    .update(updatePayload)
     .eq("id", projectId);
 
   if (error) throw new Error(error.message);

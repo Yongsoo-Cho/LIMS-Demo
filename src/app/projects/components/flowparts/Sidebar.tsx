@@ -1,6 +1,7 @@
 import { Project } from "@/app/types/project";
 //import { useDnD } from "./DnDContext";
 import type { DragEvent as ReactDragEvent } from "react";
+import { formatDate } from "../../utils";
 
 interface SidebarProps {
   projects: Project[];
@@ -43,9 +44,13 @@ export default function Sidebar({ projects }: SidebarProps) {
             >
               <div className="font-medium">{project.name}</div>
               <div className="text-xs text-gray-500">
-                {project.due_date
-                  ? new Date(project.due_date).toLocaleDateString()
-                  : "No due date"}
+                {project.start_date && project.end_date ? (
+                  <>
+                    {formatDate(project.start_date)} – {formatDate(project.end_date)}
+                  </>
+                ) : (
+                  "No date range"
+                )}
               </div>
             </li>
           );

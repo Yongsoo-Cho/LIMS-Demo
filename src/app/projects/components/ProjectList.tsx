@@ -3,6 +3,7 @@
 import { Project } from "@/app/types/project";
 import { FaBars, FaUser } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { formatDate } from "../utils";
 
 const statusColor = {
   Planning: "bg-yellow-100 text-yellow-800",
@@ -61,7 +62,7 @@ export default function ProjectList({ projects, profiles }: ProjectListProps) {
             >
               {project.status}
             </span>
-            <span className="text-gray-400">Due: {project.due_date}</span>
+            <span className="text-gray-400">{formatDate(project.start_date)} – {formatDate(project.end_date)}</span>
           </div>
         </div>
       ))}
