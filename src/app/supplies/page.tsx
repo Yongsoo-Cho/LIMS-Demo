@@ -46,14 +46,17 @@ export default function SuppliesPage() {
           </li>
           <li className="text-green-700">Safety: Uploading CSV is a destructive act since it overwrites previous table. Notify user before proceeding.</li>
           <li>Feedback: <span className="text-green-700">Show loading bar during fetch and update</span> | <span className="text-green-700">Feedback message to notify the upload to database is successful.</span> </li>
-          <li>Improved efficiency: <span className="text-green-700">useMemo</span> | <span className="text-yellow-600">Efficient Data Storage?</span> | <span>Render piece-by-piece?</span> | <span>Disallow files over 2000-3000 lines for efficiency?</span></li>
-          <li>
+          <li>Improved efficiency: <span className="text-green-700">useMemo</span> | <span className="text-yellow-600">Efficient Data Storage?</span> | <span>Slots of 20-30?</span> | <span>Disallow files over 2000-3000 lines for efficiency?</span></li>
+          <li className="text-yellow-600">Search: Filter for input | select or deselect columns to include</li>
+          <li className="text-yellow-600">Sort: sort asc, desc, or flush sort | based on a selected column (maybe a icon beside each header?)</li>
+          <li className="text-yellow-600">Type-based display and edit</li>
+          <li className="text-yellow-600">
             Intelligent inference of data fields e.g. a whole column is 0 and
             1s, infer that this a boolean field. Ability to add or at least
             infer ENUM types? like dropdowns, idk how
           </li>
           <li>Reordering suggestions (and perhaps a storefront if it fits)</li>
-          <li>Alert configurations: when to send alerts to and to who</li>s
+          <li>Alert configurations: when to send alerts to and to who</li>
           <li>
             A field in the database that takes a JSON called FEATURES that makes
             it so that uploaded columns arent limited to a predetermined schema.

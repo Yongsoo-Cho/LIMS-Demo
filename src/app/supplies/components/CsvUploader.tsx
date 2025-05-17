@@ -127,11 +127,7 @@ export default function CsvUploader({
 
   useEffect(() => {
 
-    console.log(success)
-
     if (!success) return;
-
-    console.log('tru');
 
     async function timeSuccess(ms: number): Promise<void> {
       const _ = await new Promise((res) => setTimeout(res, ms));
@@ -139,8 +135,6 @@ export default function CsvUploader({
     }
 
     timeSuccess(3000);
-
-    console.log('fls')
 
     return () => {
       // unmount

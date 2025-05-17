@@ -18,10 +18,76 @@ enum Sort {
 }
 
 export default function Spreadsheet(props: PropInterface) {
-  // MARK: Lifecycle
+  // MARK: Lifecycle & Helpers
   const [edit, setEdit] = useState<[number, number] | null>(null);
+
+  const enum_styles: { [key: number]: string } = {
+    0: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400",
+    1: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400",
+    2: "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400",
+    3: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400",
+    4: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400",
+    5: "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400",
+    6: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400",
+    7: "bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400",
+    8: "bg-slate-100 dark:bg-slate-900/30 text-slate-800 dark:text-slate-400",
+    9: "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400",
+  }
+
+  const pill_binds = useMemo(() => {
+    // Bind enum values of each enum column with indices
+    if (!props.data) return null;
+
+    const enum_cols = props.data.types.map((val, idx) => (val === 'enum') ? idx : -1).filter((idx) => idx !== -1)
+
+    if (enum_cols.length === 0) return null;
+
+    const binds: { [key: number]: { [key: string]: number } } = {}
+
+    for (let i=0;i<enum_cols.length;i++) {
+      let col = enum_cols[i];
+      const uniq = [...(new Set(props.data.rows.map((val, _) => { return val[col].value })))];
+      const _bind: { [key: string]: number } = {}
+      uniq.map((val, idx) => {
+        _bind[val] = idx;
+      })
+      binds[col] = _bind;
+    }
+
+    console.log(props.data)
+    console.log(binds)
+    return binds;
+  }, [props.data])
+  
+  // MARK: Search/Sort
+  // Search
+  const [search, setSearch] = useState<string>("");
+  const [searchHeaders, setSearchHeaders] = useState<string[]>([]); // Might change later based on desired use
+  // Sort
   const [sort, setSort] = useState<Sort>(Sort.NONE);
   const [sortHeader, setSortHeader] = useState<string | null>(null);
+
+  const assign_key = useMemo(() => {
+    // needed to track original change positions
+  }, [props.data])
+
+  const filter_dependency: any[] = [props.data, search, searchHeaders];
+  const filtered = useMemo(() => {
+    // Filter the table rows based if they contain search string
+    if (search === "") return props.data;
+
+    return props.data
+
+  }, filter_dependency)
+
+  const sort_dependency = filter_dependency.concat([sort, sortHeader]);
+  const sorted = useMemo(() => {
+    // Sort based on included headers and 
+    if (sort === Sort.NONE) return filtered;
+    
+    return filtered;
+  }, sort_dependency)
+
 
   // MARK: Event Handlers
 
@@ -34,12 +100,11 @@ export default function Spreadsheet(props: PropInterface) {
     }
   };
 
-  // MARK: Renderers
+  // MARK: Type-Based Render
 
-  function renderCell(isEditing: boolean, cell: Cell, pt: [number, number]) {
-    // Button edit when it is to be edited
-    if (isEditing)
-      return (
+  function renderEditType(cell: Cell, pt: [number, number]) {
+
+    const standard_disp = (
         <input
           type="text"
           value={cell.value}
@@ -48,24 +113,71 @@ export default function Spreadsheet(props: PropInterface) {
           onBlur={() => setEdit(null)}
           className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-      );
-    
-    // Button display when edit is closed
-    return (
-      <button
-        onClick={() => {
-          if (props.editMode) setEdit(pt);
-        }}
-      >
+    )
+
+    switch (cell.type) {
+      case "string": return standard_disp
+      case "boolean": return standard_disp
+      case "datetime": return standard_disp
+      case "enum": return standard_disp
+      case "number": return standard_disp
+      default: return standard_disp
+    }
+  }
+
+  function renderDispType(cell: Cell, pt: [number, number]) {
+
+    const standard_disp = (
+      <button onClick={() => { if (props.editMode) setEdit(pt); }}>
         {cell.value}
       </button>
-    );
+    )
+
+    switch (cell.type) {
+      case "string":
+        return standard_disp
+      case "boolean": 
+        return standard_disp
+      case "datetime": 
+        return standard_disp
+      case "enum":
+
+        if (!pill_binds || cell.value === "" || cell.value === null) return standard_disp; // Will not happen if enum exists
+        let key: number = -1
+        try {
+          key = pill_binds[pt[1]][cell.value];
+        } catch {
+          console.log('Key isn\' found in the list of pills')
+          return standard_disp
+        }
+
+        /* Here comes a pill box w/ dropdown */
+        return (
+          <span className={`w-fit max-w-32 inline-flex items-center text-center rounded-full px-2 py-0.5 m-1 text-xs font-medium truncate ${enum_styles[key]}`}>
+            {cell.value}
+          </span>
+        )
+      case "number":
+        return standard_disp
+      default:
+        return standard_disp
+    }
+  }
+
+  // MARK: Renderers
+
+  function renderCell(isEditing: boolean, cell: Cell, pt: [number, number]) {
+    // Button edit when it is to be edited
+    if (isEditing) renderEditType(cell, pt);
+    
+    // Button display when edit is closed
+    return renderDispType(cell, pt);
   }
 
   const getHeaders = useMemo(() => {
-    if (props.data === null || props.data.headers === null) return;
+    if (sorted === null || sorted.headers === null) return;
 
-    let cells = props.data.headers.map((val, col_idx) => {
+    let cells = sorted.headers.map((val, col_idx) => {
       return (
         <th
           key={col_idx}
@@ -80,8 +192,9 @@ export default function Spreadsheet(props: PropInterface) {
     return cells;
   }, [props.data, props.editMode])
 
+  const table_dependency = sort_dependency.concat([edit, props.data, props.editMode])
   const getBody = useMemo(() => {
-    if (props.data === null) return;
+    if (sorted === null) return;
 
     const getCells = (row: Cell[], row_idx: number) => {
       return row.map((cell, col_idx) => {
@@ -95,7 +208,7 @@ export default function Spreadsheet(props: PropInterface) {
       });
     };
 
-    let body = props.data.rows.map((row, row_idx) => {
+    let body = sorted.rows.map((row, row_idx) => {
       return (
         <tr
           key={row_idx}
@@ -108,7 +221,7 @@ export default function Spreadsheet(props: PropInterface) {
     });
 
     return body;
-  }, [edit, props.data, props.editMode])
+  }, table_dependency)
 
   return (
     <Card className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden">

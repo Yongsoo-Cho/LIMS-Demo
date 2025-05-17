@@ -1,54 +1,5 @@
 import Papa from "papaparse";
 
-// export type FieldMetadata = {
-//   name: string;
-//   type: FieldTypeName;
-//   entries: string[];
-//   values?: string[]; // Only use for inferred enum types.
-// };
-
-// export type MetadataSchema = {
-//   fields: FieldMetadata[];
-//   rowCount: number;
-//   hasHeaderRow: boolean;
-// };
-
-// function generateMetadata(rows: string[][]): MetadataSchema {
-//   const { hasHeader, headers } = inferHeaderRow(rows);
-//   const dataRows = hasHeader ? rows.slice(1) : rows;
-
-//   const fields: FieldMetadata[] = headers.map((header, colIndex) => {
-//     const columnValues: string[] = dataRows.map(
-//       (row) => row[colIndex]?.trim() ?? "",
-//     );
-//     const type = inferFieldType(columnValues);
-
-//     const field: FieldMetadata = {
-//       name: header,
-//       type,
-//       entries: columnValues,
-//     };
-
-//     if (type === "enum") {
-//       field.values = [...new Set(columnValues)];
-//     }
-
-//     return field;
-//   });
-
-//   return {
-//     fields,
-//     rowCount: dataRows.length,
-//     hasHeaderRow: hasHeader,
-//   };
-// }
-
-// export async function handleCsvToMetadata(file: File): Promise<MetadataSchema> {
-//   const rows = await parseCsv(file);
-//   const metadata = generateMetadata(rows);
-//   return metadata;
-// }
-
 export type FieldTypeName =
   | "boolean"
   | "number"
