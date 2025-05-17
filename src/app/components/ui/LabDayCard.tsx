@@ -4,15 +4,15 @@ import { useRouter } from "next/navigation";
 import { UpcomingLabEntry } from "@/app/utils/fetchUpcomingLabDay";
 
 export default function LabDayCard({
-  date,
+  start_date,
   projects,
 }: {
-  date: string | null;
+  start_date: string | null;
   projects: UpcomingLabEntry[];
 }) {
   const router = useRouter();
 
-  if (!date || projects.length === 0) {
+  if (!start_date || projects.length === 0) {
     return (
       <div className="bg-white shadow-md rounded-md p-4 w-full max-w-2xl border border-gray-200">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">Lab Schedule</h2>
@@ -24,7 +24,7 @@ export default function LabDayCard({
   return (
     <div className="bg-white shadow-md rounded-md p-4 w-full max-w-2xl border border-gray-200 overflow-x-auto">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Lab Assignments for {new Date(date).toLocaleDateString()}
+        Lab Assignments for {new Date(start_date).toLocaleDateString()}
       </h2>
       <table className="min-w-full text-sm text-left border-collapse">
         <thead>

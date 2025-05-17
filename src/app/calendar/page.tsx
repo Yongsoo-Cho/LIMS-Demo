@@ -7,8 +7,8 @@ export default async function CalendarPage() {
   const { projects, profileMap } = await fetchProjectsWithAssignees();
 
   const highlightedDates = projects
-    .filter((p) => p.due_date)
-    .map((p) => new Date(p.due_date));
+    .filter((p) => p.start_date)
+    .map((p) => new Date(p.start_date));
 
   return (
     <AuthLayout>

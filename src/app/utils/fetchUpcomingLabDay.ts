@@ -6,12 +6,12 @@ import { ProfileInfo } from "../profiles/action";
 export type UpcomingLabEntry = {
   id: string;
   name: string;
-  due_date: string;
+  start_date: string;
   assignees: ProfileInfo[];
 };
 
 export async function fetchUpcomingLabDay(): Promise<{
-  date: string | null;
+  start_date: string | null;
   projects: UpcomingLabEntry[];
 }> {
   const supabase = await createSupabaseServerComponentClient();
@@ -19,15 +19,15 @@ export async function fetchUpcomingLabDay(): Promise<{
 
   const { data, error } = await supabase
     .from("projects")
-    .select("id, name, due_date, assignees")
+    .select("id, name, start_date, assignees")
     .gte("start_date", today)
     .order("start_date", { ascending: true });
 
   if (error) throw new Error(error.message);
-  if (!data || data.length === 0) return { date: null, projects: [] };
+  if (!data || data.length === 0) return { start_date: null, projects: [] };
 
-  const closestDate = data[0].due_date;
-  const projectsForThatDay = data.filter((p) => p.due_date === closestDate);
+  const closestDate = data[0].start_date;
+  const projectsForThatDay = data.filter((p) => p.start_date === closestDate);
 
   const assigneeIds = [
     ...new Set(projectsForThatDay.flatMap((p) => p.assignees ?? [])),
@@ -49,7 +49,7 @@ export async function fetchUpcomingLabDay(): Promise<{
   }));
 
   return {
-    date: closestDate,
+    start_date: closestDate,
     projects: enrichedProjects,
   };
 }

@@ -3,7 +3,7 @@ import LabDayCard from "./components/ui/LabDayCard";
 import { fetchUpcomingLabDay } from "./utils/fetchUpcomingLabDay";
 
 export default async function Dashboard() {
-  const { date, projects } = await fetchUpcomingLabDay();
+  const { start_date, projects } = await fetchUpcomingLabDay();
   return (
     <AuthLayout>
       <main className="flex flex-col gap-10 row-start-2 items-center sm:items-start p-6 w-full">
@@ -34,7 +34,7 @@ export default async function Dashboard() {
 
         {/* UI Component Showcase */}
         <section className="w-full max-w-3xl">
-          <LabDayCard date={date} projects={projects} />
+          <LabDayCard start_date={start_date} projects={projects} />
         </section>
       </main>
     </AuthLayout>

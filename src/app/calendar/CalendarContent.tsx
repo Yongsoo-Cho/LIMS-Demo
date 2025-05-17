@@ -21,8 +21,8 @@ export default function CalendarContent({
   );
 
   const projectsForSelectedDate = projects.filter((project) =>
-    project.due_date
-      ? isSameDay(new Date(project.due_date), selectedDate || new Date())
+    project.start_date
+      ? isSameDay(new Date(project.start_date), selectedDate || new Date())
       : false,
   );
 
