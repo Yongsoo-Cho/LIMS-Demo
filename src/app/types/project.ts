@@ -4,7 +4,8 @@ export interface Project {
   description: string;
   status: "Planning" | "In Progress" | "Completed";
   assignees: string[];
-  due_date: string;
+  start_date: string;
+  end_date: string;
   coordinates?: [number, number];
 }
 

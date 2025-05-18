@@ -99,7 +99,7 @@ export async function generateTableData(file: File): Promise<TableData> {
         type: types[idx],
       };
     });
-    return new_row
+    return new_row;
   });
 
   return {

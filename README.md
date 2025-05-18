@@ -17,7 +17,7 @@
 - **Database**: PostgreSQL (via Supabase)
 - **File Uploads**: Supabase Storage
 - **Icons**: React Icons, FontAwesome
-- **UI**: Headless UI
+- **UI**: Headless UI 
 
 <h2>📸 Screenshots</h2>
 

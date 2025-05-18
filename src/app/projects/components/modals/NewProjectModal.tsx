@@ -18,7 +18,8 @@ export default function NewProjectModal({
   const supabase = createClient();
   const [projectName, setProjectName] = useState<string>("");
   const [assignees, setAssignees] = useState<TeamMember[]>([]);
-  const [dueDate, setDueDate] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [showDiscardWarning, setShowDiscardWarning] = useState<boolean>(false);
 
@@ -49,16 +50,22 @@ export default function NewProjectModal({
       return;
     }
 
-    if (!dueDate) {
+    if (!startDate || !endDate) {
       alert("Please select a due date.");
       return;
     }
+    if (new Date(endDate) < new Date(startDate)) {
+      alert("End date cannot be before start date.");
+      return;
+    }
+
     const newProject = {
       name: projectName,
       description: description,
       status: "Planning",
       assignees: assignees.map((a) => a.id),
-      due_date: dueDate || null,
+      start_date: startDate || null,
+      end_date: endDate || null,
       coordinates: null,
     };
     console.log(newProject);
@@ -72,7 +79,8 @@ export default function NewProjectModal({
       onSuccess?.();
       setProjectName("");
       setAssignees([]);
-      setDueDate("");
+      setStartDate("");
+      setEndDate("");
       setDescription("");
       setIsOpen(false);
     }
@@ -86,8 +94,10 @@ export default function NewProjectModal({
         onChange={setProjectName}
         assignees={assignees}
         setAssignees={setAssignees}
-        dueDate={dueDate}
-        setDueDate={setDueDate}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
         description={description}
         setDescription={setDescription}
         onClose={handleMainClose}

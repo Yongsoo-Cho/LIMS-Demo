@@ -8,7 +8,7 @@ import {
   FaBoxOpen,
   FaProjectDiagram,
   FaUsers,
-  FaEye
+  FaEye,
 } from "react-icons/fa";
 import { useAuth } from "@/app/context/AuthProvider";
 import UserInfoCard from "./UserInfoCard";

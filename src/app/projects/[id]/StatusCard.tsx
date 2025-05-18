@@ -46,7 +46,7 @@ export default function StatusCard({
           value={currentStatus}
           onChange={handleChange}
           disabled={saving}
-          className={`appearance-none text-base pr-10 border border-gray-300 rounded px-3 py-1 focus:outline-none ${statusColor[currentStatus as keyof typeof statusColor]}`}
+          className={`appearance-none text-base pr-10 border border-gray-300 rounded-md px-3 py-1 focus:outline-none ${statusColor[currentStatus as keyof typeof statusColor]}`}
         >
           <option value="Planning">Planning</option>
           <option value="In Progress">In Progress</option>

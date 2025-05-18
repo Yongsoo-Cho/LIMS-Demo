@@ -68,29 +68,32 @@ export type Database = {
       projects: {
         Row: {
           assignees: string[] | null;
-          coordinates: number | null;
+          coordinates: number[] | null;
           description: string | null;
-          due_date: string | null;
+          end_date: string | null;
           id: number;
           name: string | null;
+          start_date: string | null;
           status: string | null;
         };
         Insert: {
           assignees?: string[] | null;
-          coordinates?: number | null;
+          coordinates?: number[] | null;
           description?: string | null;
-          due_date?: string | null;
+          end_date?: string | null;
           id?: number;
           name?: string | null;
+          start_date?: string | null;
           status?: string | null;
         };
         Update: {
           assignees?: string[] | null;
-          coordinates?: number | null;
+          coordinates?: number[] | null;
           description?: string | null;
-          due_date?: string | null;
+          end_date?: string | null;
           id?: number;
           name?: string | null;
+          start_date?: string | null;
           status?: string | null;
         };
         Relationships: [];

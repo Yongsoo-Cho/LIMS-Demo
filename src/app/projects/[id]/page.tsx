@@ -5,7 +5,7 @@ import Link from "next/link";
 import Comments from "./Comments";
 import AssigneesCard from "./AssigneesCard";
 import DueDateCard from "./DueDateCard";
-import NotificationsCard from "./NotificationsCard";
+import FileUploadCard from "./FileUploadCard";
 import StatusCard from "./StatusCard";
 import ProjectNameCard from "./ProjectName";
 import DescriptionCard from "./DescriptionCard";
@@ -40,13 +40,17 @@ export default async function WorkspaceDetailPage({
 
         <div className="grid grid-cols-[25%_75%] grid-rows-2 gap-4">
           <StatusCard status={project.status} projectId={id} />
-          <DueDateCard date={project.due_date} projectId={id} />
+          <DueDateCard
+            start_date={project.start_date}
+            end_date={project.end_date}
+            projectId={id}
+          />
           <AssigneesCard
             assigneeIds={project.assignees}
             profiles={profiles}
             projectId={id}
           />
-          <NotificationsCard message="None" />
+          <FileUploadCard projectId={id} />
         </div>
 
         <DescriptionCard projectId={id} description={project.description} />

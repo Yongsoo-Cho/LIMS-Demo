@@ -155,18 +155,24 @@ export async function updateProjectStatus({
 
 type UpdateProjectDateInput = {
   projectId: string;
-  date: string;
+  start_date?: string;
+  end_date?: string;
 };
 
 export async function updateProjectDate({
   projectId,
-  date,
+  start_date,
+  end_date,
 }: UpdateProjectDateInput) {
   const supabase = await createSupabaseServerComponentClient();
 
+  const updatePayload: Record<string, string> = {};
+  if (start_date) updatePayload["start_date"] = start_date;
+  if (end_date) updatePayload["end_date"] = end_date;
+
   const { error } = await supabase
     .from("projects")
-    .update({ due_date: date })
+    .update(updatePayload)
     .eq("id", projectId);
 
   if (error) throw new Error(error.message);
@@ -253,4 +259,160 @@ export async function deleteComment({ id }: { id: number }) {
   const supabase = await createSupabaseServerComponentClient();
   const { error } = await supabase.from("comments").delete().eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+export type FileEntry = {
+  name: string;
+  signedUrl: string;
+};
+
+export async function listProjectFiles(
+  projectId: string,
+): Promise<FileEntry[]> {
+  const supabase = await createSupabaseServerComponentClient();
+  const { data, error } = await supabase.storage
+    .from("project-files")
+    .list(projectId, { limit: 100 });
+
+  if (error) {
+    console.error("Failed to list files:", error.message);
+    return [];
+  }
+
+  const signedFiles: FileEntry[] = await Promise.all(
+    data.map(async (file) => {
+      const { data: signed, error: signedError } = await supabase.storage
+        .from("project-files")
+        .createSignedUrl(`${projectId}/${file.name}`, 60 * 60); // 1 hour
+
+      if (signedError) {
+        console.error(
+          `Error generating signed URL for ${file.name}:`,
+          signedError.message,
+        );
+      }
+
+      return {
+        name: file.name,
+        signedUrl: signed?.signedUrl || "#",
+      };
+    }),
+  );
+
+  return signedFiles;
+}
+
+export async function uploadProjectFile(
+  projectId: string,
+  file: File,
+): Promise<string | null> {
+  const supabase = await createSupabaseServerComponentClient();
+  const path = `${projectId}/${file.name}`;
+
+  const { error } = await supabase.storage
+    .from("project-files")
+    .upload(path, file, {
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (error) {
+    console.error("Upload failed:", error.message);
+    return null;
+  }
+
+  return file.name;
+}
+
+export async function deleteProjectFile(
+  projectId: string,
+  fileName: string,
+): Promise<boolean> {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase.storage
+    .from("project-files")
+    .remove([`${projectId}/${fileName}`]);
+
+  if (error) {
+    console.error("Delete failed:", error.message);
+    return false;
+  }
+
+  return true;
+}
+
+export async function renameProjectFile(
+  projectId: string,
+  oldName: string,
+  newName: string,
+) {
+  const supabase = await createSupabaseServerComponentClient();
+  const oldPath = `${projectId}/${oldName}`;
+  const newPath = `${projectId}/${newName}`;
+
+  const { data: download, error: downloadError } = await supabase.storage
+    .from("project-files")
+    .download(oldPath);
+
+  if (downloadError || !download) {
+    console.error("Download failed:", downloadError?.message);
+    return false;
+  }
+
+  const { error: uploadError } = await supabase.storage
+    .from("project-files")
+    .upload(newPath, download, { upsert: true });
+
+  if (uploadError) {
+    console.error("Re-upload failed:", uploadError.message);
+    return false;
+  }
+
+  const { error: deleteError } = await supabase.storage
+    .from("project-files")
+    .remove([oldPath]);
+
+  if (deleteError) {
+    console.error("Delete failed:", deleteError.message);
+    return false;
+  }
+
+  return true;
+}
+
+export type ExtractionResult = {
+  success: boolean;
+  parsedText?: string;
+  error?: string;
+};
+
+export async function handleExtractFromPDF(
+  projectId: string,
+  fileName: string,
+): Promise<ExtractionResult> {
+  try {
+    const res = await fetch("/api/parseMaterials", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ projectId, fileName }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("API error:", errorText);
+      return { success: false, error: "Failed to extract materials." };
+    }
+
+    const data = await res.json();
+
+    return {
+      success: true,
+      parsedText: data.parsedText,
+    };
+  } catch (err) {
+    console.error("Network or unexpected error:", err);
+    return { success: false, error: "Network error or unexpected failure." };
+  }
 }
