@@ -2,19 +2,9 @@
 
 import { Dialog, DialogPanel } from "@headlessui/react";
 import MultiSelectCombobox from "./MultiSelectCombobox";
-import LabeledInput from "./LabeledInput";
 import { TeamMember } from "@/app/types/project";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/browserClient";
-
-const uploadFields = [
-  { label: "SOP Upload", type: "file", accept: ".pdf,.doc,.docx" },
-  {
-    label: "Benchling Protocol Link",
-    type: "url",
-    placeholder: "https://benchling.com/...",
-  },
-];
 
 type NewProjectDialogProps = {
   isOpen: boolean;
@@ -138,18 +128,6 @@ export default function NewProjectDialog({
               placeholder="Short project description..."
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm resize-none"
             />
-          </div>
-
-          {/* Uploads */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Resources & Links
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {uploadFields.map((field, idx) => (
-                <LabeledInput key={idx} {...field} />
-              ))}
-            </div>
           </div>
 
           {/* Actions */}

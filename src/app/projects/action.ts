@@ -5,6 +5,7 @@ import { Project } from "../types/project";
 import { ProfileInfo } from "../profiles/action";
 import type { Database } from "@/lib/database.types";
 import { revalidatePath } from "next/cache";
+import { create } from "lodash";
 
 export async function fetchProjects(): Promise<Project[]> {
   const supabase = await createSupabaseServerComponentClient();
@@ -259,4 +260,126 @@ export async function deleteComment({ id }: { id: number }) {
   const supabase = await createSupabaseServerComponentClient();
   const { error } = await supabase.from("comments").delete().eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+export type FileEntry = {
+  name: string;
+  signedUrl: string;
+};
+
+export async function listProjectFiles(
+  projectId: string,
+): Promise<FileEntry[]> {
+  const supabase = await createSupabaseServerComponentClient();
+  const { data, error } = await supabase.storage
+    .from("project-files")
+    .list(projectId, { limit: 100 });
+
+  if (error) {
+    console.error("Failed to list files:", error.message);
+    return [];
+  }
+
+  const signedFiles: FileEntry[] = await Promise.all(
+    data.map(async (file) => {
+      const { data: signed, error: signedError } = await supabase.storage
+        .from("project-files")
+        .createSignedUrl(`${projectId}/${file.name}`, 60 * 60); // 1 hour
+
+      if (signedError) {
+        console.error(
+          `Error generating signed URL for ${file.name}:`,
+          signedError.message,
+        );
+      }
+
+      return {
+        name: file.name,
+        signedUrl: signed?.signedUrl || "#",
+      };
+    }),
+  );
+
+  return signedFiles;
+}
+
+export async function uploadProjectFile(
+  projectId: string,
+  file: File,
+): Promise<string | null> {
+  const supabase = await createSupabaseServerComponentClient();
+  const path = `${projectId}/${file.name}`;
+
+  const { error } = await supabase.storage
+    .from("project-files")
+    .upload(path, file, {
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (error) {
+    console.error("Upload failed:", error.message);
+    return null;
+  }
+
+  return file.name;
+}
+
+export async function deleteProjectFile(
+  projectId: string,
+  fileName: string,
+): Promise<boolean> {
+  const supabase = await createSupabaseServerComponentClient();
+  const { error } = await supabase.storage
+    .from("project-files")
+    .remove([`${projectId}/${fileName}`]);
+
+  if (error) {
+    console.error("Delete failed:", error.message);
+    return false;
+  }
+
+  return true;
+}
+
+export async function renameProjectFile(
+  projectId: string,
+  oldName: string,
+  newName: string,
+) {
+  const supabase = await createSupabaseServerComponentClient();
+  const oldPath = `${projectId}/${oldName}`;
+  const newPath = `${projectId}/${newName}`;
+
+  // 1. Download existing file
+  const { data: download, error: downloadError } = await supabase.storage
+    .from("project-files")
+    .download(oldPath);
+
+  if (downloadError || !download) {
+    console.error("Download failed:", downloadError?.message);
+    return false;
+  }
+
+  // 2. Upload with new name
+  const { error: uploadError } = await supabase.storage
+    .from("project-files")
+    .upload(newPath, download, { upsert: true });
+
+  if (uploadError) {
+    console.error("Re-upload failed:", uploadError.message);
+    return false;
+  }
+
+  // 3. Delete old file
+  const { error: deleteError } = await supabase.storage
+    .from("project-files")
+    .remove([oldPath]);
+
+  if (deleteError) {
+    console.error("Delete failed:", deleteError.message);
+    return false;
+  }
+
+  return true;
 }

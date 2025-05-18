@@ -67,23 +67,27 @@ export default function CsvUploader({
         id: workspaceId,
         metadata: upload_table,
       }),
-    }).then(async () => {
-      console.log("Changes Uploaded to Database.");
-      // Reset CsvUploader
-      flushChanges();
-      setFile(null);
-      // Re-set file via fetch (or try at least)
-      let reload = (await fetchWorkspace(workspaceId)).metadata as TableData | undefined;
-      if (reload) {
-        setTable(reload);
-      } else {
-        console.log('Incompatible table. Cannot read.')
-        setTable(null);
-      }
-      console.log("Editor Re-set.");
-    }).catch(() => {
-      console.log('Database update has failed.');
-    });
+    })
+      .then(async () => {
+        console.log("Changes Uploaded to Database.");
+        // Reset CsvUploader
+        flushChanges();
+        setFile(null);
+        // Re-set file via fetch (or try at least)
+        let reload = (await fetchWorkspace(workspaceId)).metadata as
+          | TableData
+          | undefined;
+        if (reload) {
+          setTable(reload);
+        } else {
+          console.log("Incompatible table. Cannot read.");
+          setTable(null);
+        }
+        console.log("Editor Re-set.");
+      })
+      .catch(() => {
+        console.log("Database update has failed.");
+      });
   }
 
   // MARK: Lifecycle
@@ -129,7 +133,6 @@ export default function CsvUploader({
   }, [file]);
 
   useEffect(() => {
-
     if (!success) return;
 
     async function timeSuccess(ms: number): Promise<void> {

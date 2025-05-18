@@ -18,7 +18,7 @@ export default function DateRangeCard({
 
   const handleChange = async (
     key: "start_date" | "end_date",
-    value: string
+    value: string,
   ) => {
     if (key === "start_date") setStartDate(value);
     else setEndDate(value);

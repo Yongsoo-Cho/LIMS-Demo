@@ -39,13 +39,13 @@ export async function fetchUpcomingLabDay(): Promise<{
 
   if (profileError) throw new Error(profileError.message);
 
-  const profileMap = Object.fromEntries(
-    (profiles ?? []).map((p) => [p.id, p])
-  );
+  const profileMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]));
 
   const enrichedProjects: UpcomingLabEntry[] = projectsForThatDay.map((p) => ({
     ...p,
-    assignees: (p.assignees ?? []).map((id: string) => profileMap[id]).filter(Boolean),
+    assignees: (p.assignees ?? [])
+      .map((id: string) => profileMap[id])
+      .filter(Boolean),
   }));
 
   return {

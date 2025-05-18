@@ -80,7 +80,7 @@ export default function NewProjectModal({
       setProjectName("");
       setAssignees([]);
       setStartDate("");
-      setEndDate("")
+      setEndDate("");
       setDescription("");
       setIsOpen(false);
     }

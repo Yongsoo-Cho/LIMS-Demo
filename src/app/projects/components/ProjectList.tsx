@@ -62,7 +62,9 @@ export default function ProjectList({ projects, profiles }: ProjectListProps) {
             >
               {project.status}
             </span>
-            <span className="text-gray-400">{formatDate(project.start_date)} – {formatDate(project.end_date)}</span>
+            <span className="text-gray-400">
+              {formatDate(project.start_date)} – {formatDate(project.end_date)}
+            </span>
           </div>
         </div>
       ))}

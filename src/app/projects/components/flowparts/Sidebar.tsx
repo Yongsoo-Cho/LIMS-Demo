@@ -46,7 +46,8 @@ export default function Sidebar({ projects }: SidebarProps) {
               <div className="text-xs text-gray-500">
                 {project.start_date && project.end_date ? (
                   <>
-                    {formatDate(project.start_date)} – {formatDate(project.end_date)}
+                    {formatDate(project.start_date)} –{" "}
+                    {formatDate(project.end_date)}
                   </>
                 ) : (
                   "No date range"

@@ -61,7 +61,7 @@ export default function Comments({ projectId }: { projectId: string }) {
 
   const handleEdit = async (id: number) => {
     if (!editingBody.trim()) return;
-  
+
     try {
       await updateComment({ id, body: editingBody });
     } catch (err) {
@@ -73,10 +73,10 @@ export default function Comments({ projectId }: { projectId: string }) {
       await loadComments();
     }
   };
-  
+
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this comment?")) return;
-  
+
     try {
       await deleteComment({ id });
     } catch (err) {
