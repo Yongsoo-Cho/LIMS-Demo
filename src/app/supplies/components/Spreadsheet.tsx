@@ -4,8 +4,11 @@ import { TableData, Cell } from "../processMetadata";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Search, Filter } from "lucide-react";
+import { Download, Search, Filter, Check, X } from "lucide-react";
 import { download_file } from "../export";
+
+// Dropdown Imports
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator} from "@radix-ui/react-dropdown-menu";
 
 type PropInterface = {
   data: TableData;
@@ -61,10 +64,12 @@ export default function Spreadsheet(props: PropInterface) {
     return binds;
   }, [props.data])
   
-  // MARK: Search/Sort
+  // MARK: Filter/Search/Sort
+  // Filter
+  const [searchHeaders, setSearchHeaders] = useState<string[]>((props.data) ? props.data.headers : []);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   // Search
   const [search, setSearch] = useState<string>("");
-  const [searchHeaders, setSearchHeaders] = useState<string[]>([]); // Might change later based on desired use
   // Sort
   const [sort, setSort] = useState<Sort>(Sort.NONE);
   const [sortHeader, setSortHeader] = useState<string | null>(null);
@@ -119,7 +124,21 @@ export default function Spreadsheet(props: PropInterface) {
 
     switch (cell.type) {
       case "string": return standard_edit
-      case "boolean": return standard_edit
+      case "boolean": 
+        const value = (cell.value === 'true' || cell.value === '1');
+        return (
+          <div className="flex justify-center">
+            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+              (value) 
+              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}
+            `}
+            aria-label={(value) ? "True" : "False"}
+            >
+              {value ? <Check className="h-4 w-4"/> : <X className="h-4 w-4"/>}
+            </div>
+          </div>
+      )
       case "datetime": return standard_edit
       case "enum": return standard_edit
       case "number": return standard_edit
@@ -234,18 +253,57 @@ export default function Spreadsheet(props: PropInterface) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <CardTitle className="text-xl font-semibold">Table</CardTitle>
           <div className="flex items-center gap-2">
+            {/* Search Input Field */}
             <div className="relative w-full md:w-64">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search data..."
                 className="w-full pl-8"
+                onChange={(e) => { setSearch(e.target.value); }}
               />
             </div>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-              <span className="sr-only">Filter</span>
-            </Button>
+            {/* Filter and Dropdown */}
+            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+              {/* Dropdown Trigger Button */}
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Filter className="h-4 w-4" />
+                  <span className="sr-only">Filter</span>
+                </Button>
+              </DropdownMenuTrigger>
+              {/* Dropdown Menu & Item Listing */}
+              <DropdownMenuContent align='end' className='w-fit'>
+                <DropdownMenuLabel>Select Columns</DropdownMenuLabel>
+
+                {props.data?.headers.map((v, i) => {
+                  return  <div 
+                            key={i} 
+                            className="flex items-center px-3 py-2 hover:bg-muted cursor-pointer"
+                            onClick={() => { 
+                              if (searchHeaders.includes(v)) {
+                                const remove_idx = searchHeaders.indexOf(v);
+                                setSearchHeaders([...searchHeaders].splice(remove_idx, 1));
+                              } else {
+                                setSearchHeaders(searchHeaders.concat([v]));
+                              }
+                            }}
+                          >
+                            <div className="flex h-4 w-4 items-center justify-center rounded-sm border border-primary mr-2">
+                              {searchHeaders.includes(v) && <Check className="h-3 w-3" />}
+                            </div>
+                            <span>{v}</span>
+                          </div>
+                })}
+
+                <DropdownMenuSeparator />
+
+                <div className="flex justify-end p-2">
+                  <Button size="sm">Apply Filters</Button>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {/* Export Button */}
             <Button
               variant="outline"
               size="icon"
