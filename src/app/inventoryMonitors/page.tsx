@@ -10,8 +10,8 @@ export default function InventoryMonitorsPage() {
         </h1>
         <ul className="list-disc ml-6 space-y-2 text-gray-800">
           <li>
-            A supply policy could entail fields for "autoOrder", "notifyUsers",
-            "lowStockWarning", "perishingSoon", where the user would set
+            A supply policy could entail fields for autoOrder, notifyUsers,
+            lowStockWarning, perishingSoon, where the user would set
             parameters for these fields which reference a row in the supplies
             table.
           </li>
@@ -23,11 +23,11 @@ export default function InventoryMonitorsPage() {
           <li>
             if a row does not exist in the supplies table thats referenced in
             SupplyPolicies, we keep that policiy so we can edit it with a new
-            row entry, but it will be in an 'unactivated' state
+            row entry, but it will be in an unactivated state
           </li>
           <li>
             we can have policy templates where users can make a policy for
-            "Reagent Expiries" or "Pipette Recalibrations"
+            Reagent Expiries or Pipette Recalibrations
           </li>
         </ul>
       </div>

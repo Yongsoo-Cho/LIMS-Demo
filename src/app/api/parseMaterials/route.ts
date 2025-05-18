@@ -58,11 +58,18 @@ export async function POST(req: Request) {
   }
 }
 
+interface PDFParserInstance {
+  on(event: "pdfParser_dataError", callback: (err: { parserError: string }) => void): void;
+  on(event: "pdfParser_dataReady", callback: () => void): void;
+  loadPDF: (filePath: string) => void;
+  getRawTextContent: () => string;
+}
+
 async function parsePDF(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const pdfParser = new (PDFParser as any)(null, 1);
+    const pdfParser: PDFParserInstance = new PDFParser(null, true);
 
-    pdfParser.on("pdfParser_dataError", (err: any) => {
+    pdfParser.on("pdfParser_dataError", (err) => {
       reject(err.parserError);
     });
 

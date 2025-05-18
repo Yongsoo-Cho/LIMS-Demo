@@ -7,7 +7,6 @@ import {
   uploadProjectFile,
   deleteProjectFile,
   renameProjectFile,
-  handleExtractFromPDF,
 } from "../action";
 
 export default function FileUploadCard({ projectId }: { projectId: string }) {
