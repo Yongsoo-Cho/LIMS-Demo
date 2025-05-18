@@ -7,6 +7,7 @@ import {
   uploadProjectFile,
   deleteProjectFile,
   renameProjectFile,
+  handleExtractFromPDF,
 } from "../action";
 
 export default function FileUploadCard({ projectId }: { projectId: string }) {
@@ -16,6 +17,8 @@ export default function FileUploadCard({ projectId }: { projectId: string }) {
   const [newFileName, setNewFileName] = useState("");
   const [files, setFiles] = useState<FileEntry[]>([]);
   const uploaded = files[0] || null;
+
+  const [loading, setLoading] = useState(false);
 
   const loadFiles = async () => {
     const files = await listProjectFiles(projectId);
@@ -65,6 +68,39 @@ export default function FileUploadCard({ projectId }: { projectId: string }) {
     await loadFiles();
   };
 
+  const fetchProjectMaterials = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/parseMaterials", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projectId, fileName: uploaded.name }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Server error:", errorText);
+        alert("Failed to extract materials.");
+        return;
+      }
+
+      const data = await res.json();
+      if (!data?.parsedText) {
+        alert("No text extracted from PDF.");
+        return;
+      }
+
+      alert(data.parsedText);
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-gray-100 p-4 rounded">
       <h3 className="text-sm font-semibold text-gray-800 mb-3">Attachment</h3>
@@ -82,17 +118,24 @@ export default function FileUploadCard({ projectId }: { projectId: string }) {
             </a>
             <div className="flex gap-2">
               <button
+                onClick={fetchProjectMaterials}
+                disabled={loading}
+                className="text-xs font-medium px-2 py-1 border rounded hover:bg-gray-200 disabled:opacity-50"
+              >
+                {loading ? "Extracting..." : "Extract Mats."}
+              </button>
+              <button
                 onClick={() => {
                   setRenaming(true);
                   setNewFileName(uploaded.name);
                 }}
-                className="text-xs font-medium px-2 py-1 border rounded"
+                className="text-xs font-medium px-2 py-1 border rounded hover:bg-gray-200"
               >
                 Rename
               </button>
               <button
                 onClick={handleDelete}
-                className="text-red-600 hover:text-red-700 text-xs font-medium px-2 py-1 border border-red-200 rounded"
+                className="text-red-600 hover:bg-red-100 text-xs font-medium px-2 py-1 border border-red-200 rounded"
               >
                 Delete
               </button>

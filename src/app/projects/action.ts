@@ -5,7 +5,6 @@ import { Project } from "../types/project";
 import { ProfileInfo } from "../profiles/action";
 import type { Database } from "@/lib/database.types";
 import { revalidatePath } from "next/cache";
-import { create } from "lodash";
 
 export async function fetchProjects(): Promise<Project[]> {
   const supabase = await createSupabaseServerComponentClient();
@@ -351,7 +350,6 @@ export async function renameProjectFile(
   const oldPath = `${projectId}/${oldName}`;
   const newPath = `${projectId}/${newName}`;
 
-  // 1. Download existing file
   const { data: download, error: downloadError } = await supabase.storage
     .from("project-files")
     .download(oldPath);
@@ -361,7 +359,6 @@ export async function renameProjectFile(
     return false;
   }
 
-  // 2. Upload with new name
   const { error: uploadError } = await supabase.storage
     .from("project-files")
     .upload(newPath, download, { upsert: true });
@@ -371,7 +368,6 @@ export async function renameProjectFile(
     return false;
   }
 
-  // 3. Delete old file
   const { error: deleteError } = await supabase.storage
     .from("project-files")
     .remove([oldPath]);
@@ -382,4 +378,41 @@ export async function renameProjectFile(
   }
 
   return true;
+}
+
+export type ExtractionResult = {
+  success: boolean;
+  parsedText?: string;
+  error?: string;
+};
+
+export async function handleExtractFromPDF(
+  projectId: string,
+  fileName: string,
+): Promise<ExtractionResult> {
+  try {
+    const res = await fetch("/api/parseMaterials", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ projectId, fileName }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("API error:", errorText);
+      return { success: false, error: "Failed to extract materials." };
+    }
+
+    const data = await res.json();
+
+    return {
+      success: true,
+      parsedText: data.parsedText,
+    };
+  } catch (err) {
+    console.error("Network or unexpected error:", err);
+    return { success: false, error: "Network error or unexpected failure." };
+  }
 }

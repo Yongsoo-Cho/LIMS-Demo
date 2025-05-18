@@ -46,7 +46,7 @@ export default function DateRangeCard({
             value={startDate}
             onChange={(e) => handleChange("start_date", e.target.value)}
             disabled={saving}
-            className="w-full text-base border border-gray-300 rounded px-3 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md text-base border border-gray-300 rounded px-3 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div className="flex-1">
@@ -56,7 +56,7 @@ export default function DateRangeCard({
             value={endDate}
             onChange={(e) => handleChange("end_date", e.target.value)}
             disabled={saving}
-            className="w-full text-base border border-gray-300 rounded px-3 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full text-base rounded-md border border-gray-300 rounded px-3 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
