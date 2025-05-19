@@ -4,7 +4,7 @@ import { TableData, Cell, Row } from "../processMetadata";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Search, Filter, Check, X } from "lucide-react";
+import { Download, Search, Filter, Check, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { download_file } from "../export";
 
 // Dropdown Imports
@@ -17,9 +17,9 @@ type PropInterface = {
 };
 
 enum Sort {
-  ASC,
-  DESC,
-  NONE,
+  ASC = "asc",
+  DESC = "desc",
+  NONE = "none",
 }
 
 export default function Spreadsheet(props: PropInterface) {
@@ -129,9 +129,19 @@ export default function Spreadsheet(props: PropInterface) {
   const sort_dependency = filter_dependency.concat([sort, sortHeader]);
   const sorted: TableData = useMemo(() => {
     // Sort based on included headers and
-    if (sort === Sort.NONE) return filtered;
+    if (sort === Sort.NONE || !filtered || !sortHeader) return filtered;
 
-    return filtered;
+    let sort_idx = filtered.headers.indexOf(sortHeader)
+
+    let copy = {...filtered}
+    if (sort === Sort.ASC) { // Sort: Ascending
+      copy.rows = filtered.rows.sort((a, b) => (a.cells[sort_idx].value.toLowerCase().localeCompare(b.cells[sort_idx].value.toLowerCase())))
+    } else { // Sort: Descending
+      copy.rows = filtered.rows.sort((a, b) => (b.cells[sort_idx].value.toLowerCase().localeCompare(a.cells[sort_idx].value.toLowerCase())))
+    }
+
+    return copy;
+    
   }, sort_dependency);
 
   // MARK: Lifecycle
@@ -247,34 +257,46 @@ export default function Spreadsheet(props: PropInterface) {
   }
 
   // Dependency list for the table
-  const table_dependency = sort_dependency.concat([
-    edit,
-    props.data,
-    props.editMode,
-  ]);
+  const table_dependencies = [edit, props.editMode, sorted];
 
   // Render Headers
   const getHeaders = useMemo(() => {
     if (sorted === null || sorted.headers === null) return;
 
-    // filter((v) => searchHeaders.includes(v))
     let cells = sorted.headers.map((val, col_idx) => {
       return (
         <th
           key={col_idx}
           className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b sticky top-0 bg-muted/50 first:pl-6 last:pr-6"
         >
-          <div className="flex items-center cursor-pointer hover:text-foreground transition-colors">
+          <div className="flex align-middle items-center cursor-pointer hover:text-foreground transition-colors">
             {val}
+            <button
+              className="flex align-middle items-center ml-1 p-0.5 rounded-sm hover:bg-muted/80 transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+              onClick={() => {
+                setSort((sortHeader !== val) ? Sort.ASC : ((sort === Sort.NONE) ? Sort.ASC : ((sort === Sort.ASC ? Sort.DESC : Sort.NONE))))
+                setSortHeader((sort === Sort.DESC) ? null : val)
+              }}
+            >
+              {
+                (sortHeader !== val || sort === Sort.NONE)
+                ? <ArrowUpDown className="inline-block h-3.5 w-3.5 text-muted-foreground" />
+                : (
+                    (sort === Sort.ASC)
+                    ? <ArrowUp className="inline-block h-3.5 w-3.5 text-primary" />
+                    : <ArrowDown className="inline-block h-3.5 w-3.5 text-primary" />
+                  )
+              }
+            </button>
           </div>
         </th>
       );
     });
     return cells;
-  }, table_dependency);
+  }, table_dependencies);
 
   const getBody = useMemo(() => {
-    if (sorted === null) return;
+    if (!sorted) return;
 
     const getCells = (row: Cell[], row_idx: number) => {
       return row.map((cell, col_idx) => {
@@ -304,7 +326,7 @@ export default function Spreadsheet(props: PropInterface) {
     });
 
     return body;
-  }, table_dependency);
+  }, table_dependencies);
 
   return (
     <Card className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden">
