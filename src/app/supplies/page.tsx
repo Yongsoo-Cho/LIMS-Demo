@@ -65,7 +65,7 @@ export default function SuppliesPage() {
             <span>Disallow files over 2000-3000 lines for efficiency?</span>
           </li>
           <li className="text-yellow-600">
-            Search: Filter for input | select or deselect columns to include
+            Search: Filter for input | select or deselect columns to include | reset button in column dropdown
           </li>
           <li className="text-yellow-600">
             Sort: sort asc, desc, or flush sort | based on a selected column

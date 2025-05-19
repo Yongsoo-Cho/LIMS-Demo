@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { TableData, Cell } from "../processMetadata";
+import React, { useState, useMemo, useEffect} from "react";
+import { TableData, Cell, Row } from "../processMetadata";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Download, Search, Filter, Check, X } from "lucide-react";
 import { download_file } from "../export";
 
 // Dropdown Imports
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator} from "@/components/ui/dropdown-menu";
 
 type PropInterface = {
   data: TableData;
@@ -67,14 +67,14 @@ export default function Spreadsheet(props: PropInterface) {
       binds[col] = _bind;
     }
 
-    console.log(props.data);
-    console.log(binds);
+    // console.log(props.data);
+    // console.log(binds);
     return binds;
   }, [props.data])
   
   // MARK: Filter/Search/Sort
   // Filter
-  const [searchHeaders, setSearchHeaders] = useState<string[]>((props.data) ? props.data.headers : []);
+  const [searchHeaders, setSearchHeaders] = useState<string[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   // Search
   const [search, setSearch] = useState<string>("");
@@ -82,25 +82,66 @@ export default function Spreadsheet(props: PropInterface) {
   const [sort, setSort] = useState<Sort>(Sort.NONE);
   const [sortHeader, setSortHeader] = useState<string | null>(null);
 
-  const assign_key = useMemo(() => {
-    // needed to track original change positions
-  }, [props.data]);
+  // Filter by Column Search Headers
+  const constrained_dependency: any[] = [props.data, searchHeaders]
+  const constrained: TableData = useMemo(() => {
 
-  const filter_dependency: any[] = [props.data, search, searchHeaders];
-  const filtered = useMemo(() => {
+    console.log(props.data)
+    if (!props.data) return props.data;
+
+    let hidxs = props.data.headers.map((v, i) => (searchHeaders.includes(v) ? i : -1)) // Get indexes of search headers
+    let htypes = props.data.types.filter((_, i) => hidxs.includes(i)) // Get types of search header indexes
+    return {
+      dims: props.data.dims,
+      headers: props.data.headers.filter(v => searchHeaders.includes(v)),
+      types: htypes,
+      rows: props.data.rows.map((row: Row, idx: number) => {
+        return {
+          key: row.key,
+          cells: row.cells.filter((v) => searchHeaders.includes(v.header))
+        } as Row
+      })
+    }
+
+  }, constrained_dependency)
+
+  // Filter by Search Input
+  const filter_dependency: any[] = constrained_dependency.concat([search])
+  const filtered: TableData = useMemo(() => {
+    console.log(searchHeaders)
+    console.log(constrained)
     // Filter the table rows based if they contain search string
-    if (search === "") return props.data;
+    if (search === "" || !constrained) return constrained;
 
-    return props.data;
+    let copy = {...constrained}
+    copy.rows = constrained.rows.filter((v, i) => {
+      let values = v.cells.map((cell) => cell.value).join("").toLowerCase()
+      return values.includes(search.toLowerCase())
+    })
+
+    console.log(copy);
+    return copy;
+
   }, filter_dependency);
 
+
+  // Filter by Sort Column and Type
   const sort_dependency = filter_dependency.concat([sort, sortHeader]);
-  const sorted = useMemo(() => {
+  const sorted: TableData = useMemo(() => {
     // Sort based on included headers and
     if (sort === Sort.NONE) return filtered;
 
     return filtered;
   }, sort_dependency);
+
+  // MARK: Lifecycle
+
+  useEffect(() => {
+    // Set initial searchHeaders
+    if (!props.data) return;
+
+    setSearchHeaders(props.data.headers)
+  }, [props.data?.headers])
 
   // MARK: Event Handlers
 
@@ -205,9 +246,18 @@ export default function Spreadsheet(props: PropInterface) {
     return renderDispType(cell, pt);
   }
 
+  // Dependency list for the table
+  const table_dependency = sort_dependency.concat([
+    edit,
+    props.data,
+    props.editMode,
+  ]);
+
+  // Render Headers
   const getHeaders = useMemo(() => {
     if (sorted === null || sorted.headers === null) return;
 
+    // filter((v) => searchHeaders.includes(v))
     let cells = sorted.headers.map((val, col_idx) => {
       return (
         <th
@@ -221,13 +271,8 @@ export default function Spreadsheet(props: PropInterface) {
       );
     });
     return cells;
-  }, [props.data, props.editMode]);
+  }, table_dependency);
 
-  const table_dependency = sort_dependency.concat([
-    edit,
-    props.data,
-    props.editMode,
-  ]);
   const getBody = useMemo(() => {
     if (sorted === null) return;
 
@@ -288,7 +333,8 @@ export default function Spreadsheet(props: PropInterface) {
               </DropdownMenuTrigger>
               {/* Dropdown Menu & Item Listing */}
               <DropdownMenuContent align='end' className='w-fit'>
-                <DropdownMenuLabel>Select Columns</DropdownMenuLabel>
+
+                <DropdownMenuLabel>Select Search Columns</DropdownMenuLabel>
 
                 {props.data?.headers.map((v, i) => {
                   return  <div 
@@ -297,7 +343,9 @@ export default function Spreadsheet(props: PropInterface) {
                             onClick={() => { 
                               if (searchHeaders.includes(v)) {
                                 const remove_idx = searchHeaders.indexOf(v);
-                                setSearchHeaders([...searchHeaders].splice(remove_idx, 1));
+                                const new_headers = [...searchHeaders]
+                                const _ = new_headers.splice(remove_idx, 1)
+                                setSearchHeaders(new_headers);
                               } else {
                                 setSearchHeaders(searchHeaders.concat([v]));
                               }
@@ -310,11 +358,6 @@ export default function Spreadsheet(props: PropInterface) {
                           </div>
                 })}
 
-                <DropdownMenuSeparator />
-
-                <div className="flex justify-end p-2">
-                  <Button size="sm">Apply Filters</Button>
-                </div>
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Export Button */}

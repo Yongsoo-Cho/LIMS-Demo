@@ -10,12 +10,12 @@ export type FieldTypeName =
 export type Cell = {
   value: string;
   type: FieldTypeName;
+  header: string;
 };
 
 export type Row = {
   key: number,
-  cells: Cell[],
-  header: string
+  cells: Cell[]
 }
 
 export type TableData = {
@@ -92,11 +92,12 @@ export async function generateTableData(file: File): Promise<TableData> {
   const _ = res.shift(); // Remove header
   const rows: Row[] = res.map((v, i) => {
     // Convert to cell type
-    const new_row: Row = { key: i, cells: [], header: hdr[i] }
-    new_row.cells = v.map((s, idx) => {
+    const new_row: Row = { key: i, cells: [] }
+    new_row.cells = v.map((s, j) => {
       return {
         value: s,
-        type: types[idx],
+        type: types[j],
+        header: hdr[j]
       };
     });
     return new_row;

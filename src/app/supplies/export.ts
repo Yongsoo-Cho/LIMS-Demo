@@ -6,7 +6,7 @@ const stringify_table: (data: TableData) => string = (data) => {
   const h_raw = data.headers.join(",");
 
   const reduced: string[] = data.rows.map((v) => {
-    const arr: string[] = v.map((c) => c.value);
+    const arr: string[] = v.cells.map((c) => c.value);
     return arr.join(",");
   });
 
