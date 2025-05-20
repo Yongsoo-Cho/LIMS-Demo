@@ -89,7 +89,7 @@ export async function generateTableData(file: File): Promise<TableData> {
 
   const dims: [number, number] = [res.length, hdr.length]; // Dimensions
 
-  const _ = res.shift(); // Remove header
+  res.shift(); // Remove header
   const rows: Row[] = res.map((v, i) => {
     // Convert to cell type
     const new_row: Row = { key: i, cells: [] }

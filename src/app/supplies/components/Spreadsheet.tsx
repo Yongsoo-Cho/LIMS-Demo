@@ -8,7 +8,7 @@ import { Download, Search, Filter, Check, X, ArrowUp, ArrowDown, ArrowUpDown } f
 import { download_file } from "../export";
 
 // Dropdown Imports
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 
 type PropInterface = {
   data: TableData;
@@ -52,16 +52,16 @@ export default function Spreadsheet(props: PropInterface) {
     const binds: { [key: number]: { [key: string]: number } } = {};
 
     for (let i = 0; i < enum_cols.length; i++) {
-      let col = enum_cols[i];
+      const col = enum_cols[i];
       const uniq = [
         ...new Set(
-          props.data.rows.map((val, _) => {
+          props.data.rows.map((val) => {
             return val.cells[col].value;
           }),
         ),
       ];
       const _bind: { [key: string]: number } = {};
-      uniq.map((val, idx) => {
+      uniq.forEach((val, idx) => {
         _bind[val] = idx;
       });
       binds[col] = _bind;
@@ -83,19 +83,19 @@ export default function Spreadsheet(props: PropInterface) {
   const [sortHeader, setSortHeader] = useState<string | null>(null);
 
   // Filter by Column Search Headers
-  const constrained_dependency: any[] = [props.data, searchHeaders]
+  const constrained_dependency: unknown[] = [props.data, searchHeaders]
   const constrained: TableData = useMemo(() => {
 
     console.log(props.data)
     if (!props.data) return props.data;
 
-    let hidxs = props.data.headers.map((v, i) => (searchHeaders.includes(v) ? i : -1)) // Get indexes of search headers
-    let htypes = props.data.types.filter((_, i) => hidxs.includes(i)) // Get types of search header indexes
+    const hidxs = props.data.headers.map((v, i) => (searchHeaders.includes(v) ? i : -1)) // Get indexes of search headers
+    const htypes = props.data.types.filter((_, i) => hidxs.includes(i)) // Get types of search header indexes
     return {
       dims: props.data.dims,
       headers: props.data.headers.filter(v => searchHeaders.includes(v)),
       types: htypes,
-      rows: props.data.rows.map((row: Row, idx: number) => {
+      rows: props.data.rows.map((row: Row) => {
         return {
           key: row.key,
           cells: row.cells.filter((v) => searchHeaders.includes(v.header))
@@ -106,16 +106,16 @@ export default function Spreadsheet(props: PropInterface) {
   }, constrained_dependency)
 
   // Filter by Search Input
-  const filter_dependency: any[] = constrained_dependency.concat([search])
+  const filter_dependency: unknown[] = constrained_dependency.concat([search])
   const filtered: TableData = useMemo(() => {
     console.log(searchHeaders)
     console.log(constrained)
     // Filter the table rows based if they contain search string
     if (search === "" || !constrained) return constrained;
 
-    let copy = {...constrained}
-    copy.rows = constrained.rows.filter((v, i) => {
-      let values = v.cells.map((cell) => cell.value).join("").toLowerCase()
+    const copy = {...constrained}
+    copy.rows = constrained.rows.filter((v) => {
+      const values = v.cells.map((cell) => cell.value).join("").toLowerCase()
       return values.includes(search.toLowerCase())
     })
 
@@ -131,9 +131,9 @@ export default function Spreadsheet(props: PropInterface) {
     // Sort based on included headers and
     if (sort === Sort.NONE || !filtered || !sortHeader) return filtered;
 
-    let sort_idx = filtered.headers.indexOf(sortHeader)
+    const sort_idx = filtered.headers.indexOf(sortHeader)
 
-    let copy = {...filtered}
+    const copy = {...filtered}
     if (sort === Sort.ASC) { // Sort: Ascending
       copy.rows = filtered.rows.sort((a, b) => (a.cells[sort_idx].value.toLowerCase().localeCompare(b.cells[sort_idx].value.toLowerCase())))
     } else { // Sort: Descending
@@ -263,7 +263,7 @@ export default function Spreadsheet(props: PropInterface) {
   const getHeaders = useMemo(() => {
     if (sorted === null || sorted.headers === null) return;
 
-    let cells = sorted.headers.map((val, col_idx) => {
+    const cells = sorted.headers.map((val, col_idx) => {
       return (
         <th
           key={col_idx}
@@ -300,7 +300,7 @@ export default function Spreadsheet(props: PropInterface) {
 
     const getCells = (row: Cell[], row_idx: number) => {
       return row.map((cell, col_idx) => {
-        let editCell =
+        const editCell =
           edit !== null && edit[0] === row_idx && edit[1] === col_idx;
         return (
           <td
@@ -313,7 +313,7 @@ export default function Spreadsheet(props: PropInterface) {
       });
     };
 
-    let body = sorted.rows.map((row, idx) => {
+    const body = sorted.rows.map((row, idx) => {
       return (
         <tr
           key={row.key}
@@ -366,7 +366,7 @@ export default function Spreadsheet(props: PropInterface) {
                               if (searchHeaders.includes(v)) {
                                 const remove_idx = searchHeaders.indexOf(v);
                                 const new_headers = [...searchHeaders]
-                                const _ = new_headers.splice(remove_idx, 1)
+                                new_headers.splice(remove_idx, 1)
                                 setSearchHeaders(new_headers);
                               } else {
                                 setSearchHeaders(searchHeaders.concat([v]));

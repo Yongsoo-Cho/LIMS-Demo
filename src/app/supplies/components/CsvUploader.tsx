@@ -4,13 +4,13 @@ import { useState, useEffect, useMemo } from "react";
 import { generateTableData, TableData } from "../processMetadata";
 import { fetchWorkspace } from "../action";
 
-import { Save, Upload, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { FaUpload } from "react-icons/fa";
 import Spreadsheet from "./Spreadsheet";
 import LoadingScreen from "@/app/components/ui/LoadingScreen";
 import { ModalHandler } from "./Modal";
 import UploadModal from "./Modal";
-import { time } from "node:console";
+// import { time } from "node:console";
 
 export default function CsvUploader({
   workspaceId,
@@ -45,9 +45,9 @@ export default function CsvUploader({
   const fuseChanges: TableData = useMemo(() => {
     if (table === null || table === undefined) return null;
 
-    let copy = Object.assign({}, table); // Copy of table
-    for (let row in changes) {
-      for (let col in changes[row]) {
+    const copy = Object.assign({}, table); // Copy of table
+    for (const row in changes) {
+      for (const col in changes[row]) {
         copy.rows[row].cells[col].value = changes[row][col];
       }
     }
@@ -56,7 +56,7 @@ export default function CsvUploader({
 
   function uploadChanges() {
     // Fuse changes
-    let upload_table: TableData = fuseChanges;
+    const upload_table: TableData = fuseChanges;
     // Safety
     if (upload_table === null) return;
     // Update database
@@ -74,7 +74,7 @@ export default function CsvUploader({
         flushChanges();
         setFile(null);
         // Re-set file via fetch (or try at least)
-        let reload = (await fetchWorkspace(workspaceId)).metadata as
+        const reload = (await fetchWorkspace(workspaceId)).metadata as
           | TableData
           | undefined;
         if (reload) {
@@ -136,7 +136,7 @@ export default function CsvUploader({
     if (!success) return;
 
     async function timeSuccess(ms: number): Promise<void> {
-      const _ = await new Promise((res) => setTimeout(res, ms));
+      await new Promise((res) => setTimeout(res, ms));
       setSuccess(false);
     }
 
@@ -266,8 +266,8 @@ export default function CsvUploader({
                   <p>
                     <strong>Edit Mode Active:</strong> Click on any cell to edit
                     its value. Press Enter to confirm or Esc to cancel. When
-                    finished, click "Save Changes" to apply all edits or
-                    "Cancel" to discard them.
+                    finished, click &quot;Save Changes&quot; to apply all edits or
+                    &quot;Cancel&quot; to discard them.
                   </p>
                 </div>
               ) : success ? (

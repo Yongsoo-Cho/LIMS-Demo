@@ -1,5 +1,5 @@
-import Loading from "@/app/components/ui/Loading";
-import { FaUpload } from "react-icons/fa";
+// import Loading from "@/app/components/ui/Loading";
+// import { FaUpload } from "react-icons/fa";
 import { X } from "lucide-react";
 import React from "react";
 
