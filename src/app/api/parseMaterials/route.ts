@@ -59,7 +59,10 @@ export async function POST(req: Request) {
 }
 
 interface PDFParserInstance {
-  on(event: "pdfParser_dataError", callback: (err: { parserError: string }) => void): void;
+  on(
+    event: "pdfParser_dataError",
+    callback: (err: { parserError: string }) => void,
+  ): void;
   on(event: "pdfParser_dataReady", callback: () => void): void;
   loadPDF: (filePath: string) => void;
   getRawTextContent: () => string;

@@ -14,9 +14,9 @@ export type Cell = {
 };
 
 export type Row = {
-  key: number,
-  cells: Cell[]
-}
+  key: number;
+  cells: Cell[];
+};
 
 export type TableData = {
   headers: string[];
@@ -92,12 +92,12 @@ export async function generateTableData(file: File): Promise<TableData> {
   res.shift(); // Remove header
   const rows: Row[] = res.map((v, i) => {
     // Convert to cell type
-    const new_row: Row = { key: i, cells: [] }
+    const new_row: Row = { key: i, cells: [] };
     new_row.cells = v.map((s, j) => {
       return {
         value: s,
         type: types[j],
-        header: hdr[j]
+        header: hdr[j],
       };
     });
     return new_row;

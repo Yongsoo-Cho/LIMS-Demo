@@ -266,8 +266,8 @@ export default function CsvUploader({
                   <p>
                     <strong>Edit Mode Active:</strong> Click on any cell to edit
                     its value. Press Enter to confirm or Esc to cancel. When
-                    finished, click &quot;Save Changes&quot; to apply all edits or
-                    &quot;Cancel&quot; to discard them.
+                    finished, click &quot;Save Changes&quot; to apply all edits
+                    or &quot;Cancel&quot; to discard them.
                   </p>
                 </div>
               ) : success ? (

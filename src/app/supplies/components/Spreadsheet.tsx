@@ -1,14 +1,28 @@
-import React, { useState, useMemo, useEffect} from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { TableData, Cell, Row } from "../processMetadata";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Search, Filter, Check, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import {
+  Download,
+  Search,
+  Filter,
+  Check,
+  X,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+} from "lucide-react";
 import { download_file } from "../export";
 
 // Dropdown Imports
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 
 type PropInterface = {
   data: TableData;
@@ -70,8 +84,8 @@ export default function Spreadsheet(props: PropInterface) {
     // console.log(props.data);
     // console.log(binds);
     return binds;
-  }, [props.data])
-  
+  }, [props.data]);
+
   // MARK: Filter/Search/Sort
   // Filter
   const [searchHeaders, setSearchHeaders] = useState<string[]>([]);
@@ -83,47 +97,48 @@ export default function Spreadsheet(props: PropInterface) {
   const [sortHeader, setSortHeader] = useState<string | null>(null);
 
   // Filter by Column Search Headers
-  const constrained_dependency: unknown[] = [props.data, searchHeaders]
+  const constrained_dependency: unknown[] = [props.data, searchHeaders];
   const constrained: TableData = useMemo(() => {
-
-    console.log(props.data)
+    console.log(props.data);
     if (!props.data) return props.data;
 
-    const hidxs = props.data.headers.map((v, i) => (searchHeaders.includes(v) ? i : -1)) // Get indexes of search headers
-    const htypes = props.data.types.filter((_, i) => hidxs.includes(i)) // Get types of search header indexes
+    const hidxs = props.data.headers.map((v, i) =>
+      searchHeaders.includes(v) ? i : -1,
+    ); // Get indexes of search headers
+    const htypes = props.data.types.filter((_, i) => hidxs.includes(i)); // Get types of search header indexes
     return {
       dims: props.data.dims,
-      headers: props.data.headers.filter(v => searchHeaders.includes(v)),
+      headers: props.data.headers.filter((v) => searchHeaders.includes(v)),
       types: htypes,
       rows: props.data.rows.map((row: Row) => {
         return {
           key: row.key,
-          cells: row.cells.filter((v) => searchHeaders.includes(v.header))
-        } as Row
-      })
-    }
-
-  }, constrained_dependency)
+          cells: row.cells.filter((v) => searchHeaders.includes(v.header)),
+        } as Row;
+      }),
+    };
+  }, constrained_dependency);
 
   // Filter by Search Input
-  const filter_dependency: unknown[] = constrained_dependency.concat([search])
+  const filter_dependency: unknown[] = constrained_dependency.concat([search]);
   const filtered: TableData = useMemo(() => {
-    console.log(searchHeaders)
-    console.log(constrained)
+    console.log(searchHeaders);
+    console.log(constrained);
     // Filter the table rows based if they contain search string
     if (search === "" || !constrained) return constrained;
 
-    const copy = {...constrained}
+    const copy = { ...constrained };
     copy.rows = constrained.rows.filter((v) => {
-      const values = v.cells.map((cell) => cell.value).join("").toLowerCase()
-      return values.includes(search.toLowerCase())
-    })
+      const values = v.cells
+        .map((cell) => cell.value)
+        .join("")
+        .toLowerCase();
+      return values.includes(search.toLowerCase());
+    });
 
     console.log(copy);
     return copy;
-
   }, filter_dependency);
-
 
   // Filter by Sort Column and Type
   const sort_dependency = filter_dependency.concat([sort, sortHeader]);
@@ -131,17 +146,26 @@ export default function Spreadsheet(props: PropInterface) {
     // Sort based on included headers and
     if (sort === Sort.NONE || !filtered || !sortHeader) return filtered;
 
-    const sort_idx = filtered.headers.indexOf(sortHeader)
+    const sort_idx = filtered.headers.indexOf(sortHeader);
 
-    const copy = {...filtered}
-    if (sort === Sort.ASC) { // Sort: Ascending
-      copy.rows = filtered.rows.sort((a, b) => (a.cells[sort_idx].value.toLowerCase().localeCompare(b.cells[sort_idx].value.toLowerCase())))
-    } else { // Sort: Descending
-      copy.rows = filtered.rows.sort((a, b) => (b.cells[sort_idx].value.toLowerCase().localeCompare(a.cells[sort_idx].value.toLowerCase())))
+    const copy = { ...filtered };
+    if (sort === Sort.ASC) {
+      // Sort: Ascending
+      copy.rows = filtered.rows.sort((a, b) =>
+        a.cells[sort_idx].value
+          .toLowerCase()
+          .localeCompare(b.cells[sort_idx].value.toLowerCase()),
+      );
+    } else {
+      // Sort: Descending
+      copy.rows = filtered.rows.sort((a, b) =>
+        b.cells[sort_idx].value
+          .toLowerCase()
+          .localeCompare(a.cells[sort_idx].value.toLowerCase()),
+      );
     }
 
     return copy;
-    
   }, sort_dependency);
 
   // MARK: Lifecycle
@@ -150,8 +174,8 @@ export default function Spreadsheet(props: PropInterface) {
     // Set initial searchHeaders
     if (!props.data) return;
 
-    setSearchHeaders(props.data.headers)
-  }, [props.data?.headers])
+    setSearchHeaders(props.data.headers);
+  }, [props.data?.headers]);
 
   // MARK: Event Handlers
 
@@ -179,26 +203,37 @@ export default function Spreadsheet(props: PropInterface) {
     );
 
     switch (cell.type) {
-      case "string": return standard_edit
-      case "boolean": 
-        const value = (cell.value === 'true' || cell.value === '1');
+      case "string":
+        return standard_edit;
+      case "boolean":
+        const value = cell.value === "true" || cell.value === "1";
         return (
           <div className="flex justify-center">
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              (value) 
-              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}
+            <div
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                value
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+              }
             `}
-            aria-label={(value) ? "True" : "False"}
+              aria-label={value ? "True" : "False"}
             >
-              {value ? <Check className="h-4 w-4"/> : <X className="h-4 w-4"/>}
+              {value ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <X className="h-4 w-4" />
+              )}
             </div>
           </div>
-      )
-      case "datetime": return standard_edit
-      case "enum": return standard_edit
-      case "number": return standard_edit
-      default: return standard_edit
+        );
+      case "datetime":
+        return standard_edit;
+      case "enum":
+        return standard_edit;
+      case "number":
+        return standard_edit;
+      default:
+        return standard_edit;
     }
   }
 
@@ -274,19 +309,25 @@ export default function Spreadsheet(props: PropInterface) {
             <button
               className="flex align-middle items-center ml-1 p-0.5 rounded-sm hover:bg-muted/80 transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
               onClick={() => {
-                setSort((sortHeader !== val) ? Sort.ASC : ((sort === Sort.NONE) ? Sort.ASC : ((sort === Sort.ASC ? Sort.DESC : Sort.NONE))))
-                setSortHeader((sort === Sort.DESC) ? null : val)
+                setSort(
+                  sortHeader !== val
+                    ? Sort.ASC
+                    : sort === Sort.NONE
+                      ? Sort.ASC
+                      : sort === Sort.ASC
+                        ? Sort.DESC
+                        : Sort.NONE,
+                );
+                setSortHeader(sort === Sort.DESC ? null : val);
               }}
             >
-              {
-                (sortHeader !== val || sort === Sort.NONE)
-                ? <ArrowUpDown className="inline-block h-3.5 w-3.5 text-muted-foreground" />
-                : (
-                    (sort === Sort.ASC)
-                    ? <ArrowUp className="inline-block h-3.5 w-3.5 text-primary" />
-                    : <ArrowDown className="inline-block h-3.5 w-3.5 text-primary" />
-                  )
-              }
+              {sortHeader !== val || sort === Sort.NONE ? (
+                <ArrowUpDown className="inline-block h-3.5 w-3.5 text-muted-foreground" />
+              ) : sort === Sort.ASC ? (
+                <ArrowUp className="inline-block h-3.5 w-3.5 text-primary" />
+              ) : (
+                <ArrowDown className="inline-block h-3.5 w-3.5 text-primary" />
+              )}
             </button>
           </div>
         </th>
@@ -341,7 +382,9 @@ export default function Spreadsheet(props: PropInterface) {
                 type="search"
                 placeholder="Search data..."
                 className="w-full pl-8"
-                onChange={(e) => { setSearch(e.target.value); }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
               />
             </div>
             {/* Filter and Dropdown */}
@@ -354,32 +397,34 @@ export default function Spreadsheet(props: PropInterface) {
                 </Button>
               </DropdownMenuTrigger>
               {/* Dropdown Menu & Item Listing */}
-              <DropdownMenuContent align='end' className='w-fit'>
-
+              <DropdownMenuContent align="end" className="w-fit">
                 <DropdownMenuLabel>Select Search Columns</DropdownMenuLabel>
 
                 {props.data?.headers.map((v, i) => {
-                  return  <div 
-                            key={i} 
-                            className="flex items-center px-3 py-2 hover:bg-muted cursor-pointer"
-                            onClick={() => { 
-                              if (searchHeaders.includes(v)) {
-                                const remove_idx = searchHeaders.indexOf(v);
-                                const new_headers = [...searchHeaders]
-                                new_headers.splice(remove_idx, 1)
-                                setSearchHeaders(new_headers);
-                              } else {
-                                setSearchHeaders(searchHeaders.concat([v]));
-                              }
-                            }}
-                          >
-                            <div className="flex h-4 w-4 items-center justify-center rounded-sm border border-primary mr-2">
-                              {searchHeaders.includes(v) && <Check className="h-3 w-3" />}
-                            </div>
-                            <span>{v}</span>
-                          </div>
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center px-3 py-2 hover:bg-muted cursor-pointer"
+                      onClick={() => {
+                        if (searchHeaders.includes(v)) {
+                          const remove_idx = searchHeaders.indexOf(v);
+                          const new_headers = [...searchHeaders];
+                          new_headers.splice(remove_idx, 1);
+                          setSearchHeaders(new_headers);
+                        } else {
+                          setSearchHeaders(searchHeaders.concat([v]));
+                        }
+                      }}
+                    >
+                      <div className="flex h-4 w-4 items-center justify-center rounded-sm border border-primary mr-2">
+                        {searchHeaders.includes(v) && (
+                          <Check className="h-3 w-3" />
+                        )}
+                      </div>
+                      <span>{v}</span>
+                    </div>
+                  );
                 })}
-
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Export Button */}

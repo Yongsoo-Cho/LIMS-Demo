@@ -11,9 +11,8 @@ export default function InventoryMonitorsPage() {
         <ul className="list-disc ml-6 space-y-2 text-gray-800">
           <li>
             A supply policy could entail fields for autoOrder, notifyUsers,
-            lowStockWarning, perishingSoon, where the user would set
-            parameters for these fields which reference a row in the supplies
-            table.
+            lowStockWarning, perishingSoon, where the user would set parameters
+            for these fields which reference a row in the supplies table.
           </li>
           <li>
             and then once per day (or at intervals that make sense) we run code
