@@ -14,10 +14,20 @@ export const slackLogin = async (): Promise<string> => {
     return redirect("/login?error=OriginMissing");
   }
 
+  const slackWorkspaceId = process.env.NEXT_PUBLIC_SLACK_WORKSPACE_ID;
+  if (!slackWorkspaceId) {
+    console.error("Missing Slack workspace ID configuration");
+    return redirect("/login?error=ConfigurationError");
+  }
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "slack_oidc",
     options: {
       redirectTo: `${origin}/auth/callback`,
+      scopes: "openid profile email",
+      queryParams: {
+        team: slackWorkspaceId,
+      },
     },
   });
 
