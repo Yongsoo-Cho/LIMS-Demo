@@ -46,34 +46,34 @@ export const slackLogin = async (): Promise<string> => {
   }
 };
 
-export const discordLogin = async (): Promise<string> => {
-  const supabase = await createSupabaseServerComponentClient();
-  const requestHeaders = await headers();
-  const origin = requestHeaders.get("origin");
+// export const discordLogin = async (): Promise<string> => {
+//   const supabase = await createSupabaseServerComponentClient();
+//   const requestHeaders = await headers();
+//   const origin = requestHeaders.get("origin");
 
-  if (!origin) {
-    console.error("Missing origin header");
-    return redirect("/login?error=OriginMissing");
-  }
+//   if (!origin) {
+//     console.error("Missing origin header");
+//     return redirect("/login?error=OriginMissing");
+//   }
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "discord",
-    options: {
-      redirectTo: `${origin}/auth/callback`,
-    },
-  });
+//   const { data, error } = await supabase.auth.signInWithOAuth({
+//     provider: "discord",
+//     options: {
+//       redirectTo: `${origin}/auth/callback`,
+//     },
+//   });
 
-  if (error) {
-    console.error("Error signing in with Discord:", error);
-    return redirect(
-      `/login?error=OAuthSigninFailed&message=${encodeURIComponent(error.message)}`,
-    );
-  }
+//   if (error) {
+//     console.error("Error signing in with Discord:", error);
+//     return redirect(
+//       `/login?error=OAuthSigninFailed&message=${encodeURIComponent(error.message)}`,
+//     );
+//   }
 
-  if (data.url) {
-    return redirect(data.url);
-  } else {
-    console.error("signInWithOAuth did not return a URL");
-    return redirect("/login?error=OAuthConfigurationError");
-  }
-};
+//   if (data.url) {
+//     return redirect(data.url);
+//   } else {
+//     console.error("signInWithOAuth did not return a URL");
+//     return redirect("/login?error=OAuthConfigurationError");
+//   }
+// };

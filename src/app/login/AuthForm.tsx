@@ -1,7 +1,7 @@
 "use client";
 
-import { FaSlack, FaDiscord } from "react-icons/fa";
-import { slackLogin, discordLogin } from "./action";
+import { FaSlack } from "react-icons/fa";
+import { slackLogin } from "./action";
 
 export default function AuthForm() {
   const handleSlackLogin = async () => {
@@ -13,15 +13,15 @@ export default function AuthForm() {
       console.error("Login failed:", error);
     }
   };
-  const handleDiscordLogin = async () => {
-    try {
-      const url = await discordLogin();
+  // const handleDiscordLogin = async () => {
+  //   try {
+  //     const url = await discordLogin();
 
-      window.location.href = url;
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
-  };
+  //     window.location.href = url;
+  //   } catch (error) {
+  //     console.error("Login failed:", error);
+  //   }
+  // };
   return (
     <form className="flex flex-col gap-6 w-full max-w-md bg-white border border-gray-200 shadow-xl rounded-2xl p-8">
       <h2 className="text-2xl font-semibold text-gray-900 text-left">
@@ -41,14 +41,14 @@ export default function AuthForm() {
           Sign in with Slack
         </button>
 
-        <button
+        {/* <button
           type="button"
           onClick={handleDiscordLogin}
           className="w-full flex items-center justify-center gap-2 bg-[#5865F2] hover:bg-[#4752C4] text-white font-medium py-3 rounded-lg transition duration-200 shadow-md"
         >
           <FaDiscord className="text-lg" />
           Sign in with Discord
-        </button>
+        </button> */}
       </div>
     </form>
   );
