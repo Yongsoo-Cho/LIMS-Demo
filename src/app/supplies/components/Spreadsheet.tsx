@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { TableData, Cell, Row } from "../processMetadata";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,8 +12,19 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
+  CalendarIcon,
+  Clock
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { download_file } from "../export";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Label } from "@/components/ui/label"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+
+// Types & Utils
+import { TableData, Cell, Row } from "../processMetadata";
+import { BooleanCell, CellProps, DateCell, DefaultCell, EnumCell, NumberCell } from "./Cells";
+import { to_boolean, to_number, to_date } from "../typeConvert";
 
 // Dropdown Imports
 import {
@@ -23,6 +33,9 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@headlessui/react";
+import { format } from "date-fns";
+import { propagateServerField } from "next/dist/server/lib/render-server";
 
 type PropInterface = {
   data: TableData;
@@ -81,8 +94,6 @@ export default function Spreadsheet(props: PropInterface) {
       binds[col] = _bind;
     }
 
-    // console.log(props.data);
-    // console.log(binds);
     return binds;
   }, [props.data]);
 
@@ -99,7 +110,6 @@ export default function Spreadsheet(props: PropInterface) {
   // Filter by Column Search Headers
   const constrained_dependency: unknown[] = [props.data, searchHeaders];
   const constrained: TableData = useMemo(() => {
-    console.log(props.data);
     if (!props.data) return props.data;
 
     const hidxs = props.data.headers.map((v, i) =>
@@ -122,8 +132,6 @@ export default function Spreadsheet(props: PropInterface) {
   // Filter by Search Input
   const filter_dependency: unknown[] = constrained_dependency.concat([search]);
   const filtered: TableData = useMemo(() => {
-    console.log(searchHeaders);
-    console.log(constrained);
     // Filter the table rows based if they contain search string
     if (search === "" || !constrained) return constrained;
 
@@ -136,7 +144,6 @@ export default function Spreadsheet(props: PropInterface) {
       return values.includes(search.toLowerCase());
     });
 
-    console.log(copy);
     return copy;
   }, filter_dependency);
 
@@ -173,6 +180,8 @@ export default function Spreadsheet(props: PropInterface) {
   useEffect(() => {
     // Set initial searchHeaders
     if (!props.data) return;
+
+    console.log(props.data.types)
 
     setSearchHeaders(props.data.headers);
   }, [props.data?.headers]);
@@ -237,6 +246,7 @@ export default function Spreadsheet(props: PropInterface) {
     }
   }
 
+  // Display Mode Cell Render
   function renderDispType(cell: Cell, pt: [number, number]) {
     const standard_disp = (
       <button
@@ -252,9 +262,26 @@ export default function Spreadsheet(props: PropInterface) {
       case "string":
         return standard_disp;
       case "boolean":
-        return standard_disp;
+        return (
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={to_boolean(cell.value) === true}
+              className={cn(
+                "h-5 w-5 rounded-sm border transition-colors",
+                cell.value ? "border-green-500 bg-green-500 text-primary-foreground" : "border-input bg-background",
+              )}
+            />
+          </div>
+        )
       case "datetime":
-        return standard_disp;
+        return <div className="flex items-center justify-between group">
+          <div className="flex items-center">
+            <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+            <span>{format(to_date(cell.value)!, "MMM d, yyyy")}</span>
+            <Clock className="mx-2 h-3.5 w-3.5 text-muted-foreground" />
+            <span>{format(to_date(cell.value)!, "h:mm a")}</span>
+          </div>
+        </div>
       case "enum":
         if (!pill_binds || cell.value === "" || cell.value === null)
           return standard_disp; // Will not happen if enum exists
@@ -262,7 +289,7 @@ export default function Spreadsheet(props: PropInterface) {
         try {
           key = pill_binds[pt[1]][cell.value];
         } catch {
-          console.log("Key isn' found in the list of pills");
+          console.log("Key isn't found in the list of pills");
           return standard_disp;
         }
 
@@ -275,7 +302,9 @@ export default function Spreadsheet(props: PropInterface) {
           </span>
         );
       case "number":
-        return standard_disp;
+        return <div className="w-full h-full flex items-center align-middle">
+          {standard_disp}
+        </div>
       default:
         return standard_disp;
     }
@@ -284,11 +313,25 @@ export default function Spreadsheet(props: PropInterface) {
   // MARK: Renderers
 
   function renderCell(isEditing: boolean, cell: Cell, pt: [number, number]) {
-    // Button edit when it is to be edited
-    if (isEditing) return renderEditType(cell, pt);
 
-    // Button display when edit is closed
-    return renderDispType(cell, pt);
+    let params: CellProps = {
+      isEditing: isEditing,
+      isEditMode: props.editMode,
+      cell: cell,
+      pt: pt,
+      handleKeyDown: handleKeyDown,
+      handleCellChange: props.handleCellChange,
+      setEdit: setEdit
+    }
+
+    switch (cell.type) {
+      case "string": return <DefaultCell {...params} />;
+      case "boolean": return <BooleanCell {...params} />;
+      case "datetime": return <DateCell {...params} />;
+      case "enum": return <EnumCell {...params} />;
+      case "number": return <NumberCell {...params} />;
+      default: return <DefaultCell {...params} />;
+    }
   }
 
   // Dependency list for the table
@@ -368,6 +411,31 @@ export default function Spreadsheet(props: PropInterface) {
 
     return body;
   }, table_dependencies);
+
+  // MARK: Cell Renders
+
+  // String
+  function cell_string(isEditing: boolean, cell: Cell, pt: [number, number]) {
+    if (isEditing) {
+      return <input
+          type="text"
+          value={cell.value}
+          onChange={(e) => props.handleCellChange(e.target.value, pt)}
+          onKeyDown={handleKeyDown}
+          onBlur={() => setEdit(null)}
+          className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+    } else {
+      return <button
+        onClick={() => {
+          if (props.editMode) setEdit(pt);
+        }}
+      >
+        {cell.value}
+      </button>
+    }
+  }
+
 
   return (
     <Card className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden">

@@ -1,5 +1,7 @@
 import Papa from "papaparse";
 
+import { to_boolean, to_date, to_number } from "./typeConvert";
+
 export type FieldTypeName =
   | "boolean"
   | "number"
@@ -59,16 +61,15 @@ function inferFieldType(values: string[]): FieldTypeName {
   //console.log(values);
   const unique = [...new Set(values.map((v) => v.trim().toLowerCase()))];
 
-  if (
-    unique.every((v) => v === "0" || v === "1" || v === "true" || v === "false")
-  ) {
+  console.log(unique)
+  if (unique.every((v) => typeof to_boolean(v) === 'boolean')) {
     return "boolean";
   }
-  if (unique.every((v) => !isNaN(Number(v)))) {
-    return "number";
-  }
-  if (unique.every((v) => !isNaN(Date.parse(v)))) {
+  if (unique.every((v) => to_date(v))) {
     return "datetime";
+  }
+  if (unique.every((v) => to_number(v))) {
+    return "number";
   }
   if (unique.length <= 10) {
     return "enum";
@@ -84,6 +85,7 @@ export async function generateTableData(file: File): Promise<TableData> {
   const types: FieldTypeName[] = [];
   for (let j = 0; j < hdr.length; j++) {
     const values: string[] = res.map((_, i) => res[i][j]);
+    values.splice(0,1);
     types.push(inferFieldType(values));
   }
 

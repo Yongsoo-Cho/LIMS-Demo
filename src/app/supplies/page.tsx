@@ -62,11 +62,10 @@ export default function SuppliesPage() {
             Improved efficiency: <span className="text-green-700">useMemo</span>{" "}
             | <span className="text-yellow-600">Efficient Data Storage?</span> |{" "}
             <span>Slots of 20-30?</span> |{" "}
-            <span>Disallow files over 2000-3000 lines for efficiency?</span>
           </li>
           <li className="text-green-700">
             Search: Filter for input | select or deselect columns to include |
-            reset button in column dropdown
+            reset button in column dropdown | <span className="text-yellow-600">Cancel/flush search button on search bar</span>
           </li>
           <li>
             Sort:{" "}
@@ -76,12 +75,13 @@ export default function SuppliesPage() {
             | <span className="text-yellow-600">debug flush</span>
             (maybe a icon beside each header?)
           </li>
-          <li className="text-yellow-600">Type-based display and edit</li>
+          <li className="text-yellow-600">Type-based display: (bool) checkmark | (date) icon & text | (enum) pill | (number) usual </li>
+          <li className="text-yellow-600">Type-based edit: (bool) checkbox | (date) calendar | (enum) pill dropdown | (number) deny non-number inputs</li>
           <li className="text-yellow-600">
-            Intelligent inference of data fields e.g. a whole column is 0 and
-            1s, infer that this a boolean field. Ability to add or at least
-            infer ENUM types? like dropdowns, idk how
+            Intelligent inference of data fields:
+            (bool) only "true", "false", "0", "1" | (calendar & number) parse fails or passes | (enum) less than 10-15 types, string length less than 15-20 | string otherwise
           </li>
+          <li className="text-yellow-600">Feature: add/delete rows & columns</li>
           <li>Reordering suggestions (and perhaps a storefront if it fits)</li>
           <li>Alert configurations: when to send alerts to and to who</li>
           <li>

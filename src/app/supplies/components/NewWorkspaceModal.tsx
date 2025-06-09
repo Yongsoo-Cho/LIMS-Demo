@@ -49,7 +49,7 @@ export default function NewWorkspaceModal({
       onClick={handleClose}
     >
       <div
-        className="bg-white w-full max-w-md rounded-xl shadow-lg p-6 space-y-4"
+        className="bg-white min-w-fit w-full max-w-md rounded-xl shadow-lg p-6 space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-semibold text-gray-800">New Workspace</h2>
