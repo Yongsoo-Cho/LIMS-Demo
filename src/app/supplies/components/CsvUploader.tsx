@@ -287,7 +287,16 @@ export default function CsvUploader({
                     [row, col]: [number, number],
                   ) => {
 
-                    setLog((prevLog) => ([...prevLog].concat([[row, col, val]])))
+                    setLog((prevLog) => {
+
+                      if (prevLog.length === 0) return [[row, col, val]];
+                      
+                      let _new = [...prevLog];
+                      let [lrow, lcol, _] = prevLog[prevLog.length - 1]
+                      if (lrow === row && lcol === col) _new.pop(); // Pop if last update is same spot
+                      _new.push([row, col, val]); // Push new log
+                      return _new;
+                    })
 
                     return true; // Might remove later
                   }}
@@ -311,5 +320,3 @@ export default function CsvUploader({
     </div>
   );
 }
-
-// Fix Layout: Modal should have much better design | CsvUpload or page.tsx should span rest of screen (parent) | Page should be faster and more responsive to feedback

@@ -85,9 +85,10 @@ export default function SuppliesPage() {
           <li className="text-yellow-600">Debug: make table more responsive | boolean & date fields should revert when cancelled</li>
           <li className="text-yellow-600">Debug: changes log should support undo feature (sequential)</li>
           <li className="text-gray-600">Reordering suggestions (and perhaps a storefront if it fits)</li>
+          <li className="text-gray-600">Debug: Limit the length of change logs and omit after a certain limit</li>
           <li className="text-gray-600">Alert configurations: when to send alerts to and to who</li>
           <li className="text-gray-600">
-            A field in the database that takes a JSON called FEATURES that makes
+            A field in the database that takes a JSON called FEATURES that makess
             it so that uploaded columns arent limited to a predetermined schema.
           </li>
           <li className="text-gray-600">Merge suggestions for similar items</li>
