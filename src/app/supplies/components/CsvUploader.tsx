@@ -35,24 +35,24 @@ export default function CsvUploader({
     [key: number]: { [key: number]: string };
   }
 
-  const [changes, setChanges] = useState<ChangeLog>({});
+  const [log, setLog] = useState<[number, number, string][]>([])
 
   const flushChanges = () => {
-    setChanges({});
+    setLog([]);
   };
 
   // Memoize to avoid excessive computation
   const fuseChanges: TableData = useMemo(() => {
     if (table === null || table === undefined) return null;
-
-    const copy = Object.assign({}, table); // Copy of table
-    for (const row in changes) {
-      for (const col in changes[row]) {
-        copy.rows[row].cells[col].value = changes[row][col];
-      }
+    
+    const fused = Object.assign({}, table);
+    for (let i=0;i<log.length;i++) {
+      const [row, col, val] = log[i];
+      fused.rows[row].cells[col].value = val;
     }
-    return copy;
-  }, [changes, table]);
+
+    return fused;
+  }, [log, table]);
 
   function uploadChanges() {
     // Fuse changes
@@ -201,7 +201,7 @@ export default function CsvUploader({
   }, [editMode]);
 
   return (
-    <>
+    <div key={`${editMode}`}>
       {loading ? (
         <LoadingScreen message="Loading up the spreadsheet, this may take a few seconds..." />
       ) : null}
@@ -286,17 +286,8 @@ export default function CsvUploader({
                     val: string,
                     [row, col]: [number, number],
                   ) => {
-                    if (changes[row]) {
-                      setChanges((prevChanges) => ({
-                        ...prevChanges,
-                        [row]: { ...prevChanges[row], [col]: val },
-                      }));
-                    } else {
-                      setChanges((prevChanges) => ({
-                        ...prevChanges,
-                        [row]: { [col]: val },
-                      }));
-                    }
+
+                    setLog((prevLog) => ([...prevLog].concat([[row, col, val]])))
 
                     return true; // Might remove later
                   }}
@@ -317,7 +308,7 @@ export default function CsvUploader({
           )
         }
       </div>
-    </>
+    </div>
   );
 }
 

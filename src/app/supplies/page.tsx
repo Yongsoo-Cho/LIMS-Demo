@@ -75,20 +75,22 @@ export default function SuppliesPage() {
             | <span className="text-yellow-600">debug flush</span>
             (maybe a icon beside each header?)
           </li>
-          <li className="text-yellow-600">Type-based display: (bool) checkmark | (date) icon & text | (enum) pill | (number) usual </li>
-          <li className="text-yellow-600">Type-based edit: (bool) checkbox | (date) calendar | (enum) pill dropdown | (number) deny non-number inputs</li>
-          <li className="text-yellow-600">
+          <li className="text-green-700">Type-based display: (bool) checkmark | (date) icon & text | <span className="text-yellow-600">(enum) pill</span> | (number) usual </li>
+          <li className="text-green-700">Type-based edit: (bool) checkbox | (date) calendar | <span className="text-yellow-600">(enum) pill dropdown</span> | (number) deny non-number inputs</li>
+          <li className="text-green-700">
             Intelligent inference of data fields:
             (bool) only "true", "false", "0", "1" | (calendar & number) parse fails or passes | (enum) less than 10-15 types, string length less than 15-20 | string otherwise
           </li>
           <li className="text-yellow-600">Feature: add/delete rows & columns</li>
-          <li>Reordering suggestions (and perhaps a storefront if it fits)</li>
-          <li>Alert configurations: when to send alerts to and to who</li>
-          <li>
+          <li className="text-yellow-600">Debug: make table more responsive | boolean & date fields should revert when cancelled</li>
+          <li className="text-yellow-600">Debug: changes log should support undo feature (sequential)</li>
+          <li className="text-gray-600">Reordering suggestions (and perhaps a storefront if it fits)</li>
+          <li className="text-gray-600">Alert configurations: when to send alerts to and to who</li>
+          <li className="text-gray-600">
             A field in the database that takes a JSON called FEATURES that makes
             it so that uploaded columns arent limited to a predetermined schema.
           </li>
-          <li>Merge suggestions for similar items</li>
+          <li className="text-gray-600">Merge suggestions for similar items</li>
         </ul>
 
         {loadingSupplyFolders ? (

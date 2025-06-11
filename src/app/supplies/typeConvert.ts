@@ -33,24 +33,59 @@ export const to_date: (v: string) => number | null = (v) => {
     return date;
 }
 
-interface EnumDict<T> {
+// MARK: Enum
+export interface EnumDict<T> {
     [key: string]: T;
 }
 
-export const to_enum: (v: string[]) => EnumDict<string> | null = (v) => {
+export const is_enum: (v: string[]) => boolean = (v) => {
+    // Evaluate repetition
+    const weights = [0.4, 0.3, 0.3]
+    const [freq, seq, sim] = [repetition_frequency(v), repetition_sequential(v), repetition_similarity(v)]
+    const score = weights[0] * freq + weights[1] * seq + weights[2] * sim;
+
+    const uniq: string[] = [...new Set(v)];
+
+    if (score > 0.6 && uniq.length <= 25) return true;
+
+    return false;
+}
+
+export const to_enum: (v: string[]) => EnumDict<[number, number, number]> | null = (v) => {
     
     // Evaluate repetition
     const weights = [0.4, 0.3, 0.3]
     const [freq, seq, sim] = [repetition_frequency(v), repetition_sequential(v), repetition_similarity(v)]
     const score = weights[0] * freq + weights[1] * seq + weights[2] * sim;
 
-    if (score >= 0.6 && [...new Set(v)].length <= 25) {
-        // Repetitive, is enum
-        return null;
+    const uniq: string[] = [...new Set(v)];
+    if (score >= 0.6 && uniq.length <= 25) {
+        // Color match & return the object
+        let color_binds: [number,number,number][] = uniq.map((v) => string_to_color(v));
+        let dict: EnumDict<[number, number, number]> = { };
+        let _ = uniq.map((v, i) => {
+            dict[v] = color_binds[i]
+        })
+        return dict;
     }
 
     return null;
 } 
+
+// String to color conversion
+
+function string_to_color(s: string): [number, number, number] {
+    let hash = 0;
+    for (let i=0;i<s.length;i++) {
+        hash = s.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const r = (hash & 0xFF0000) >> 16;
+    const g = (hash & 0x00FF00) >> 8;
+    const b = hash & 0x0000FF;
+
+    return [r, g, b]
+}
 
 // Repetition analysis for enum inference
 

@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 
-import { to_boolean, to_date, to_number } from "./typeConvert";
+import { EnumDict, is_enum, to_boolean, to_date, to_enum, to_number } from "./typeConvert";
 
 export type FieldTypeName =
   | "boolean"
@@ -71,7 +71,7 @@ function inferFieldType(values: string[]): FieldTypeName {
   if (unique.every((v) => to_number(v))) {
     return "number";
   }
-  if (unique.length <= 10) {
+  if (is_enum(values)) {
     return "enum";
   }
   return "string";

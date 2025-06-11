@@ -40,7 +40,7 @@ export class DefaultCell extends React.Component<CellProps> {
           value={this.props.cell.value}
           onChange={(e) => this.props.handleCellChange(e.target.value, this.props.pt)}
           onKeyDown={this.props.handleKeyDown}
-          onBlur={() => this.props.setEdit(null)}
+          onBlur={() => { this.props.setEdit(null) }}
           className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
     }
@@ -129,7 +129,8 @@ export class DateCell extends DefaultCell {
       </div>
     }
 
-    return <button className="flex items-center justify-between group"
+    return <button
+      className="flex items-center justify-between group"
       onClick={() => {
             if (this.props.isEditMode) this.props.setEdit(this.props.pt);
           }}

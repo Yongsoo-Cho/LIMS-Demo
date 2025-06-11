@@ -52,7 +52,7 @@ enum Sort {
 export default function Spreadsheet(props: PropInterface) {
   // MARK: Lifecycle & Helpers
   const [edit, setEdit] = useState<[number, number] | null>(null);
-
+  
   const enum_styles: { [key: number]: string } = {
     0: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400",
     1: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400",
@@ -108,7 +108,6 @@ export default function Spreadsheet(props: PropInterface) {
   const [sortHeader, setSortHeader] = useState<string | null>(null);
 
   // Filter by Column Search Headers
-  const constrained_dependency: unknown[] = [props.data, searchHeaders];
   const constrained: TableData = useMemo(() => {
     if (!props.data) return props.data;
 
@@ -127,10 +126,9 @@ export default function Spreadsheet(props: PropInterface) {
         } as Row;
       }),
     };
-  }, constrained_dependency);
+  }, [props.data, searchHeaders]);
 
   // Filter by Search Input
-  const filter_dependency: unknown[] = constrained_dependency.concat([search]);
   const filtered: TableData = useMemo(() => {
     // Filter the table rows based if they contain search string
     if (search === "" || !constrained) return constrained;
@@ -145,10 +143,9 @@ export default function Spreadsheet(props: PropInterface) {
     });
 
     return copy;
-  }, filter_dependency);
+  }, [constrained, search]);
 
   // Filter by Sort Column and Type
-  const sort_dependency = filter_dependency.concat([sort, sortHeader]);
   const sorted: TableData = useMemo(() => {
     // Sort based on included headers and
     if (sort === Sort.NONE || !filtered || !sortHeader) return filtered;
@@ -173,7 +170,7 @@ export default function Spreadsheet(props: PropInterface) {
     }
 
     return copy;
-  }, sort_dependency);
+  }, [filtered, sort, sortHeader]);
 
   // MARK: Lifecycle
 
@@ -181,7 +178,7 @@ export default function Spreadsheet(props: PropInterface) {
     // Set initial searchHeaders
     if (!props.data) return;
 
-    console.log(props.data.types)
+    // console.log(props.data.types)
 
     setSearchHeaders(props.data.headers);
   }, [props.data?.headers]);
@@ -412,33 +409,11 @@ export default function Spreadsheet(props: PropInterface) {
     return body;
   }, table_dependencies);
 
-  // MARK: Cell Renders
-
-  // String
-  function cell_string(isEditing: boolean, cell: Cell, pt: [number, number]) {
-    if (isEditing) {
-      return <input
-          type="text"
-          value={cell.value}
-          onChange={(e) => props.handleCellChange(e.target.value, pt)}
-          onKeyDown={handleKeyDown}
-          onBlur={() => setEdit(null)}
-          className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-    } else {
-      return <button
-        onClick={() => {
-          if (props.editMode) setEdit(pt);
-        }}
-      >
-        {cell.value}
-      </button>
-    }
-  }
-
-
+  // MARK: Return
   return (
-    <Card className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden">
+    <Card
+      className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden"
+    >
       <CardHeader className="pb-3">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <CardTitle className="text-xl font-semibold">Table</CardTitle>
