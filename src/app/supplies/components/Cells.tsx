@@ -27,7 +27,22 @@ export interface CellProps {
   setEdit: (pt: [number, number] | null) => void
 }
 
-export class DefaultCell extends React.Component<CellProps> {
+export interface EnumProps extends CellProps {
+  hdr: string
+  binds: { [key: string]: { [key: string]: [number, number, number] } }
+  updateType: (h: string, v: string, c: [number, number, number]) => void
+  addType: (h: string, v: string, c: [number, number, number]) => void
+  delType: (h: string, v: string, c: [number, number, number]) => void
+}
+
+export class AbstractCell<T> extends React.Component<T> {
+
+  constructor(props: T) {
+    super(props)
+  }
+}
+
+export class DefaultCell extends AbstractCell<CellProps> {
 
   constructor(props: CellProps) {
     super(props);
@@ -147,7 +162,6 @@ export class DateCell extends DefaultCell {
 
 export class BooleanCell extends DefaultCell {
   render() {
-
     let format: boolean | null = to_boolean(this.props.cell.value)
     if (format === null) {
       return <div>
@@ -185,12 +199,29 @@ export class BooleanCell extends DefaultCell {
   }
 }
 
-export class EnumCell extends DefaultCell {
+export class EnumCell extends AbstractCell<EnumProps> {
   render() {
     if (this.props.isEditing) {
       return <i>enum</i>
     }
 
-    return <i>enum</i>
+    const pill_style: (c: [number, number, number]) => string = (c) => {
+      const [R, G, B] = c;
+      // Relative luminescence: https://en.wikipedia.org/wiki/Relative_luminance
+      let lum = 0.2126 * (R/255)^2.2 + 0.7152 * (G/255)^2.2 + 0.0722 * (B/255)^2.2
+      let fg_cstr = (lum <= 0.5) ? "#FFFFFF" : "#000000"
+      let bg_cstr = `rgb(${c.join(',')})`;
+      return `bg-yellow-[${bg_cstr}] text-yellow-[${fg_cstr}]` // dark:bg-yellow-[${fg_cstr}] dark:text-yellow-[${bg_cstr}]
+    }
+
+    const bind = (this.props.binds[this.props.hdr])[this.props.cell.value] || [70,70,70];
+    console.log(pill_style(bind));
+    return (
+      <span
+        className={`w-fit max-w-32 inline-flex items-center text-center rounded-full px-2 py-0.5 m-1 text-xs font-medium border ${pill_style(bind)}`}
+      >
+        {this.props.cell.value}
+      </span>
+    )
   }
 }

@@ -23,7 +23,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 
 // Types & Utils
 import { TableData, Cell, Row } from "../processMetadata";
-import { BooleanCell, CellProps, DateCell, DefaultCell, EnumCell, NumberCell } from "./Cells";
+import { BooleanCell, CellProps, DateCell, DefaultCell, EnumCell, EnumProps, NumberCell } from "./Cells";
 import { to_boolean, to_number, to_date } from "../typeConvert";
 
 // Dropdown Imports
@@ -119,6 +119,7 @@ export default function Spreadsheet(props: PropInterface) {
       dims: props.data.dims,
       headers: props.data.headers.filter((v) => searchHeaders.includes(v)),
       types: htypes,
+      enums: props.data.enums,
       rows: props.data.rows.map((row: Row) => {
         return {
           key: row.key,
@@ -311,6 +312,8 @@ export default function Spreadsheet(props: PropInterface) {
 
   function renderCell(isEditing: boolean, cell: Cell, pt: [number, number]) {
 
+    if (!props.data) return <span></span>;
+
     let params: CellProps = {
       isEditing: isEditing,
       isEditMode: props.editMode,
@@ -321,11 +324,26 @@ export default function Spreadsheet(props: PropInterface) {
       setEdit: setEdit
     }
 
+    let enum_params: EnumProps = {
+      ...params,
+      hdr: props.data.headers[pt[1]],
+      binds: props.data.enums,
+      updateType: function (h: string, v: string, c: [number, number, number]): void {
+        throw new Error("Function not implemented.");
+      },
+      addType: function (h: string, v: string, c: [number, number, number]): void {
+        throw new Error("Function not implemented.");
+      },
+      delType: function (h: string, v: string, c: [number, number, number]): void {
+        throw new Error("Function not implemented.");
+      }
+    }
+
     switch (cell.type) {
       case "string": return <DefaultCell {...params} />;
       case "boolean": return <BooleanCell {...params} />;
       case "datetime": return <DateCell {...params} />;
-      case "enum": return <EnumCell {...params} />;
+      case "enum": return <EnumCell {...enum_params} />;
       case "number": return <NumberCell {...params} />;
       default: return <DefaultCell {...params} />;
     }

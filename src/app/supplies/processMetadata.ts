@@ -24,6 +24,7 @@ export type TableData = {
   headers: string[];
   types: FieldTypeName[];
   rows: Row[];
+  enums: { [key: string]: { [key: string]: [number, number, number] } }
   dims: [number, number];
 } | null;
 
@@ -61,7 +62,6 @@ function inferFieldType(values: string[]): FieldTypeName {
   //console.log(values);
   const unique = [...new Set(values.map((v) => v.trim().toLowerCase()))];
 
-  console.log(unique)
   if (unique.every((v) => typeof to_boolean(v) === 'boolean')) {
     return "boolean";
   }
@@ -105,10 +105,29 @@ export async function generateTableData(file: File): Promise<TableData> {
     return new_row;
   });
 
+  const enums: { 
+    [key: string]: { 
+      [key: string]: [number, number, number] 
+    } 
+  } = { } 
+
+  // Create color binds for all enum columns
+  for (let j=0;j<dims[1];j++) {
+    if (types[j] === "enum") {
+      let vals = rows.map((v) => v.cells[j].value);
+      let binds: { [key: string]: [number, number, number] } = to_enum(vals);
+      let header = hdr[j];
+      enums[header] = binds;
+    }
+  }
+  
+  console.log(types)
+
   return {
     headers: hdr,
     types: types,
     rows: rows,
+    enums: enums,
     dims: dims,
   };
 }

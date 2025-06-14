@@ -46,30 +46,22 @@ export const is_enum: (v: string[]) => boolean = (v) => {
 
     const uniq: string[] = [...new Set(v)];
 
-    if (score > 0.6 && uniq.length <= 25) return true;
+    console.log(score)
+    if (score > 0.6 && uniq.length <= 25 && uniq.every((v) => v.length < 25)) return true;
 
     return false;
 }
 
-export const to_enum: (v: string[]) => EnumDict<[number, number, number]> | null = (v) => {
-    
-    // Evaluate repetition
-    const weights = [0.4, 0.3, 0.3]
-    const [freq, seq, sim] = [repetition_frequency(v), repetition_sequential(v), repetition_similarity(v)]
-    const score = weights[0] * freq + weights[1] * seq + weights[2] * sim;
+export const to_enum: (v: string[]) => EnumDict<[number, number, number]> = (v) => {
 
     const uniq: string[] = [...new Set(v)];
-    if (score >= 0.6 && uniq.length <= 25) {
-        // Color match & return the object
-        let color_binds: [number,number,number][] = uniq.map((v) => string_to_color(v));
-        let dict: EnumDict<[number, number, number]> = { };
-        let _ = uniq.map((v, i) => {
-            dict[v] = color_binds[i]
-        })
-        return dict;
-    }
-
-    return null;
+    let color_binds: [number,number,number][] = uniq.map((v) => string_to_color(v));
+    let dict: EnumDict<[number, number, number]> = { };
+    let _ = uniq.map((v, i) => {
+        dict[v] = color_binds[i]
+    })
+    return dict;
+    
 } 
 
 // String to color conversion
