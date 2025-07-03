@@ -12,6 +12,8 @@ import { ModalHandler } from "./Modal";
 import UploadModal from "./Modal";
 // import { time } from "node:console";
 
+import { cloneDeep } from "lodash";
+
 export default function CsvUploader({
   workspaceId,
   initialMetadata,
@@ -88,7 +90,7 @@ export default function CsvUploader({
   const fuseChanges: TableData = useMemo(() => {
     if (table === null || table === undefined) return null;
     
-    const fused = Object.assign({}, table);
+    const fused = cloneDeep(table);
     for (let i=0;i<log.length;i++) {
       const [row, col, val] = log[i];
       fused.rows[row].cells[col].value = val;

@@ -81,8 +81,8 @@ export default function SuppliesPage() {
             Intelligent inference of data fields:
             (bool) only "true", "false", "0", "1" | (calendar & number) parse fails or passes | (enum) less than 10-15 types, string length less than 15-20 | string otherwise
           </li>
-          <li className="text-yellow-600">Feature: add/delete rows & columns | undo changes (Ctrl + Z)</li>
-          <li className="text-yellow-600">Debug: make table more responsive | boolean & date fields should revert when cancelled | <span className="text-green-700">enum color debug, repetition scoring system of enum pills</span></li>
+          <li className="text-green-700">Feature: add/delete rows & columns | undo changes (Ctrl + Z)</li>
+          <li className="text-yellow-600">Debug: make table more responsive | cell internal states should be debugged, cell doesn't necessarily show do correct information during undo (Ctrl + Z) and Cancel | <span className="text-green-700">enum color debug, repetition scoring system of enum pills</span></li>
           <li className="text-green-700">Debug: changes log should support undo feature (sequential)</li>
           <li className="text-gray-600">Reordering suggestions (and perhaps a storefront if it fits)</li>
           <li className="text-gray-600">Debug: Limit the length of change logs and omit after a certain limit</li>

@@ -190,7 +190,7 @@ export default function Spreadsheet(props: PropInterface) {
   }
 
   // Dependency list for the table
-  const table_dependencies = [edit, props.editMode, sorted];
+  const table_dependencies = [edit, props.editMode, sorted, props.data];
 
   // Render Headers
   const getHeaders = useMemo(() => {
