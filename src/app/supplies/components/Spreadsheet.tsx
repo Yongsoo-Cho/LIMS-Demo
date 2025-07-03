@@ -113,25 +113,27 @@ export default function Spreadsheet(props: PropInterface) {
   // Filter by Sort Column and Type
   const sorted: TableData = useMemo(() => {
     // Sort based on included headers and
-    if (sort === Sort.NONE || !filtered || !sortHeader) return filtered;
+    if (!filtered || !sortHeader) return filtered;
 
     const sort_idx = filtered.headers.indexOf(sortHeader);
 
     const copy = { ...filtered };
     if (sort === Sort.ASC) {
       // Sort: Ascending
-      copy.rows = filtered.rows.sort((a, b) =>
+      copy.rows = [...filtered.rows].sort((a, b) =>
         a.cells[sort_idx].value
           .toLowerCase()
           .localeCompare(b.cells[sort_idx].value.toLowerCase()),
       );
-    } else {
+    } else if (sort === Sort.DESC) {
       // Sort: Descending
-      copy.rows = filtered.rows.sort((a, b) =>
+      copy.rows = [...filtered.rows].sort((a, b) =>
         b.cells[sort_idx].value
           .toLowerCase()
           .localeCompare(a.cells[sort_idx].value.toLowerCase()),
       );
+    } else {
+      return filtered; // No sort
     }
 
     return copy;

@@ -76,13 +76,13 @@ export default function SuppliesPage() {
             (maybe a icon beside each header?)
           </li>
           <li className="text-green-700">Type-based display: (bool) checkmark | (date) icon & text | <span>(enum) pill</span> | (number) usual </li>
-          <li className="text-green-700">Type-based edit: (bool) checkbox | (date) calendar | <span className="text-yellow-600">(enum) pill dropdown</span> | (number) deny non-number inputs</li>
+          <li className="text-green-700">Type-based edit: (bool) checkbox | (date) calendar | <span className="text-green-700">(enum) pill dropdown</span> | (number) deny non-number inputs</li>
           <li className="text-green-700">
             Intelligent inference of data fields:
             (bool) only "true", "false", "0", "1" | (calendar & number) parse fails or passes | (enum) less than 10-15 types, string length less than 15-20 | string otherwise
           </li>
           <li className="text-yellow-600">Feature: add/delete rows & columns | undo changes (Ctrl + Z)</li>
-          <li className="text-yellow-600">Debug: make table more responsive | boolean & date fields should revert when cancelled | color debug, repetition scoring system of enum pills</li>
+          <li className="text-yellow-600">Debug: make table more responsive | boolean & date fields should revert when cancelled | <span className="text-green-700">enum color debug, repetition scoring system of enum pills</span></li>
           <li className="text-green-700">Debug: changes log should support undo feature (sequential)</li>
           <li className="text-gray-600">Reordering suggestions (and perhaps a storefront if it fits)</li>
           <li className="text-gray-600">Debug: Limit the length of change logs and omit after a certain limit</li>

@@ -78,14 +78,54 @@ export const to_enum: (v: string[]) => EnumDict<[number, number, number]> = (v) 
 // String to color conversion
 
 function string_to_color(s: string): [number, number, number] {
+    // Hash string to a number
     let hash = 0;
-    for (let i=0;i<s.length;i++) {
+    for (let i = 0; i < s.length; i++) {
         hash = s.charCodeAt(i) + ((hash << 5) - hash);
     }
+    // Use hash to get a hue value between 0 and 359
+    const hue = Math.abs(hash) % 360;
+    const saturation = 80; // percent, high saturation
+    const lightness = 65;  // percent, medium lightness
 
-    const r = (hash & 0xFF0000) >> 16;
-    const g = (hash & 0x00FF00) >> 8;
-    const b = hash & 0x0000FF;
+    return hslToRgb(hue, saturation, lightness);
+}
 
-    return [r, g, b]
+// Convert HSL to RGB
+export function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+    s /= 100;
+    l /= 100;
+    const k = (n: number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) =>
+        l - a * Math.max(-1, Math.min(Math.min(k(n) - 3, 9 - k(n)), 1));
+    return [
+        Math.round(255 * f(0)),
+        Math.round(255 * f(8)),
+        Math.round(255 * f(4)),
+    ];
+}
+
+export function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return [h * 360, s * 100, l * 100];
+}
+
+export function getContrastTextColor([r, g, b]: [number, number, number]): string {
+  // YIQ formula for perceived brightness
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? "#222" : "#fff"; // dark text on light bg, light text on dark bg
 }

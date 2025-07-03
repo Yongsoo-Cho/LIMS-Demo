@@ -13,7 +13,7 @@ import { X, Save } from "lucide-react";
 // Utils
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { to_boolean, to_date, to_number } from "../typeConvert";
+import { getContrastTextColor, hslToRgb, rgbToHsl, to_boolean, to_date, to_number } from "../typeConvert";
 
 // Types
 import { Cell } from "../processMetadata";
@@ -203,58 +203,58 @@ export class BooleanCell extends DefaultCell {
 
 export class EnumCell extends AbstractCell<EnumProps> {
 
-  state = { open: false };
-  open = () => { this.setState({ open: true }) };
-  close = () => { this.setState({ open: false }) };
-
   render() {
 
-    const pill_style: (c: [number, number, number]) => string = (c) => {
-      const [R, G, B] = c;
-      // Relative luminescence: https://en.wikipedia.org/wiki/Relative_luminance
-      let lum = 0.2126 * (R/255)^2.2 + 0.7152 * (G/255)^2.2 + 0.0722 * (B/255)^2.2
-      let fg_cstr = (lum <= 0.5) ? "#FFFFFF" : "#000000"
-      let bg_cstr = `rgb(${c.join(',')})`;
-      return `bg-[${bg_cstr}] text-[${fg_cstr}] dark:bg-[${fg_cstr}] dark:text-[${bg_cstr}]`
-    }
-    const bind = (this.props.binds)[this.props.cell.value] || [70,70,70];
+    const [R, G, B] = (this.props.binds)[this.props.cell.value] || [70,70,70];
+    let [R2, G2, B2] = getContrastTextColor([R,G,B]);
+
+    let bg_cstr = `rgb(${R},${G},${B})`;
+    let fg_cstr = `rgb(${R2},${G2},${B2})`;
+
+    let style = { backgroundColor: bg_cstr, color: fg_cstr };
+
+    console.log(fg_cstr, bg_cstr);
 
     if (this.props.isEditMode) {
       return (
           <div className="flex items-center gap-2">
-            <Select open={this.state.open} value={this.props.cell.value} onValueChange={(value) => this.props.handleCellChange(value, this.props.pt)}>
-              <SelectTrigger className="w-[140px] h-8 text-sm" onClick={this.open}>
-                {/* Display Selection option with the current cell value (which is this.props.cell.value) */}
-                <SelectValue placeholder="null..." >{this.props.cell.value}</SelectValue>
-                {/* {this.props.cell.value}
-                <SelectValue placeholder="Select status" defaultValue={this.props.cell.value} /> */}
+            {/* open={this.state.open} */}
+            <Select value={this.props.cell.value} onValueChange={(value) => this.props.handleCellChange(value, this.props.pt)}>
+              
+              {/* Edit mode: unfocused */}
+              <SelectTrigger className="w-[140px] h-8 text-sm"> { /* onClick={this.open} */ }
+                <SelectValue placeholder="null..."
+                  style={style}
+                >
+                  {this.props.cell.value}
+                </SelectValue>
               </SelectTrigger>
+
+              {/* Edit mode: dropdown */}
               <SelectContent>
                 {
                   Object.keys(this.props.binds).map((k) => 
                     <SelectItem key={k} value={k} >
                       <div className="flex items-center gap-2 p-1 cursor-pointer hover:bg-gray-100">
-                        <div className={`w-2.5 h-2.5 rounded-full ${pill_style(bind)}`} />
+                        <div 
+                          className={`w-2.5 h-2.5 rounded-full`} 
+                          // style={style} This won't work (as intended) because all enums will have the same color
+                        />
                         {k}
                       </div>
                     </SelectItem>
                   )
-                    
                 }
               </SelectContent>
             </Select>
-            <div className="flex gap-1">
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {}}>
-                <X className="h-3.5 w-3.5" onClick={this.close} />
-              </Button>
-            </div>
           </div>
         )
     }
 
     return (
       <span
-        className={`w-fit max-w-32 inline-flex items-center text-center rounded-full px-2 py-0.5 m-1 text-xs font-medium border ${pill_style(bind)}`}
+        className={`w-fit max-w-32 inline-flex items-center border-none text-center rounded-full px-2 py-0.5 m-1 text-xs font-medium border`}
+        style={style}
       >
         {this.props.cell.value}
       </span>
