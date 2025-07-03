@@ -204,7 +204,7 @@ export class BooleanCell extends DefaultCell {
 export class EnumCell extends AbstractCell<EnumProps> {
 
   render() {
-
+    console.log(this.props.binds, this.props.cell.value)
     const [R, G, B] = (this.props.binds)[this.props.cell.value] || [70,70,70];
     let [R2, G2, B2] = getContrastTextColor([R,G,B]);
 
@@ -212,8 +212,6 @@ export class EnumCell extends AbstractCell<EnumProps> {
     let fg_cstr = `rgb(${R2},${G2},${B2})`;
 
     let style = { backgroundColor: bg_cstr, color: fg_cstr };
-
-    // console.log(fg_cstr, bg_cstr);
 
     if (this.props.isEditMode) {
       return (

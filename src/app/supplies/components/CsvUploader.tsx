@@ -36,8 +36,8 @@ export default function CsvUploader({
   const [log, setLog] = useState<[number, number, string][]>([])
   const pressed = useRef(false);
 
-  useEffect(() => { console.log(log)}, [log]); // Debug purposes
-  useEffect(() => { console.log(pressed.current) }, [pressed.current]); // Debug purposes
+  // useEffect(() => { console.log(log)}, [log]); // Debug purposes
+  // useEffect(() => { console.log(pressed.current) }, [pressed.current]); // Debug purposes
 
   // Undo Feature w/ Ctrl + z
   useEffect(() => {
@@ -50,7 +50,6 @@ export default function CsvUploader({
           e.preventDefault();
           // Scroll to last change
           const latest = log[log.length - 1]
-          console.log(latest)
           const el = document.getElementById(`cell-${latest[0]}-${latest[1]}`);
           if (el) { 
             el.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });

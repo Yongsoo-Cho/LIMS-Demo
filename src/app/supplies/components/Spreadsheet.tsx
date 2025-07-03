@@ -161,7 +161,7 @@ export default function Spreadsheet(props: PropInterface) {
       setEdit: setEdit
     }
 
-    let hdr = props.data.headers[pt[1]];
+    let hdr = cell.header;
     let binds = props.data.enums[hdr];
 
     let enum_params: EnumProps = {
