@@ -12,19 +12,13 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
-  CalendarIcon,
-  Clock
+  Zap
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { download_file } from "../export";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Label } from "@/components/ui/label"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 
 // Types & Utils
 import { TableData, Cell, Row } from "../processMetadata";
 import { BooleanCell, CellProps, DateCell, DefaultCell, EnumCell, EnumProps, NumberCell } from "./Cells";
-import { to_boolean, to_number, to_date } from "../typeConvert";
 
 // Dropdown Imports
 import {
@@ -33,9 +27,6 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Checkbox } from "@headlessui/react";
-import { format } from "date-fns";
-import { propagateServerField } from "next/dist/server/lib/render-server";
 
 type PropInterface = {
   data: TableData;
@@ -343,6 +334,22 @@ export default function Spreadsheet(props: PropInterface) {
             >
               <Download className="h-4 w-4" />
               <span className="sr-only">Download</span>
+            </Button>
+            {/* Flush Button */}
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={props.editMode}
+              onClick={() => {
+                setSearch("");
+                setSearchHeaders(props.data?.headers || []);
+                setSort(Sort.NONE);
+                setSortHeader(null);
+                setDropdownOpen(false);
+                setEdit(null);
+              }}
+            >
+              <Zap className="h-3.5 w-3.5 text-slate-600" />
             </Button>
           </div>
         </div>
