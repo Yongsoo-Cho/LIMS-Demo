@@ -15,6 +15,7 @@ export const slackLogin = async (): Promise<string> => {
   }
 
   const slackWorkspaceId = process.env.NEXT_PUBLIC_SLACK_WORKSPACE_ID;
+  console.log(process.env);
   if (!slackWorkspaceId) {
     console.error("Missing Slack workspace ID configuration");
     return redirect("/login?error=ConfigurationError");

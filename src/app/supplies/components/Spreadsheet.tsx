@@ -51,52 +51,16 @@ enum Sort {
 
 export default function Spreadsheet(props: PropInterface) {
   // MARK: Lifecycle & Helpers
+
   const [edit, setEdit] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    // Set initial searchHeaders
+    if (!props.data) return;
+
+    setSearchHeaders(props.data.headers);
+  }, [props.data?.headers]);
   
-  const enum_styles: { [key: number]: string } = {
-    0: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400",
-    1: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400",
-    2: "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400",
-    3: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400",
-    4: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400",
-    5: "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400",
-    6: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400",
-    7: "bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400",
-    8: "bg-slate-100 dark:bg-slate-900/30 text-slate-800 dark:text-slate-400",
-    9: "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400",
-  };
-
-  const pill_binds = useMemo(() => {
-    // Bind enum values of each enum column with indices
-    if (!props.data) return null;
-
-    const enum_cols = props.data.types
-      .map((val, idx) => (val === "enum" ? idx : -1))
-      .filter((idx) => idx !== -1);
-
-    if (enum_cols.length === 0) return null;
-
-    const binds: { [key: number]: { [key: string]: number } } = {};
-
-    for (let i = 0; i < enum_cols.length; i++) {
-      const col = enum_cols[i];
-      const uniq = [
-        ...new Set(
-          props.data.rows.map((val) => {
-            return val.cells[col].value;
-          }),
-        ),
-      ];
-      const _bind: { [key: string]: number } = {};
-      uniq.forEach((val, idx) => {
-        _bind[val] = idx;
-      });
-      binds[col] = _bind;
-    }
-
-    return binds;
-  }, [props.data]);
-
   // MARK: Filter/Search/Sort
   // Filter
   const [searchHeaders, setSearchHeaders] = useState<string[]>([]);
@@ -173,17 +137,6 @@ export default function Spreadsheet(props: PropInterface) {
     return copy;
   }, [filtered, sort, sortHeader]);
 
-  // MARK: Lifecycle
-
-  useEffect(() => {
-    // Set initial searchHeaders
-    if (!props.data) return;
-
-    // console.log(props.data.types)
-
-    setSearchHeaders(props.data.headers);
-  }, [props.data?.headers]);
-
   // MARK: Event Handlers
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -194,119 +147,6 @@ export default function Spreadsheet(props: PropInterface) {
       console.log(null);
     }
   };
-
-  // MARK: Type-Based Render
-
-  function renderEditType(cell: Cell, pt: [number, number]) {
-    const standard_edit = (
-      <input
-        type="text"
-        value={cell.value}
-        onChange={(e) => props.handleCellChange(e.target.value, pt)}
-        onKeyDown={handleKeyDown}
-        onBlur={() => setEdit(null)}
-        className="w-full px-1 py-1 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-    );
-
-    switch (cell.type) {
-      case "string":
-        return standard_edit;
-      case "boolean":
-        const value = cell.value === "true" || cell.value === "1";
-        return (
-          <div className="flex justify-center">
-            <div
-              className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                value
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-              }
-            `}
-              aria-label={value ? "True" : "False"}
-            >
-              {value ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <X className="h-4 w-4" />
-              )}
-            </div>
-          </div>
-        );
-      case "datetime":
-        return standard_edit;
-      case "enum":
-        return standard_edit;
-      case "number":
-        return standard_edit;
-      default:
-        return standard_edit;
-    }
-  }
-
-  // Display Mode Cell Render
-  function renderDispType(cell: Cell, pt: [number, number]) {
-    const standard_disp = (
-      <button
-        onClick={() => {
-          if (props.editMode) setEdit(pt);
-        }}
-      >
-        {cell.value}
-      </button>
-    );
-
-    switch (cell.type) {
-      case "string":
-        return standard_disp;
-      case "boolean":
-        return (
-          <div className="flex items-center justify-center">
-            <Checkbox
-              checked={to_boolean(cell.value) === true}
-              className={cn(
-                "h-5 w-5 rounded-sm border transition-colors",
-                cell.value ? "border-green-500 bg-green-500 text-primary-foreground" : "border-input bg-background",
-              )}
-            />
-          </div>
-        )
-      case "datetime":
-        return <div className="flex items-center justify-between group">
-          <div className="flex items-center">
-            <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-            <span>{format(to_date(cell.value)!, "MMM d, yyyy")}</span>
-            <Clock className="mx-2 h-3.5 w-3.5 text-muted-foreground" />
-            <span>{format(to_date(cell.value)!, "h:mm a")}</span>
-          </div>
-        </div>
-      case "enum":
-        if (!pill_binds || cell.value === "" || cell.value === null)
-          return standard_disp; // Will not happen if enum exists
-        let key: number = -1;
-        try {
-          key = pill_binds[pt[1]][cell.value];
-        } catch {
-          console.log("Key isn't found in the list of pills");
-          return standard_disp;
-        }
-
-        /* Here comes a pill box w/ dropdown */
-        return (
-          <span
-            className={`w-fit max-w-32 inline-flex items-center text-center rounded-full px-2 py-0.5 m-1 text-xs font-medium truncate ${enum_styles[key]}`}
-          >
-            {cell.value}
-          </span>
-        );
-      case "number":
-        return <div className="w-full h-full flex items-center align-middle">
-          {standard_disp}
-        </div>
-      default:
-        return standard_disp;
-    }
-  }
 
   // MARK: Renderers
 
@@ -324,10 +164,13 @@ export default function Spreadsheet(props: PropInterface) {
       setEdit: setEdit
     }
 
+    let hdr = props.data.headers[pt[1]];
+    let binds = props.data.enums[hdr];
+
     let enum_params: EnumProps = {
       ...params,
-      hdr: props.data.headers[pt[1]],
-      binds: props.data.enums,
+      hdr: hdr,
+      binds: binds,
       updateType: function (h: string, v: string, c: [number, number, number]): void {
         throw new Error("Function not implemented.");
       },
