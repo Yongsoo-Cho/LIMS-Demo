@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { generateTableData, TableData } from "../processMetadata";
 import { fetchWorkspace } from "../action";
 
@@ -29,19 +29,62 @@ export default function CsvUploader({
   // Save Success Message Handling
   const [success, setSuccess] = useState<boolean>(false);
 
-  // MARK: Changes
-
-  interface ChangeLog {
-    [key: number]: { [key: number]: string };
-  }
+  // MARK: Log Changes
 
   const [log, setLog] = useState<[number, number, string][]>([])
+  const pressed = useRef(false);
+
+  useEffect(() => { console.log(log)}, [log]); // Debug purposes
+  useEffect(() => { console.log(pressed.current) }, [pressed.current]); // Debug purposes
+
+  // Undo Feature w/ Ctrl + z
+  useEffect(() => {
+    // Key down handler
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!editMode || log.length < 1) return;
+      if (e.ctrlKey && (e.key === "z" || e.key === "Z")) {
+        if (!pressed.current) {
+          pressed.current = true;
+          e.preventDefault();
+          // Scroll to last change
+          const latest = log[log.length - 1]
+          console.log(latest)
+          const el = document.getElementById(`cell-${latest[0]}-${latest[1]}`);
+          if (el) { 
+            el.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });
+          }
+          // Pop the latest change
+          popLatestChange();
+        }
+      }
+    }
+    // Key up handler (reset)
+    function handleKeyUp(e: KeyboardEvent) {
+      if (e.key === "z" || e.key === "Z") {
+        pressed.current = false;
+      }
+    }
+    // Add & remove event listeners
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    }
+  })
 
   const flushChanges = () => {
     setLog([]);
   };
 
-  // Memoize to avoid excessive computation
+  const popLatestChange = () => {
+    setLog((prevLog) => {
+      if (prevLog.length === 0) return [];
+      return prevLog.slice(0, -1);
+    })
+  }
+
+  // MARK: Fuse and Upload
   const fuseChanges: TableData = useMemo(() => {
     if (table === null || table === undefined) return null;
     

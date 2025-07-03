@@ -46,6 +46,10 @@ export default function Spreadsheet(props: PropInterface) {
   const [edit, setEdit] = useState<[number, number] | null>(null);
 
   useEffect(() => {
+    return // so far nothing happens
+  }, []);
+
+  useEffect(() => {
     // Set initial searchHeaders
     if (!props.data) return;
 
@@ -239,8 +243,9 @@ export default function Spreadsheet(props: PropInterface) {
           edit !== null && edit[0] === row_idx && edit[1] === col_idx;
         return (
           <td
+            id={`cell-${row_idx}-${col_idx}`} // Used for document scrolling
             key={col_idx}
-            className="px-4 py-3 text-sm font-medium text-left !text-black"
+            className={`px-4 py-3 text-sm font-medium text-left !text-black ${ (edit && edit[0] === row_idx && edit[1] === col_idx) ? "bg-blue-200" : ""}`}
           >
             {renderCell(props.editMode && editCell, cell, [row_idx, col_idx])}
           </td>

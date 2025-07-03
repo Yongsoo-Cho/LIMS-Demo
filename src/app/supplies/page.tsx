@@ -60,19 +60,19 @@ export default function SuppliesPage() {
           </li>
           <li>
             Improved efficiency: <span className="text-green-700">useMemo</span>{" "}
-            | <span className="text-yellow-600">Efficient Data Storage?</span> |{" "}
+            | <span className="text-gray-600">Efficient Data Storage?</span> |{" "}
             <span>Slots of 20-30?</span> |{" "}
           </li>
           <li className="text-green-700">
             Search: Filter for input | select or deselect columns to include |
-            reset button in column dropdown | <span className="text-yellow-600">Cancel/flush search button on search bar</span>
+            reset button in column dropdown | <span className="text-green-700">Cancel/flush search button on search bar</span>
           </li>
           <li>
             Sort:{" "}
             <span className="text-green-700">
               sort asc, desc, or flush sort | based on a selected column
             </span>{" "}
-            | <span className="text-yellow-600">debug flush</span>
+            | <span className="text-green-700">debug flush</span>
             (maybe a icon beside each header?)
           </li>
           <li className="text-green-700">Type-based display: (bool) checkmark | (date) icon & text | <span>(enum) pill</span> | (number) usual </li>

@@ -213,7 +213,7 @@ export class EnumCell extends AbstractCell<EnumProps> {
 
     let style = { backgroundColor: bg_cstr, color: fg_cstr };
 
-    console.log(fg_cstr, bg_cstr);
+    // console.log(fg_cstr, bg_cstr);
 
     if (this.props.isEditMode) {
       return (
