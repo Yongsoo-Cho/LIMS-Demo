@@ -200,7 +200,7 @@ export default function Spreadsheet(props: PropInterface) {
       return (
         <th
           key={col_idx}
-          className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b sticky top-0 bg-muted/50 first:pl-6 last:pr-6"
+          className="backdrop-blur-lg px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b sticky top-0 bg-muted/50 first:pl-6 last:pr-6"
         >
           <div className="flex align-middle items-center cursor-pointer hover:text-foreground transition-colors">
             {val}
@@ -271,14 +271,14 @@ export default function Spreadsheet(props: PropInterface) {
   // MARK: Return
   return (
     <Card
-      className="w-full shadow-sm max-h-[550] overflow-scroll scrollbar-hidden"
+      className="w-full shadow-sm max-h-[550] min-w-[500px]"
     >
-      <CardHeader className="pb-3">
+      <CardHeader> { /* className="pb-1.5" */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <CardTitle className="text-xl font-semibold">Table</CardTitle>
+          {/* <CardTitle className="text-xl font-semibold">Table</CardTitle> */}
           <div className="flex items-center gap-2">
             {/* Search Input Field */}
-            <div className="relative w-full md:w-64">
+            <div className="relative w-full md:w-64 min-w-[200px]">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -359,13 +359,13 @@ export default function Spreadsheet(props: PropInterface) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
+      <CardContent className="p-0 overflow-x-scroll scrollbar-hidden">
+        <div>
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-muted/50">{getHeaders}</tr>
             </thead>
-            <tbody>{getBody}</tbody>
+            <tbody className="overflow-y-scroll scrollbar-hidden">{getBody}</tbody>
           </table>
         </div>
       </CardContent>
