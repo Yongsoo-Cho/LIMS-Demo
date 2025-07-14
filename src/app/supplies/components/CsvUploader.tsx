@@ -86,23 +86,28 @@ export default function CsvUploader({
   }
 
   // MARK: Fuse and Upload
-  const fuseChanges: TableData = useMemo(() => {
+
+  const fuse = () => { // Separate the function to avoid useMemo async latency during upload
     if (table === null || table === undefined) return null;
-    
+    // console.log(log);
     const fused = cloneDeep(table);
     for (let i=0;i<log.length;i++) {
       const [row, col, val] = log[i];
       fused.rows[row].cells[col].value = val;
     }
-
+    // console.log(log)
     return fused;
-  }, [log, table]);
+  }
+
+  // Annoying debug
+  useEffect(() => { console.log(log) }, [log])
+
+  // used for visual data
+  const fuseChanges: TableData = useMemo(() => { return fuse(); }, [log, table]);
 
   function uploadChanges() {
-    // Fuse changes
-    const upload_table: TableData = fuseChanges;
-    // Safety
-    if (upload_table === null) return;
+    const upload_table = fuse(); // compute in-place
+    // console.log(table, log, upload_table)
     // Update database
     fetch("/api/updateMetadata", {
       method: "POST",
@@ -115,7 +120,6 @@ export default function CsvUploader({
       .then(async () => {
         console.log("Changes Uploaded to Database.");
         // Reset CsvUploader
-        flushChanges();
         setFile(null);
         // Re-set file via fetch (or try at least)
         const reload = (await fetchWorkspace(workspaceId)).metadata as
@@ -127,6 +131,8 @@ export default function CsvUploader({
           console.log("Incompatible table. Cannot read.");
           setTable(null);
         }
+        setSuccess(true);
+        setEditMode(false);
         console.log("Editor Re-set.");
       })
       .catch(() => {
@@ -179,6 +185,8 @@ export default function CsvUploader({
   useEffect(() => {
     if (!success) return;
 
+    flushChanges();
+
     async function timeSuccess(ms: number): Promise<void> {
       await new Promise((res) => setTimeout(res, ms));
       setSuccess(false);
@@ -199,15 +207,14 @@ export default function CsvUploader({
         <>
           <button
             type="button"
+            disabled={loading}
             className={
               //"inline-flex align-middle content-center-safe gap-2 px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700"
               "px-4 py-2 border !rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center gap-2"
             }
             onClick={() => {
-              setEditMode(false);
               setLoading(true);
               uploadChanges(); // fuse changes | upload to supabase | reload
-              setSuccess(true);
               setLoading(false);
             }}
           >
@@ -233,6 +240,7 @@ export default function CsvUploader({
         <button
           type="button"
           className="px-4 py-2 border !rounded-md border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+          disabled={success && log.length > 0}
           onClick={() => {
             setSuccess(false);
             setEditMode(true);
@@ -250,7 +258,7 @@ export default function CsvUploader({
         <LoadingScreen message="Loading up the spreadsheet, this may take a few seconds..." />
       ) : null}
       {modal ? <UploadModal modal={modal} /> : null}
-      <div className="w-full h-fit">
+      <div className="min-w-[500px] w-full h-fit">
         <div className="mb-6">
           <div className="flex items-start align-middle gap-4">
             <div className="flex items-center gap-2">
@@ -334,9 +342,8 @@ export default function CsvUploader({
                     setLog((prevLog) => {
 
                       if (prevLog.length === 0) return [[row, col, val]];
-                      
-                      let _new = [...prevLog];
-                      let [lrow, lcol, _] = prevLog[prevLog.length - 1]
+                      const _new = [...prevLog];
+                      const [lrow, lcol, _] = prevLog[prevLog.length - 1]
                       if (lrow === row && lcol === col) _new.pop(); // Pop if last update is same spot
                       _new.push([row, col, val]); // Push new log
                       return _new;
