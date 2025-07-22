@@ -33,23 +33,23 @@ export default function CsvUploader({
 
   // MARK: Log Changes
 
-  const [log, setLog] = useState<[number, number, string][]>([])
+  const [clog, setLog] = useState<[number, number, string][]>([])
   const pressed = useRef(false);
 
-  // useEffect(() => { console.log(log)}, [log]); // Debug purposes
+  useEffect(() => { console.log('Computed: ', clog.length, 'changes'); }, [clog]); // Debug purposes
   // useEffect(() => { console.log(pressed.current) }, [pressed.current]); // Debug purposes
 
   // Undo Feature w/ Ctrl + z
   useEffect(() => {
     // Key down handler
     function handleKeyDown(e: KeyboardEvent) {
-      if (!editMode || log.length < 1) return;
+      if (!editMode || clog.length < 1) return;
       if (e.ctrlKey && (e.key === "z" || e.key === "Z")) {
         if (!pressed.current) {
           pressed.current = true;
           e.preventDefault();
           // Scroll to last change
-          const latest = log[log.length - 1]
+          const latest = clog[clog.length - 1]
           const el = document.getElementById(`cell-${latest[0]}-${latest[1]}`);
           if (el) { 
             el.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });
@@ -87,44 +87,55 @@ export default function CsvUploader({
 
   // MARK: Fuse and Upload
 
-  const fuse = () => { // Separate the function to avoid useMemo async latency during upload
-    if (table === null || table === undefined) return null;
-    // console.log(log);
-    const fused = cloneDeep(table);
-    for (let i=0;i<log.length;i++) {
-      const [row, col, val] = log[i];
-      fused.rows[row].cells[col].value = val;
-    }
-    // console.log(log)
-    return fused;
-  }
-
   // Annoying debug
-  useEffect(() => { console.log(log) }, [log])
+  useEffect(() => { console.log(clog) }, [clog])
 
   // used for visual data
-  const fuseChanges: TableData = useMemo(() => { return fuse(); }, [log, table]);
+  const fuseChanges: TableData = useMemo(() => { 
+    if (!table) return null;
+    // console.log(log);
+    const fused = cloneDeep(table);
+    for (let i=0;i<clog.length;i++) {
+      const [row, col, val] = clog[i];
+      fused.rows[row].cells[col].value = val;
+    }
+    // console.log('Computed: ', clog.length, 'changes');
+    return fused;
+  }, [clog, table]);
 
   function uploadChanges() {
-    const upload_table = fuse(); // compute in-place
-    // console.log(table, log, upload_table)
-    // Update database
-    fetch("/api/updateMetadata", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: workspaceId,
-        metadata: upload_table,
-      }),
-    })
+    setLog((currentLog) => {
+      console.log("Current log in uploadChanges:", currentLog); // This should show your changes
+      
+      // Compute fused table with current log
+      const upload_table = (() => {
+        if (table === null || table === undefined) return null;
+        const fused = cloneDeep(table);
+        for (let i = 0; i < currentLog.length; i++) {
+          const [row, col, val] = currentLog[i];
+          fused.rows[row].cells[col].value = val;
+        }
+        return fused;
+      })();
+
+      console.log("Upload table:", upload_table);
+
+      // Do the actual upload
+      fetch("/api/updateMetadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: workspaceId,
+          metadata: upload_table,
+        }),
+      })
       .then(async () => {
         console.log("Changes Uploaded to Database.");
-        // Reset CsvUploader
+        // Reset after successful upload
         setFile(null);
-        // Re-set file via fetch (or try at least)
-        const reload = (await fetchWorkspace(workspaceId)).metadata as
-          | TableData
-          | undefined;
+        // Don't call flushChanges() here - we're already in setLog
+        
+        const reload = (await fetchWorkspace(workspaceId)).metadata as TableData | undefined;
         if (reload) {
           setTable(reload);
         } else {
@@ -134,10 +145,13 @@ export default function CsvUploader({
         setSuccess(true);
         setEditMode(false);
         console.log("Editor Re-set.");
-      })
-      .catch(() => {
+        setLog([]);
+      }).catch(() => {
         console.log("Database update has failed.");
       });
+
+      return currentLog;
+    });
   }
 
   // MARK: Lifecycle
@@ -185,10 +199,10 @@ export default function CsvUploader({
   useEffect(() => {
     if (!success) return;
 
-    flushChanges();
 
     async function timeSuccess(ms: number): Promise<void> {
       await new Promise((res) => setTimeout(res, ms));
+      console.log("does this happen?")
       setSuccess(false);
     }
 
@@ -240,7 +254,7 @@ export default function CsvUploader({
         <button
           type="button"
           className="px-4 py-2 border !rounded-md border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-          disabled={success && log.length > 0}
+          // disabled={success}
           onClick={() => {
             setSuccess(false);
             setEditMode(true);
